@@ -17,8 +17,8 @@
 * 支持bc端在没有登录时，禁止切换子服，登录后切换子服保持登录
 
 ## 下载
-* [自动构建版](https://github.com/zhinghu/CatSeedLogin/actions/workflows/maven.yml)
-* [最新版](https://github.com/zhinghu/CatSeedLogin/releases/latest)
+* [自动构建版](https://github.com/shulng/CatSeedLogin-v2/actions/workflows/maven.yml)
+* [最新版](https://github.com/shulng/CatSeedLogin-v2/releases/latest)
 * [旧版](https://github.com/CatSeed/CatSeedLogin/tags)
 
 ## 使用方式
