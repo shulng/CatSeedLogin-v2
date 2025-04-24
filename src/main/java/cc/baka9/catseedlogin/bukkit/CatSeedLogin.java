@@ -142,11 +142,10 @@ public class CatSeedLogin extends JavaPlugin implements Listener {
 
 @EventHandler
 public void onPlayerJoin(PlayerJoinEvent event) {
-    Player player = event.getPlayer(); // 先存储玩家对象
     CatSeedLogin.morePaperLib.scheduling()
-        .entitySpecificScheduler(player)
+        .entitySpecificScheduler(event.getName())
         .runAtFixedRate(
-            task -> timeoutManager.recordPlayerExitTime(player.getName()),
+            task -> timeoutManager.recordPlayerExitTime(event.getName()),
             1L,  // Folia 不允许 delay=0，至少 1 tick
             20L  // 每 20 ticks (1 秒) 执行一次
         );
