@@ -140,23 +140,15 @@ public class CatSeedLogin extends JavaPlugin implements Listener {
         timeoutManager.onPlayerQuit(event.getPlayer().getName());
     }
 
-@EventHandler
-public void onPlayerJoin(PlayerJoinEvent event) {
-    if (Bukkit.isPrimaryThread()) {
-        // 主线程，可以直接调度
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
         new BukkitRunnable() {
             @Override
             public void run() {
                 timeoutManager.recordPlayerExitTime(event.getPlayer().getName());
             }
-        }.runTaskTimer(this, 0L, 20L);
-    } else {
-        // 异步线程，使用安全调度
-        Bukkit.getScheduler().runTask(this, () -> {
-            timeoutManager.recordPlayerExitTime(event.getPlayer().getName());
-        });
+        }CatScheduler.runTaskTimer(this, 0L, 20L);
     }
-}
 
     @Override
     public void onDisable() {
