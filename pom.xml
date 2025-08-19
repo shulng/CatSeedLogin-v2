@@ -18,6 +18,12 @@
     </properties>
 
     <dependencies>
+    <dependency>
+      <groupId>io.papermc.paper</groupId>
+      <artifactId>paper-api</artifactId>
+      <version>1.21.8-R0.1-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -158,7 +164,7 @@
             <id>arim-mvn-lgpl3</id>
             <url>https://mvn-repo.arim.space/lesser-gpl3/</url>
         </repository>
-            <repository>
+    <repository>
       <id>papermc</id>
       <url>https://repo.papermc.io/repository/maven-public/</url>
     </repository>
