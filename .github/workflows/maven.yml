@@ -9,7 +9,8 @@ on:
   pull_request:
     branches:
       - "*"
-workflow_dispatch:
+  workflow_dispatch:
+
 permissions:
   contents: write
   discussions: write
@@ -17,7 +18,6 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK 8
@@ -28,13 +28,11 @@ jobs:
           cache: maven
       - name: Build with Maven
         run: mvn -B clean package
-
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: CatSeedLogin
           path: target/CatSeedLogin*.jar
-
       - name: Create Release and Upload Release Asset
         uses: softprops/action-gh-release@v2.0.8
         if: startsWith(github.ref, 'refs/tags/')
