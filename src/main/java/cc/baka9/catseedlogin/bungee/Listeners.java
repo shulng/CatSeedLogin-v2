@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
@@ -87,11 +87,11 @@ public class Listeners implements Listener {
         String playerName = event.getConnection().getName();
         try {
             if (loggedInPlayerList.contains(playerName) && (Communication.sendConnectRequest(playerName) == 1)) {
-                event.setCancelReason(new TextComponent("您已经登录，请勿重复登录。"));
+                event.setCancelReason(new ComponentBuilder("您已经登录，请勿重复登录。").create());
                 event.setCancelled(true);
             }
         } catch (Exception e) {
-            event.setCancelReason(new TextComponent("发生错误，请稍后再试。"));
+            event.setCancelReason(new ComponentBuilder("发生错误，请稍后再试。").create());
             event.setCancelled(true);
             throw e;
         }

@@ -2,6 +2,7 @@ package cc.baka9.catseedlogin.bukkit.task;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import cc.baka9.catseedlogin.bukkit.Config;
@@ -22,7 +23,7 @@ public class TaskAutoKick extends Task {
                 if (!LoginPlayerHelper.isLogin(playerName)) {
                     playerJoinTime.putIfAbsent(playerName, now);
                     if (now - playerJoinTime.get(playerName) > autoKickMs) {
-                        player.kickPlayer(Config.Language.AUTO_KICK.replace("{time}", String.valueOf(Config.Settings.AutoKick)));
+                        player.kick(Component.text(Config.Language.AUTO_KICK.replace("{time}", String.valueOf(Config.Settings.AutoKick))));
                     }
                 } else {
                     playerJoinTime.remove(playerName);

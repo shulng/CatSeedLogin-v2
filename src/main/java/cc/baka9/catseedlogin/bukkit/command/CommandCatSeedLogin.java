@@ -20,6 +20,7 @@ import cc.baka9.catseedlogin.bukkit.database.SQLite;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayer;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayerHelper;
 import cc.baka9.catseedlogin.util.Util;
+import net.kyori.adventure.text.Component;
 
 public class CommandCatSeedLogin implements CommandExecutor {
     @Override
@@ -268,7 +269,7 @@ public class CommandCatSeedLogin implements CommandExecutor {
                         CatScheduler.runTask(() -> {
                             Player p = Bukkit.getPlayerExact(lp.getName());
                             if (p != null && p.isOnline()) {
-                                p.kickPlayer("§c你的账户已被删除!");
+                                p.kick(Component.text("§c你的账户已被删除!"));
                             }
 
                         });
