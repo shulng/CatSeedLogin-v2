@@ -24,7 +24,7 @@
         <paper.version>1.21.8-R0.1-SNAPSHOT</paper.version>
         <spigot.version>1.12.2-R0.1-SNAPSHOT</spigot.version>
         <lombok.version>1.18.38</lombok.version>
-        <protocollib.version>5.3.0</protocollib.version>
+        <protocollib.version>5.4.0</protocollib.version>
         <bungeecord.version>1.16-R0.5-SNAPSHOT</bungeecord.version>
         <velocity.version>3.4.0-SNAPSHOT</velocity.version>
         <sqlite.version>3.41.2.2</sqlite.version>
@@ -79,7 +79,7 @@
 
         <!-- ProtocolLib -->
         <dependency>
-            <groupId>com.comphenix.protocol</groupId>
+            <groupId>net.dmulloy2</groupId>
             <artifactId>ProtocolLib</artifactId>
             <version>${protocollib.version}</version>
             <scope>provided</scope>
