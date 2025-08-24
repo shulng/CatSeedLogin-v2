@@ -74,7 +74,7 @@ public class Listeners implements Listener {
     }
 
     @EventHandler
-    public void onPlayerChat(org.bukkit.event.player.PlayerChatEvent event) {
+    public void onPlayerChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
         if (playerIsNotMinecraftPlayer(player) || LoginPlayerHelper.isLogin(player.getName())) return;
         event.setCancelled(true);

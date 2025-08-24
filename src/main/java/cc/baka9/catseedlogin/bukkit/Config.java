@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.World;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.entity.Player;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -205,7 +205,7 @@ public class Config {
                 try {
                     String fieldName = field.getName();
                     String value = config.getString(fieldName, resourceConfig.getString(fieldName));
-                    field.set(null, value.replace('&', ChatColor.COLOR_CHAR));
+                    field.set(null, value.replace('&', '§'));
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
