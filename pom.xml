@@ -27,7 +27,7 @@
         <protocollib.version>5.4.0</protocollib.version>
         <bungeecord.version>1.16-R0.5-SNAPSHOT</bungeecord.version>
         <velocity.version>3.4.0-SNAPSHOT</velocity.version>
-        <sqlite.version>3.41.2.2</sqlite.version>
+        <sqlite.version>3.50.3.0</sqlite.version>
         <mysql.version>8.0.30</mysql.version>
         <snakeyaml.version>1.33</snakeyaml.version>
         <commons-email.version>1.6.0</commons-email.version>
