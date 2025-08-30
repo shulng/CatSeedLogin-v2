@@ -178,6 +178,13 @@ public class Listeners implements Listener {
         }
         if (Config.Settings.LoginwiththesameIP && LoginPlayerHelper.recordCurrentIP(player)) {
             player.sendMessage(Config.Language.LOGIN_WITH_THE_SAME_IP);
+            // IP登录验证成功后，恢复上次退出时的位置
+            if (Config.Settings.AfterLoginBack && Config.Settings.CanTpSpawnLocation) {
+                Config.getOfflineLocation(player).ifPresent(location -> {
+                    // 延迟一tick执行，确保玩家完全加入游戏
+                    CatScheduler.runTaskLater(() -> CatScheduler.teleport(player, location), 1L);
+                });
+            }
             return;
         }
         Cache.refresh(player.getName());

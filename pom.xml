@@ -25,11 +25,11 @@
         <spigot.version>1.12.2-R0.1-SNAPSHOT</spigot.version>
         <lombok.version>1.18.38</lombok.version>
         <protocollib.version>5.4.0</protocollib.version>
-        <bungeecord.version>1.16-R0.5-SNAPSHOT</bungeecord.version>
+        <bungeecord.version>1.21-R0.3</bungeecord.version>
         <velocity.version>3.4.0-SNAPSHOT</velocity.version>
-        <sqlite.version>3.41.2.2</sqlite.version>
+        <sqlite.version>3.50.3.0</sqlite.version>
         <mysql.version>8.0.30</mysql.version>
-        <snakeyaml.version>1.33</snakeyaml.version>
+        <snakeyaml.version>2.4</snakeyaml.version>
         <commons-email.version>1.6.0</commons-email.version>
         <commons-lang3.version>3.18.0</commons-lang3.version>
         <commons-net.version>3.12.0</commons-net.version>
@@ -182,7 +182,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.13.1</version>
+            <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
