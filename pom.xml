@@ -23,7 +23,7 @@
         <!-- 依赖版本管理 -->
         <paper.version>1.21.8-R0.1-SNAPSHOT</paper.version>
         <spigot.version>1.12.2-R0.1-SNAPSHOT</spigot.version>
-        <lombok.version>1.18.38</lombok.version>
+        <lombok.version>1.18.40</lombok.version>
         <protocollib.version>5.4.0</protocollib.version>
         <bungeecord.version>1.21-R0.3</bungeecord.version>
         <velocity.version>3.4.0-SNAPSHOT</velocity.version>
