@@ -29,7 +29,7 @@
         <velocity.version>3.4.0-SNAPSHOT</velocity.version>
         <sqlite.version>3.50.3.0</sqlite.version>
         <mysql.version>8.0.30</mysql.version>
-        <snakeyaml.version>2.4</snakeyaml.version>
+        <snakeyaml.version>2.5</snakeyaml.version>
         <commons-email.version>1.6.0</commons-email.version>
         <commons-lang3.version>3.18.0</commons-lang3.version>
         <commons-net.version>3.12.0</commons-net.version>
