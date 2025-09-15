@@ -39,7 +39,7 @@
         <morepaperlib.version>0.4.4</morepaperlib.version>
         
         <!-- 插件版本 -->
-        <shade.version>3.6.0</shade.version>
+        <shade.version>3.6.1</shade.version>
         <compiler.version>3.14.0</compiler.version>
         <resources.version>3.3.1</resources.version>
         <surefire.version>3.5.3</surefire.version>
