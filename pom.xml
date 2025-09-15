@@ -42,7 +42,7 @@
         <shade.version>3.6.0</shade.version>
         <compiler.version>3.14.0</compiler.version>
         <resources.version>3.3.1</resources.version>
-        <surefire.version>3.5.3</surefire.version>
+        <surefire.version>3.5.4</surefire.version>
         <jar.version>3.4.2</jar.version>
         <clean.version>3.5.0</clean.version>
         <install.version>3.1.4</install.version>
