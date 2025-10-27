@@ -27,9 +27,9 @@ public class Crypt {
         return new String(chars);
     }
 
-    public boolean match(final String name, final String password, final String encrypted) {
+    public static boolean match(final String name, final String password, final String encrypted) {
         try {
-            return encrypted.equals(encrypt(name, password));
+            return encrypted != null && encrypted.equals(encrypt(name, password));
         } catch (final Exception e) {
             return false;
         }
