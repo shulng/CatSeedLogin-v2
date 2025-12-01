@@ -41,7 +41,7 @@
         <!-- 插件版本 -->
         <shade.version>3.6.1</shade.version>
         <compiler.version>3.14.1</compiler.version>
-        <resources.version>3.3.1</resources.version>
+        <resources.version>3.4.0</resources.version>
         <surefire.version>3.5.4</surefire.version>
         <jar.version>3.5.0</jar.version>
         <clean.version>3.5.0</clean.version>
