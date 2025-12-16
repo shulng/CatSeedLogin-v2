@@ -29,7 +29,7 @@ jobs:
       - name: Build with Maven
         run: mvn -B clean package --no-transfer-progress
       - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: CatSeedLogin
           path: target/CatSeedLogin*.jar
