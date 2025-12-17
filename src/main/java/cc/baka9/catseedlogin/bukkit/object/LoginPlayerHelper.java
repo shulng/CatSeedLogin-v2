@@ -66,13 +66,13 @@ public class LoginPlayerHelper {
         return false;
     }
 
-    public void recordPlayerExitTime(String playerName) {
+    public static void recordPlayerExitTime(String playerName) {
         if (Config.Settings.IPTimeout != 0 && isLogin(playerName)) {
             playerExitTimes.put(playerName, System.currentTimeMillis());
         }
     }
 
-    public void onPlayerQuit(String playerName) {
+    public static void onPlayerQuit(String playerName) {
         recordPlayerExitTime(playerName);
     }
 

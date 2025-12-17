@@ -26,7 +26,6 @@ public class CatSeedLogin extends JavaPlugin implements Listener {
     public static SQL sql;
     public static boolean loadProtocolLib = false;
     public static MorePaperLib morePaperLib;
-    private LoginPlayerHelper timeoutManager;
 
     @Override
     public void onEnable() {
@@ -34,7 +33,6 @@ public class CatSeedLogin extends JavaPlugin implements Listener {
         morePaperLib = new MorePaperLib(this);
         HandySchedulerUtil.init(this);
         getServer().getPluginManager().registerEvents(this, this);
-        timeoutManager = new LoginPlayerHelper();
 
         // Config
         try {
@@ -137,14 +135,14 @@ public class CatSeedLogin extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        timeoutManager.onPlayerQuit(event.getPlayer().getName());
+        LoginPlayerHelper.onPlayerQuit(event.getPlayer().getName());
     }
 
 @EventHandler
 public void onPlayerJoin(PlayerJoinEvent event) {
     // 使用 CatScheduler 的 runTaskTimer 方法
     CatScheduler.runTaskTimer(
-        () -> timeoutManager.recordPlayerExitTime(event.getPlayer().getName()),
+        () -> LoginPlayerHelper.recordPlayerExitTime(event.getPlayer().getName()),
         1L,  // 初始延迟（Folia 需要至少 1 tick）
         20L  // 执行间隔（20 ticks = 1 秒）
     );
