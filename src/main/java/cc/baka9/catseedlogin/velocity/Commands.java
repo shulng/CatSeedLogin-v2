@@ -5,6 +5,8 @@ import com.velocitypowered.api.command.SimpleCommand;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -50,10 +52,10 @@ public class Commands implements SimpleCommand {
         String[] args = invocation.arguments();
         
         if (args.length <= 1) {
-            return CompletableFuture.completedFuture(List.of("reload", "status", "list"));
+            return CompletableFuture.completedFuture(Arrays.asList("reload", "status", "list"));
         }
         
-        return CompletableFuture.completedFuture(List.of());
+        return CompletableFuture.completedFuture(new ArrayList<>());
     }
     
     private void sendHelp(CommandSource source) {
