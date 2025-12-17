@@ -64,17 +64,14 @@ public class Config {
             try (InputStream input = Files.newInputStream(configFile)) {
                 config = yaml.load(input);
             }
-            
-            Enable = (Boolean) config.getOrDefault("Enable", false);
-            Host = (String) config.getOrDefault("Host", "127.0.0.1");
-            Port = (Integer) config.getOrDefault("Port", 10086);
-            LoginServerName = (String) config.getOrDefault("LoginServerName", "login");
-            AuthKey = (String) config.getOrDefault("AuthKey", "default");
-            
+            Enable = Boolean.parseBoolean(String.valueOf(config.get("Enable")));
+            Host = String.valueOf(config.get("Host"));
+            Port = Integer.parseInt(String.valueOf(config.get("Port")));
+            LoginServerName = String.valueOf(config.get("LoginServerName"));
+            AuthKey = String.valueOf(config.get("AuthKey"));
             logger.info("Host: " + Host);
             logger.info("Port: " + Port);
             logger.info("LoginServerName: " + LoginServerName);
-            
         } catch (IOException e) {
             logger.error("Failed to load config", e);
         }

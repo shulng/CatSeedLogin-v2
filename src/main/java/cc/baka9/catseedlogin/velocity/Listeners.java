@@ -82,15 +82,17 @@ public class Listeners {
         String targetName = target.getServerInfo().getName();
         String playerName = player.getUsername();
 
-        if (!targetName.equals(Config.LoginServerName) && !loggedInPlayerList.contains(playerName)) {
+        if (!loggedInPlayerList.contains(playerName)) {
             handleLogin(player, null);
             
-            // 强制切换到登录服
-            PluginMain.getInstance().getProxyServer()
-                .getServer(Config.LoginServerName)
-                .ifPresent(loginServer -> {
-                    event.setResult(ServerPreConnectEvent.ServerResult.allowed(loginServer));
-                });
+            // 如果目标服务器不是登录服，强制切换到登录服
+            if (!targetName.equals(Config.LoginServerName)) {
+                PluginMain.getInstance().getProxyServer()
+                    .getServer(Config.LoginServerName)
+                    .ifPresent(loginServer -> {
+                        event.setResult(ServerPreConnectEvent.ServerResult.allowed(loginServer));
+                    });
+            }
         }
     }
 
