@@ -29,4 +29,9 @@ public interface CommonConfig {
      * 获取 AuthKey
      */
     String getAuthKey();
+    
+    /**
+     * 是否启用
+     */
+    boolean isEnable();
 }

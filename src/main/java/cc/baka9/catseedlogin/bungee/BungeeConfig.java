@@ -12,6 +12,7 @@ import net.md_5.bungee.config.ConfigurationProvider;
 
 public class BungeeConfig implements CommonConfig {
 
+    private boolean enable;
     private String host;
     private int port;
     private String loginServerName;
@@ -36,6 +37,7 @@ public class BungeeConfig implements CommonConfig {
         ConfigurationProvider configurationProvider = ConfigurationProvider.getProvider(YamlConfiguration.class);
         try {
             Configuration config = configurationProvider.load(configFile);
+            this.enable = config.getBoolean("Enable");
             this.host = config.getString("Host");
             this.port = config.getInt("Port");
             this.loginServerName = config.getString("LoginServerName");
@@ -66,5 +68,10 @@ public class BungeeConfig implements CommonConfig {
     @Override
     public String getAuthKey() {
         return authKey;
+    }
+
+    @Override
+    public boolean isEnable() {
+        return enable;
     }
 }

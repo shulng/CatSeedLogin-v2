@@ -18,6 +18,7 @@ import java.util.Map;
  */
 public class VelocityConfig implements CommonConfig {
 
+    private boolean enable;
     private String host;
     private int port;
     private String loginServerName;
@@ -58,7 +59,7 @@ public class VelocityConfig implements CommonConfig {
             try (InputStream input = Files.newInputStream(configFile)) {
                 config = yaml.load(input);
             }
-
+            this.enable = Boolean.parseBoolean(String.valueOf(config.getOrDefault("Enable", true)));
             this.host = String.valueOf(config.get("Host"));
             this.port = Integer.parseInt(String.valueOf(config.get("Port")));
             this.loginServerName = String.valueOf(config.get("LoginServerName"));
@@ -89,5 +90,10 @@ public class VelocityConfig implements CommonConfig {
     @Override
     public String getAuthKey() {
         return authKey;
+    }
+
+    @Override
+    public boolean isEnable() {
+        return enable;
     }
 }
