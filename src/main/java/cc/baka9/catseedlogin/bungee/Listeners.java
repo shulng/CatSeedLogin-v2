@@ -52,8 +52,22 @@ public class Listeners implements Listener {
             String playerName = player.getName();
 
             if (!loggedInPlayerList.contains(playerName)) {
-                handleLogin(player, null);
-                event.setTarget(proxyServer.getServerInfo(Config.LoginServerName));
+                // 异步检查登录状态
+                PluginMain.runAsync(() -> {
+                    try {
+                        // 直接检查玩家在登录服的状态
+                        if (Communication.sendConnectRequest(playerName) == 1) {
+                            // 如果已经登录，添加到已登录列表
+                            loggedInPlayerList.add(playerName);
+                        } else {
+                            // 如果未登录，强制切换到登录服
+                            event.setTarget(proxyServer.getServerInfo(Config.LoginServerName));
+                        }
+                    } catch (Exception e) {
+                        proxyServer.getLogger().severe("Error checking login status for player: " + playerName);
+                        e.printStackTrace();
+                    }
+                });
             }
         }
     }

@@ -83,15 +83,31 @@ public class Listeners {
         String playerName = player.getUsername();
 
         if (!loggedInPlayerList.contains(playerName)) {
-            handleLogin(player, null);
-            
-            // 如果目标服务器不是登录服，强制切换到登录服
+            // 如果目标服务器已经是登录服，不需要强制切换
             if (!targetName.equals(Config.LoginServerName)) {
-                PluginMain.getInstance().getProxyServer()
-                    .getServer(Config.LoginServerName)
-                    .ifPresent(loginServer -> {
-                        event.setResult(ServerPreConnectEvent.ServerResult.allowed(loginServer));
-                    });
+                // 异步检查登录状态
+                PluginMain.runAsync(() -> {
+                    try {
+                        // 直接检查玩家在登录服的状态
+                        if (Communication.sendConnectRequest(playerName) == 1) {
+                            // 如果已经登录，添加到已登录列表
+                            loggedInPlayerList.add(playerName);
+                        } else {
+                            // 如果未登录，强制切换到登录服
+                            PluginMain.getInstance().getProxyServer()
+                                .getServer(Config.LoginServerName)
+                                .ifPresent(loginServer -> {
+                                    event.setResult(ServerPreConnectEvent.ServerResult.allowed(loginServer));
+                                });
+                        }
+                    } catch (Exception e) {
+                        PluginMain.getInstance().getLogger()
+                            .error("Error checking login status for player: " + playerName, e);
+                    }
+                });
+            } else {
+                // 目标服务器是登录服，直接检查登录状态
+                handleLogin(player, null);
             }
         }
     }
