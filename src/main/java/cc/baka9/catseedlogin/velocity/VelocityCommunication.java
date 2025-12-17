@@ -1,5 +1,6 @@
 package cc.baka9.catseedlogin.velocity;
 
+import cc.baka9.catseedlogin.common.CommonCommunication;
 import cc.baka9.catseedlogin.util.CommunicationAuth;
 import com.velocitypowered.api.proxy.ProxyServer;
 import org.slf4j.Logger;
@@ -13,14 +14,15 @@ import java.net.Socket;
  * Velocity 与 Bukkit 的通讯交流
  * 保持与Bungee版本完全一致的功能和行为
  */
-public class Communication {
+public class VelocityCommunication implements CommonCommunication {
 
     /**
      * 发送连接请求，检查玩家登录状态
      * @param playerName 玩家名称
      * @return 1表示已登录，0表示未登录
      */
-    public static int sendConnectRequest(String playerName) {
+    @Override
+    public int sendConnectRequest(String playerName) {
         try (Socket socket = getSocket(); 
              BufferedWriter bufferedWriter = getSocketBufferedWriter(socket)) {
             
@@ -45,7 +47,8 @@ public class Communication {
      * 发送保持登录状态请求
      * @param playerName 玩家名称
      */
-    public static void sendKeepLoggedInRequest(String playerName) {
+    @Override
+    public void sendKeepLoggedInRequest(String playerName) {
         try (Socket socket = getSocket(); 
              BufferedWriter bufferedWriter = getSocketBufferedWriter(socket)) {
             
@@ -63,7 +66,7 @@ public class Communication {
             bufferedWriter.newLine();
             
             // 根据玩家名、时间戳和authKey加密的结果
-            String sign = CommunicationAuth.encryption(playerName, time, Config.AuthKey);
+            String sign = CommunicationAuth.encryption(playerName, time, PluginMain.getInstance().getConfig().getAuthKey());
             bufferedWriter.write(sign);
             bufferedWriter.newLine();
 
@@ -79,7 +82,7 @@ public class Communication {
      */
     private static Socket getSocket() throws IOException {
         try {
-            return new Socket(Config.Host, Config.Port);
+            return new Socket(PluginMain.getInstance().getConfig().getHost(), PluginMain.getInstance().getConfig().getPort());
         } catch (IOException e) {
             PluginMain instance = PluginMain.getInstance();
             ProxyServer proxyServer = instance.getProxyServer();

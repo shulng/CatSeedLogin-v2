@@ -67,7 +67,7 @@ public class Commands implements SimpleCommand {
     
     private void handleReload(CommandSource source) {
         try {
-            Config.load();
+            PluginMain.getInstance().getConfig().load();
             source.sendMessage(Component.text("配置文件已重载!", NamedTextColor.GREEN));
         } catch (Exception e) {
             source.sendMessage(Component.text("重载配置文件时出错: " + e.getMessage(), NamedTextColor.RED));
@@ -78,12 +78,16 @@ public class Commands implements SimpleCommand {
     private void handleStatus(CommandSource source) {
         source.sendMessage(Component.text("=== CatSeedLogin-Velocity 状态 ===", NamedTextColor.GOLD));
         
-        source.sendMessage(Component.text("监听地址: " + Config.Host + ":" + Config.Port, NamedTextColor.YELLOW));
-        source.sendMessage(Component.text("登录服务器: " + Config.LoginServerName, NamedTextColor.YELLOW));
+        String host = PluginMain.getInstance().getConfig().getHost();
+        int port = PluginMain.getInstance().getConfig().getPort();
+        String loginServerName = PluginMain.getInstance().getConfig().getLoginServerName();
+        
+        source.sendMessage(Component.text("监听地址: " + host + ":" + port, NamedTextColor.YELLOW));
+        source.sendMessage(Component.text("登录服务器: " + loginServerName, NamedTextColor.YELLOW));
         
         // 检查登录服务器是否在线
         boolean loginServerOnline = PluginMain.getInstance().getProxyServer()
-            .getServer(Config.LoginServerName)
+            .getServer(loginServerName)
             .isPresent();
         
         source.sendMessage(Component.text("登录服务器状态: " + (loginServerOnline ? "在线" : "离线"), 

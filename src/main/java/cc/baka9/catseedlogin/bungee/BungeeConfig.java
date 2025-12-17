@@ -1,5 +1,6 @@
 package cc.baka9.catseedlogin.bungee;
 
+import cc.baka9.catseedlogin.common.CommonConfig;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,15 +10,15 @@ import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.YamlConfiguration;
 import net.md_5.bungee.config.ConfigurationProvider;
 
-public class Config {
+public class BungeeConfig implements CommonConfig {
 
-    public static boolean Enable;
-    public static String Host;
-    public static int Port;
-    public static String LoginServerName;
-    public static String AuthKey;
+    private String host;
+    private int port;
+    private String loginServerName;
+    private String authKey;
 
-    public static void load() {
+    @Override
+    public void load() {
         File dataFolder = PluginMain.instance.getDataFolder();
         if (!dataFolder.exists() && !dataFolder.mkdirs()) {
         }
@@ -35,16 +36,35 @@ public class Config {
         ConfigurationProvider configurationProvider = ConfigurationProvider.getProvider(YamlConfiguration.class);
         try {
             Configuration config = configurationProvider.load(configFile);
-            Enable = config.getBoolean("Enable");
-            Host = config.getString("Host");
-            Port = config.getInt("Port");
-            LoginServerName = config.getString("LoginServerName");
-            AuthKey = config.getString("AuthKey");
-            PluginMain.instance.getLogger().info("Host:" + Host);
-            PluginMain.instance.getLogger().info("Port:" + Port);
-            PluginMain.instance.getLogger().info("LoginServerName:" + LoginServerName);
+            this.host = config.getString("Host");
+            this.port = config.getInt("Port");
+            this.loginServerName = config.getString("LoginServerName");
+            this.authKey = config.getString("AuthKey");
+            PluginMain.instance.getLogger().info("Host:" + host);
+            PluginMain.instance.getLogger().info("Port:" + port);
+            PluginMain.instance.getLogger().info("LoginServerName:" + loginServerName);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public String getHost() {
+        return host;
+    }
+
+    @Override
+    public int getPort() {
+        return port;
+    }
+
+    @Override
+    public String getLoginServerName() {
+        return loginServerName;
+    }
+
+    @Override
+    public String getAuthKey() {
+        return authKey;
     }
 }

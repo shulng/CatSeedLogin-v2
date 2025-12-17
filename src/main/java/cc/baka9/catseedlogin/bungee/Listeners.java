@@ -47,7 +47,8 @@ public class Listeners implements Listener {
     @EventHandler
     public void onServerConnect(ServerConnectEvent event) {
         ServerInfo target = event.getTarget();
-        if (!event.isCancelled() && !target.getName().equals(Config.LoginServerName)) {
+        String loginServerName = PluginMain.instance.getConfig().getLoginServerName();
+        if (!event.isCancelled() && !target.getName().equals(loginServerName)) {
             ProxiedPlayer player = event.getPlayer();
             String playerName = player.getName();
 
@@ -56,12 +57,12 @@ public class Listeners implements Listener {
                 PluginMain.runAsync(() -> {
                     try {
                         // 直接检查玩家在登录服的状态
-                        if (Communication.sendConnectRequest(playerName) == 1) {
+                        if (PluginMain.instance.getCommunication().sendConnectRequest(playerName) == 1) {
                             // 如果已经登录，添加到已登录列表
                             loggedInPlayerList.add(playerName);
                         } else {
                             // 如果未登录，强制切换到登录服
-                            event.setTarget(proxyServer.getServerInfo(Config.LoginServerName));
+                            event.setTarget(proxyServer.getServerInfo(loginServerName));
                         }
                     } catch (Exception e) {
                         proxyServer.getLogger().severe("Error checking login status for player: " + playerName);
@@ -77,10 +78,11 @@ public class Listeners implements Listener {
      */
     @EventHandler
     public void onServerConnected(ServerConnectedEvent event) {
-        if (event.getServer().getInfo().getName().equals(Config.LoginServerName)) {
+        String loginServerName = PluginMain.instance.getConfig().getLoginServerName();
+        if (event.getServer().getInfo().getName().equals(loginServerName)) {
             ProxiedPlayer player = event.getPlayer();
             if (loggedInPlayerList.contains(player.getName())) {
-                PluginMain.runAsync(() -> Communication.sendKeepLoggedInRequest(player.getName()));
+                PluginMain.runAsync(() -> PluginMain.instance.getCommunication().sendKeepLoggedInRequest(player.getName()));
             }
         }
     }
@@ -100,7 +102,7 @@ public class Listeners implements Listener {
     public void onPreLogin(PreLoginEvent event) {
         String playerName = event.getConnection().getName();
         try {
-            if (loggedInPlayerList.contains(playerName) && (Communication.sendConnectRequest(playerName) == 1)) {
+            if (loggedInPlayerList.contains(playerName) && (PluginMain.instance.getCommunication().sendConnectRequest(playerName) == 1)) {
                 event.setCancelReason(new TextComponent("您已经登录，请勿重复登录。"));
                 event.setCancelled(true);
             }
@@ -117,7 +119,7 @@ public class Listeners implements Listener {
     private void handleLogin(ProxiedPlayer player, String message) {
         String playerName = player.getName();
         PluginMain.runAsync(() -> {
-                if (Communication.sendConnectRequest(playerName) == 1) {
+                if (PluginMain.instance.getCommunication().sendConnectRequest(playerName) == 1) {
                     loggedInPlayerList.add(playerName);
                     if (message != null && !message.isEmpty()) {
                         proxyServer.getPluginManager().dispatchCommand(player, message.substring(1));

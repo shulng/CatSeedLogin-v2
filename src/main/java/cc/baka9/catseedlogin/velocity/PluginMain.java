@@ -1,5 +1,8 @@
 package cc.baka9.catseedlogin.velocity;
 
+import cc.baka9.catseedlogin.common.CommonConfig;
+import cc.baka9.catseedlogin.common.CommonCommunication;
+import cc.baka9.catseedlogin.common.CommonPlugin;
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
@@ -21,11 +24,13 @@ import java.util.concurrent.TimeUnit;
     description = "Velocity adapter for CatSeedLogin",
     authors = {"CatSeed"}
 )
-public class PluginMain {
+public class PluginMain implements CommonPlugin {
     
     private static PluginMain instance;
     private final ProxyServer proxyServer;
     private final Logger logger;
+    private VelocityConfig config;
+    private VelocityCommunication communication;
     
     @Inject
     public PluginMain(ProxyServer proxyServer, Logger logger) {
@@ -48,9 +53,9 @@ public class PluginMain {
     
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
-        Config.load();
-        
-        
+        config = new VelocityConfig();
+        communication = new VelocityCommunication();
+        config.load();
         
         // 注册监听器
         proxyServer.getEventManager().register(this, new Listeners());
@@ -83,5 +88,30 @@ public class PluginMain {
             .buildTask(instance, runnable)
             .delay(delay, unit)
             .schedule();
+    }
+
+    @Override
+    public CommonConfig getConfig() {
+        return config;
+    }
+
+    @Override
+    public CommonCommunication getCommunication() {
+        return communication;
+    }
+
+    @Override
+    public void logInfo(String message) {
+        logger.info(message);
+    }
+
+    @Override
+    public void logWarn(String message) {
+        logger.warn(message);
+    }
+
+    @Override
+    public void logError(String message, Throwable throwable) {
+        logger.error(message, throwable);
     }
 }

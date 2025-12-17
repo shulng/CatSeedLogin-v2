@@ -6,13 +6,13 @@ public class Commands extends net.md_5.bungee.api.plugin.Command {
 
     public Commands(String name, String permission, String... aliases) {
         super(name, permission, aliases);
-        Config.load(); // 加载配置
+        PluginMain.instance.getConfig().load(); // 加载配置
     }
 
     @Override
     public void execute(CommandSender commandSender, String[] args) {
         if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
-            Config.load();
+            PluginMain.instance.getConfig().load();
         }
     }
 }
