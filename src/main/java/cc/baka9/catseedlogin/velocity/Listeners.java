@@ -75,7 +75,7 @@ public class Listeners {
         Player player = event.getPlayer();
         RegisteredServer target = event.getResult().getServer().orElse(null);
         
-        if (target == null || !Config.Enable) {
+        if (target == null) {
             return;
         }
         
@@ -127,9 +127,7 @@ public class Listeners {
      */
     @Subscribe
     public void onPreLogin(PreLoginEvent event) {
-        if (!Config.Enable) {
-            return;
-        }
+        
         
         String playerName = event.getUsername();
         

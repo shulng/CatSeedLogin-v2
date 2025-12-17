@@ -215,7 +215,7 @@ FromPersonal: "xxx服务器"           # 发件人名称
 > 语言文件内容较多，此处省略。插件会自动生成默认语言文件。
 
 ## 🔗 BungeeCord配置
-
+velocity配置方法与bungeecord配置方法相同
 ### 🏗️ 架构说明
 ```
 BungeeCord网络架构：
@@ -252,6 +252,11 @@ AuthKey: ""                    # 验证密钥(需与子服一致)
 |------|------|
 | `/CatSeedLoginBungee reload` | 重载BungeeCord端配置 |
 | `/cslb reload` | 同上(简写) |
+
+### 🔄 Velocity指令
+- `/cslv reload` - 重载配置文件
+- `/cslv status` - 查看插件状态
+- `/cslv list` - 查看已登录玩家列表
 
 ## 👨‍💻 开发者API
 

@@ -19,7 +19,6 @@ import java.util.Map;
  */
 public class Config {
 
-    public static boolean Enable;
     public static String Host;
     public static int Port;
     public static String LoginServerName;
@@ -45,12 +44,7 @@ public class Config {
         
         if (!Files.exists(configFile)) {
             try (InputStream in = Config.class.getClassLoader().getResourceAsStream("velocity-resources/velocity.yml")) {
-                if (in != null) {
-                    Files.copy(in, configFile);
-                } else {
-                    // 创建默认配置
-                    createDefaultConfig(configFile);
-                }
+                Files.copy(in, configFile);
             } catch (IOException e) {
                 logger.error("Failed to create default config", e);
                 return;
@@ -64,7 +58,7 @@ public class Config {
             try (InputStream input = Files.newInputStream(configFile)) {
                 config = yaml.load(input);
             }
-            Enable = Boolean.parseBoolean(String.valueOf(config.get("Enable")));
+
             Host = String.valueOf(config.get("Host"));
             Port = Integer.parseInt(String.valueOf(config.get("Port")));
             LoginServerName = String.valueOf(config.get("LoginServerName"));
@@ -75,26 +69,5 @@ public class Config {
         } catch (IOException e) {
             logger.error("Failed to load config", e);
         }
-    }
-    
-    private static void createDefaultConfig(Path configFile) throws IOException {
-        String defaultConfig = 
-            "# CatSeedLogin-Velocity Configuration\n" +
-            "# 是否启用Velocity适配\n" +
-            "Enable: true\n" +
-            "\n" +
-            "# 登录服监听的主机地址\n" +
-            "Host: 127.0.0.1\n" +
-            "\n" +
-            "# 登录服监听的端口\n" +
-            "Port: 10086\n" +
-            "\n" +
-            "# 登录服务器名称\n" +
-            "LoginServerName: login\n" +
-            "\n" +
-            "# 通信密钥，必须与Bukkit端配置一致\n" +
-            "AuthKey: default\n";
-            
-        Files.write(configFile, defaultConfig.getBytes());
     }
 }

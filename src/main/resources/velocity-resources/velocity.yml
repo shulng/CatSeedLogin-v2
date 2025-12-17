@@ -1,15 +1,4 @@
-# CatSeedLogin-Velocity Configuration
-# 是否启用Velocity适配
-Enable: true
-
-# 登录服监听的主机地址
 Host: 127.0.0.1
-
-# 登录服监听的端口
 Port: 2333
-
-# 登录服务器名称
-LoginServerName: login
-
-# 通信密钥，必须与Bukkit端配置相同
-AuthKey: default
+LoginServerName: "lobby"
+AuthKey: ""

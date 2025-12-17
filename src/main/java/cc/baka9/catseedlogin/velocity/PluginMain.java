@@ -50,10 +50,7 @@ public class PluginMain {
     public void onProxyInitialization(ProxyInitializeEvent event) {
         Config.load();
         
-        if (!Config.Enable) {
-            logger.warn("CatSeedLogin-Velocity is disabled in config!");
-            return;
-        }
+        
         
         // 注册监听器
         proxyServer.getEventManager().register(this, new Listeners());

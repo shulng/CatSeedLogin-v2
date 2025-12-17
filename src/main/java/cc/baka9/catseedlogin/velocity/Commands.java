@@ -67,11 +67,6 @@ public class Commands implements SimpleCommand {
         try {
             Config.load();
             source.sendMessage(Component.text("配置文件已重载!", NamedTextColor.GREEN));
-            
-            if (!Config.Enable) {
-                source.sendMessage(Component.text("警告: 插件当前已禁用!", NamedTextColor.RED));
-            }
-            
         } catch (Exception e) {
             source.sendMessage(Component.text("重载配置文件时出错: " + e.getMessage(), NamedTextColor.RED));
             PluginMain.getInstance().getLogger().error("Failed to reload config", e);
@@ -80,8 +75,7 @@ public class Commands implements SimpleCommand {
     
     private void handleStatus(CommandSource source) {
         source.sendMessage(Component.text("=== CatSeedLogin-Velocity 状态 ===", NamedTextColor.GOLD));
-        source.sendMessage(Component.text("启用状态: " + (Config.Enable ? "启用" : "禁用"), 
-            Config.Enable ? NamedTextColor.GREEN : NamedTextColor.RED));
+        
         source.sendMessage(Component.text("监听地址: " + Config.Host + ":" + Config.Port, NamedTextColor.YELLOW));
         source.sendMessage(Component.text("登录服务器: " + Config.LoginServerName, NamedTextColor.YELLOW));
         
