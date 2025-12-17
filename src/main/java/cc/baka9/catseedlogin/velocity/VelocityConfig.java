@@ -59,7 +59,7 @@ public class VelocityConfig implements CommonConfig {
             try (InputStream input = Files.newInputStream(configFile)) {
                 config = yaml.load(input);
             }
-            this.enable = Boolean.parseBoolean(String.valueOf(config.getOrDefault("Enable", true)));
+            this.enable = Boolean.parseBoolean(String.valueOf(config.get("Enable")));
             this.host = String.valueOf(config.get("Host"));
             this.port = Integer.parseInt(String.valueOf(config.get("Port")));
             this.loginServerName = String.valueOf(config.get("LoginServerName"));
