@@ -21,7 +21,7 @@ public class Mail {
         }
         email.setFrom(Config.EmailVerify.EmailAccount, Config.EmailVerify.FromPersonal);
         email.setSubject(subject);
-        email.setMsg(content);
+        email.setHtmlMsg(content);
         email.addTo(receiveMailAccount);
         email.setCharset("UTF-8");
         email.send();

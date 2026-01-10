@@ -259,7 +259,7 @@
                 <version>${shade.version}</version>
                 <configuration>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
-                    <minimizeJar>true</minimizeJar>
+                    <minimizeJar>false</minimizeJar>
                     <artifactSet>
                         <excludes>
                             <exclude>junit:junit</exclude>
