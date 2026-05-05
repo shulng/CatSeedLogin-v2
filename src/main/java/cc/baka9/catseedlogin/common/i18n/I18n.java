@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class I18n {
 
     private static I18n instance;
+    private static final String LANGUAGES_FOLDER = "languages";
 
     private final File dataFolder;
     private final ResourceProvider resourceProvider;
@@ -54,19 +55,31 @@ public class I18n {
         }
 
         Map<String, String> localeMessages = new HashMap<>();
-        String fileName = "language_" + locale.toLanguageTag() + ".yml";
-        File customFile = new File(dataFolder, fileName);
+        String fileName = locale.toLanguageTag() + ".yml";
+        File languagesFolder = new File(dataFolder, LANGUAGES_FOLDER);
 
+        File customFile = new File(languagesFolder, fileName);
         if (customFile.exists()) {
             loadFromFile(customFile, localeMessages);
         }
 
-        try (InputStream defaultStream = resourceProvider.getResource("language.yml")) {
+        String resourcePath = LANGUAGES_FOLDER + "/" + fileName;
+        try (InputStream defaultStream = resourceProvider.getResource(resourcePath)) {
             if (defaultStream != null) {
                 loadFromStream(defaultStream, localeMessages);
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+
+        if (localeMessages.isEmpty()) {
+            try (InputStream fallbackStream = resourceProvider.getResource("language.yml")) {
+                if (fallbackStream != null) {
+                    loadFromStream(fallbackStream, localeMessages);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         messages.put(locale, localeMessages);

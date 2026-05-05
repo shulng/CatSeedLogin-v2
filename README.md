@@ -286,11 +286,14 @@ proxy:
   login-server-name: "lobby"
 ```
 
-### 🌐 language.yml (中文语言文件)
-> 详见 `src/main/resources/language.yml`，支持自定义覆盖
-
-### 🌐 language_en_US.yml (英文语言文件)
-> 详见 `src/main/resources/language_en_US.yml`
+### 🌐 语言文件 (统一存放在 languages/ 文件夹)
+> 语言文件统一存放在 `plugins/CatSeedLogin/languages/` 文件夹中
+> - 中文：`zh-CN.yml`
+> - 英文：`en-US.yml`
+> 
+> 配置文件中的 `language` 选项使用下划线格式（如 `zh_CN`），对应语言文件使用标准格式（如 `zh-CN.yml`）
+> 
+> 支持自定义语言覆盖：用户可以在 `plugins/CatSeedLogin/languages/` 文件夹中放置自定义语言文件
 
 ## 🔗 BungeeCord配置
 velocity配置方法与bungeecord配置方法相同
