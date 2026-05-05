@@ -1,6 +1,5 @@
 package cc.baka9.catseedlogin.velocity;
 
-import cc.baka9.catseedlogin.common.CommonCommunication;
 import cc.baka9.catseedlogin.util.CommunicationAuth;
 import com.velocitypowered.api.proxy.ProxyServer;
 import org.slf4j.Logger;
@@ -10,9 +9,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 
-public class VelocityCommunication implements CommonCommunication {
+public class VelocityCommunication {
 
-    @Override
     public int sendConnectRequest(String playerName) {
         try (Socket socket = getSocket(); 
              BufferedWriter bufferedWriter = getSocketBufferedWriter(socket)) {
@@ -28,7 +26,6 @@ public class VelocityCommunication implements CommonCommunication {
         return 0;
     }
 
-    @Override
     public void sendKeepLoggedInRequest(String playerName) {
         try (Socket socket = getSocket(); 
              BufferedWriter bufferedWriter = getSocketBufferedWriter(socket)) {

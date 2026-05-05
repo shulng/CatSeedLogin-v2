@@ -1,6 +1,5 @@
 package cc.baka9.catseedlogin.bungee;
 
-import cc.baka9.catseedlogin.common.CommonCommunication;
 import cc.baka9.catseedlogin.util.CommunicationAuth;
 import net.md_5.bungee.api.ProxyServer;
 
@@ -9,9 +8,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 
-public class BungeeCommunication implements CommonCommunication {
+public class BungeeCommunication {
 
-    @Override
     public int sendConnectRequest(String playerName) {
         try (Socket socket = getSocket(); BufferedWriter bufferedWriter = getSocketBufferedWriter(socket)) {
             bufferedWriter.write("Connect");
@@ -26,7 +24,6 @@ public class BungeeCommunication implements CommonCommunication {
         return 0;
     }
 
-    @Override
     public void sendKeepLoggedInRequest(String playerName) {
         try (Socket socket = getSocket(); BufferedWriter bufferedWriter = getSocketBufferedWriter(socket)) {
             bufferedWriter.write("KeepLoggedIn");
