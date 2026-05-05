@@ -16,6 +16,7 @@
 ## 📋 目录
 
 - [✨ 核心功能](#-核心功能)
+- [🏗️ 架构改进](#-架构改进)
 - [📥 下载安装](#-下载安装)
 - [🎯 快速开始](#-快速开始)
 - [📖 指令大全](#-指令大全)
@@ -52,8 +53,38 @@
 
 ### 💾 数据存储
 - 🗄️ **多数据库支持** - SQLite(默认) / MySQL
+- 📍 **玩家位置存储** - 玩家离线位置存储在数据库中
 - 🔄 **数据迁移** - 支持数据库切换和数据迁移
 - 💾 **轻量级** - 占用资源少，性能优异
+
+### 🌍 国际化支持
+- 🌐 **多语言支持** - 内置中文、英文语言
+- 🔧 **自定义语言** - 支持自定义语言文件覆盖
+- 📝 **统一消息管理** - 使用MessageKey枚举统一管理所有消息
+
+## 🏗️ 架构改进
+
+### 📦 统一配置管理
+- 📄 **单一配置文件** - 从多个分散配置文件合并为统一`config.yml`
+- 🔧 **模块化配置** - 按功能模块组织配置项
+- 🔄 **热重载支持** - 支持配置热重载，无需重启服务器
+
+### 🌍 统一国际化系统
+- 📝 **MessageKey枚举** - 所有消息键统一管理
+- 🔌 **ResourceProvider接口** - 平台无关的资源加载
+- 📄 **多语言文件** - `language.yml`和`language_en_US.yml`
+
+### 🔗 统一API接口
+- 🛠️ **PlatformAdapter接口** - 平台抽象层
+- ⚙️ **CoreConfig接口** - 核心配置接口
+- 🗄️ **DatabaseConfig接口** - 数据库配置接口
+- 📧 **EmailConfig接口** - 邮箱配置接口
+- 🌐 **BungeeCordConfig接口** - 代理配置接口
+
+### 💾 改进的数据存储
+- 📍 **玩家位置数据** - 离线位置从配置文件迁移到数据库
+- 🔄 **异步操作** - 位置保存异步执行，提高性能
+- 📊 **兼容性** - 自动升级现有数据库表结构
 
 ## 📥 下载安装
 
@@ -156,63 +187,110 @@
 
 ## ⚙️ 配置文件
 
-### 🔧 settings.yml
+### 📄 config.yml (统一配置文件)
 ```yaml
-# 基础设置
-IpRegisterCountLimit: 2          # 同IP注册数量限制
-IpCountLimit: 2                  # 同IP登录数量限制
-SpawnLocation: "world:0:64:0:0:0" # 登录出生点坐标
-LimitChineseID: true             # 是否限制中文ID
-MinLengthID: 2                   # 游戏ID最小长度
-MaxLengthID: 15                  # 游戏ID最大长度
-BeforeLoginNoDamage: true        # 登录前免伤
-ReenterInterval: 60              # 重入间隔(tick)
-AfterLoginBack: true             # 登录后返回退出点
-CanTpSpawnLocation: true        # 强制登录点
-AutoKick: 120                    # 自动踢出时间(秒)
-DeathStateQuitRecordLocation: true # 死亡记录位置
+# CatSeedLogin 统一配置文件
+# Version: 2.0.0
 
-# 高级功能
-BedrockLoginBypass: true         # 基岩版登录绕过
-LoginwiththesameIP: false        # 同IP免登录
-IPTimeout: 5                     # IP超时时间
-FloodgatePrefixProtect: true     # Floodgate前缀保护
-Emptybackpack: true              # 空背包保护
+# 语言设置 (zh_CN, en_US, etc.)
+language: "zh_CN"
 
-# 指令白名单(支持正则表达式)
-CommandWhiteList:
-  - "/(?i)l(ogin)?(\z| .*)"
-  - "/(?i)reg(ister)?(\z| .*)"
-  - "/(?i)resetpassword?(\z| .*)"
-  - "/(?i)repw?(\z| .*)"
-  - "/(?i)worldedit cui"
+# 核心设置
+settings:
+  # 相同IP注册数量限制
+  ip-register-count-limit: 2
+  # 相同IP登录数量限制
+  ip-count-limit: 2
+  # 是否限制中文ID
+  limit-chinese-id: true
+  # 游戏ID最小长度
+  min-length-id: 2
+  # 游戏ID最大长度
+  max-length-id: 15
+  # 登录前不受到伤害
+  before-login-no-damage: true
+  # 离开服务器重新进入的间隔限制 (单位: tick, 20tick = 1秒)
+  reenter-interval: 60
+  # 登录后是否返回退出地点
+  after-login-back: true
+  # 登录前是否强制在登录地点
+  can-tp-spawn-location: true
+  # 自动踢出未登录的玩家 (秒数, 小于1则关闭)
+  auto-kick: 120
+  # 死亡状态退出游戏是否记录退出位置
+  death-state-quit-record-location: true
+  # 游戏名正则表达式
+  name-pattern: "^\\w+$"
+  # 登录前允许执行的指令 (支持正则表达式)
+  command-white-list:
+    - "/(?i)l(ogin)?(\\z| .*)"
+    - "/(?i)reg(ister)?(\\z| .*)"
+    - "/(?i)resetpassword?(\\z| .*)"
+    - "/(?i)repw?(\\z| .*)"
+    - "/(?i)worldedit cui"
+
+# 基岩版设置
+bedrock:
+  # 基岩版登录绕过
+  login-bypass: true
+  # Floodgate前缀保护
+  floodgate-prefix-protect: true
+
+# 同IP免登录设置
+same-ip-login:
+  # 是否启用同IP免登录
+  enabled: false
+  # IP超时时间 (秒)
+  timeout: 5
+
+# 登录前隐藏背包 (需要ProtocolLib)
+empty-backpack: true
+
+# 登录点设置
+spawn:
+  # 格式: 世界名:x:y:z:yaw:pitch
+  location: "world:0:64:0:0:0"
+
+# 数据库设置
+database:
+  # 使用MySQL (false = 使用SQLite)
+  mysql: false
+  host: "127.0.0.1"
+  port: 3306
+  database: "catseedlogin"
+  user: "root"
+  password: "password"
+
+# 邮箱验证设置
+email:
+  # 是否启用邮箱功能
+  enabled: false
+  account: ""
+  password: ""
+  smtp-host: "smtp.example.com"
+  smtp-port: "465"
+  ssl-auth: true
+  from-name: "Server"
+
+# BungeeCord/Velocity 代理设置
+proxy:
+  # 是否启用代理模式
+  enabled: false
+  # 通讯IP (建议使用内网)
+  host: "127.0.0.1"
+  # 通讯端口
+  port: 2333
+  # 验证密钥
+  auth-key: ""
+  # 登录服务器名称 (仅代理端需要)
+  login-server-name: "lobby"
 ```
 
-### 🗄️ sql.yml (MySQL配置)
-```yaml
-MySQL:
-  Enable: false           # 是否启用MySQL
-  Host: 127.0.0.1        # 数据库地址
-  Port: '3306'           # 数据库端口
-  Database: databaseName  # 数据库名称
-  User: root             # 数据库用户
-  Password: root         # 数据库密码
-```
+### 🌐 language.yml (中文语言文件)
+> 详见 `src/main/resources/language.yml`，支持自定义覆盖
 
-### 📧 emailVerify.yml (邮箱配置)
-```yaml
-# 邮箱功能开关
-Enable: false
-EmailAccount: "763737569@qq.com"    # 发件邮箱
-EmailPassword: "123456"              # 邮箱密码/授权码
-EmailSmtpHost: "smtp.qq.com"        # SMTP服务器
-EmailSmtpPort: "465"                # SMTP端口
-SSLAuthVerify: true                 # SSL验证
-FromPersonal: "xxx服务器"           # 发件人名称
-```
-
-### 🌐 language.yml (语言配置)
-> 语言文件内容较多，此处省略。插件会自动生成默认语言文件。
+### 🌐 language_en_US.yml (英文语言文件)
+> 详见 `src/main/resources/language_en_US.yml`
 
 ## 🔗 BungeeCord配置
 velocity配置方法与bungeecord配置方法相同
@@ -220,31 +298,33 @@ velocity配置方法与bungeecord配置方法相同
 ```
 BungeeCord网络架构：
 ┌─────────────────┐
-│   BungeeCord    │ ← 安装插件 + 配置bungeecord.yml
+│   BungeeCord    │ ← 安装插件 + 配置config.yml
 ├─────────────────┤
-│   登录服务器    │ ← 安装插件 + 配置bungeecord.yml
+│   登录服务器    │ ← 安装插件 + 配置config.yml
 ├─────────────────┤
 │   游戏服务器1   │ ← 无需安装
 │   游戏服务器2   │ ← 无需安装
 └─────────────────┘
 ```
 
-### 📋 子服配置 (bungeecord.yml)
+### 📋 子服配置 (config.yml)
 ```yaml
 # 子服配置文件
-Enable: false                    # 是否启用BungeeCord模式
-Host: 127.0.0.1               # 通讯IP地址(建议使用内网)
-Port: 2333                     # 通讯端口
-AuthKey: ""                    # 验证密钥(内网可省略)
+proxy:
+  enabled: false                    # 是否启用BungeeCord模式
+  host: 127.0.0.1               # 通讯IP地址(建议使用内网)
+  port: 2333                     # 通讯端口
+  auth-key: ""                    # 验证密钥(内网可省略)
 ```
 
-### 🔗 BungeeCord端配置 (bungeecord.yml)
+### 🔗 BungeeCord端配置 (config.yml)
 ```yaml
 # BungeeCord端配置文件
-Host: 127.0.0.1               # 通讯IP地址(需与子服一致)
-Port: 2333                     # 通讯端口(需与子服一致)
-LoginServerName: "lobby"      # 登录服务器名称
-AuthKey: ""                    # 验证密钥(需与子服一致)
+proxy:
+  host: 127.0.0.1               # 通讯IP地址(需与子服一致)
+  port: 2333                     # 通讯端口(需与子服一致)
+  login-server-name: "lobby"      # 登录服务器名称
+  auth-key: ""                    # 验证密钥(需与子服一致)
 ```
 
 ### 🔄 BungeeCord指令
@@ -267,6 +347,12 @@ AuthKey: ""                    # 验证密钥(需与子服一致)
 ### 🔌 API接口
 - `CatSeedLoginAPI` - 主要API接口类
 
+### 🏗️ 架构设计
+插件采用分层架构：
+- **API层** - PlatformAdapter、CoreConfig等接口
+- **Common层** - 配置管理、国际化等公共模块
+- **平台特定层** - Bukkit、BungeeCord、Velocity实现
+
 > 📚 **开发者文档**：详细的API文档和示例代码将在后续版本中提供。
 
 ## 💬 社区支持
@@ -278,6 +364,14 @@ AuthKey: ""                    # 验证密钥(需与子服一致)
 - ⭐ **给项目点星**：[GitHub仓库](https://github.com/shulng/CatSeedLogin-v2)
 - 🐛 **提交Issue**：[问题反馈](https://github.com/shulng/CatSeedLogin-v2/issues)
 - 📖 **贡献代码**：[Pull Request](https://github.com/shulng/CatSeedLogin-v2/pulls)
+
+### 📝 更新日志
+#### v2.0.0 (2026-05-05)
+- 🎯 **统一架构重构** - 统一配置管理、统一国际化系统
+- 📄 **单一配置文件** - 从多个分散配置合并为统一config.yml
+- 🌍 **多语言支持** - 内置中文、英文，支持自定义语言
+- 📍 **数据库改进** - 玩家离线位置存储从配置文件迁移到数据库
+- 🔗 **统一API接口** - 平台无关的抽象接口层
 
 ---
 
