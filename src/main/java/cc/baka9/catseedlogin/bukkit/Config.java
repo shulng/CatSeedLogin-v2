@@ -1,35 +1,21 @@
 package cc.baka9.catseedlogin.bukkit;
 
 import java.io.File;
-import java.util.Map;
 import java.util.List;
 import java.util.Optional;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Properties;
 import java.util.regex.Pattern;
-import java.io.InputStreamReader;
-import java.io.BufferedInputStream;
 import java.util.stream.Collectors;
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.ConcurrentHashMap;
 
-import org.bukkit.World;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 
 import cc.baka9.catseedlogin.bukkit.config.BukkitConfigManager;
 import cc.baka9.catseedlogin.common.i18n.MessageKey;
 
 public class Config {
     private static final CatSeedLogin plugin = CatSeedLogin.instance;
-    private static final Map<String, String> offlineLocations = new ConcurrentHashMap<>();
 
     public static class MySQL {
         public static boolean Enable;
@@ -72,7 +58,7 @@ public class Config {
         public static boolean LimitChineseID;
         public static boolean BedrockLoginBypass;
         public static boolean LoginwiththesameIP;
-        public static boolean Emptybackpack;
+        public static boolean EmptyBackpack;
         public static int IPTimeout;
         public static int MaxLengthID;
         public static int MinLengthID;
@@ -80,7 +66,7 @@ public class Config {
         public static long ReenterInterval;
         public static boolean AfterLoginBack;
         public static boolean CanTpSpawnLocation;
-        public static List<Pattern> CommandWhiteList = new ArrayList<>();
+        public static List<Pattern> CommandWhiteList = new java.util.ArrayList<>();
         public static int AutoKick;
         public static String NamePattern;
         public static boolean DeathStateQuitRecordLocation;
@@ -94,7 +80,7 @@ public class Config {
             MinLengthID = cm.getMinLengthID();
             BedrockLoginBypass = cm.isBedrockLoginBypass();
             LoginwiththesameIP = cm.isLoginWithSameIP();
-            Emptybackpack = cm.isEmptyBackpack();
+            EmptyBackpack = cm.isEmptyBackpack();
             MaxLengthID = cm.getMaxLengthID();
             BeforeLoginNoDamage = cm.isBeforeLoginNoDamage();
             ReenterInterval = cm.getReenterInterval();
@@ -116,7 +102,7 @@ public class Config {
             cm.set("settings.limit-chinese-id", LimitChineseID);
             cm.set("bedrock.login-bypass", BedrockLoginBypass);
             cm.set("same-ip-login.enabled", LoginwiththesameIP);
-            cm.set("empty-backpack", Emptybackpack);
+            cm.set("empty-backpack", EmptyBackpack);
             cm.set("same-ip-login.timeout", IPTimeout);
             cm.set("settings.min-length-id", MinLengthID);
             cm.set("settings.max-length-id", MaxLengthID);
@@ -128,6 +114,10 @@ public class Config {
             cm.set("settings.death-state-quit-record-location", DeathStateQuitRecordLocation);
             cm.set("bedrock.floodgate-prefix-protect", FloodgatePrefixProtect);
             cm.set("settings.name-pattern", NamePattern);
+            
+            if (CommandWhiteList != null && !CommandWhiteList.isEmpty()) {
+                cm.getMainConfig().set("settings.command-white-list", CommandWhiteList.stream().map(Pattern::toString).collect(Collectors.toList()));
+            }
             
             if (SpawnLocation != null) {
                 cm.setSpawnLocation(SpawnLocation);
@@ -224,26 +214,9 @@ public class Config {
         }
     }
 
-    public static FileConfiguration getConfig(String yamlFileName){
-        File file = new File(plugin.getDataFolder(), yamlFileName);
-        if (!file.exists()) {
-            plugin.saveResource(yamlFileName, false);
-        }
-        return YamlConfiguration.loadConfiguration(file);
-    }
-
-    public static FileConfiguration getResourceConfig(String yamlFileName){
-        return YamlConfiguration.loadConfiguration(new InputStreamReader(plugin.getResource(yamlFileName), StandardCharsets.UTF_8));
-    }
-
     public static void load(){
-        plugin.saveDefaultConfig();
-        FileConfiguration config = plugin.getConfig();
-        if (config.contains("offlineLocations")) {
-            config.getConfigurationSection("offlineLocations").getKeys(false).forEach(key ->
-                    offlineLocations.put(key, config.getString("offlineLocations." + key))
-            );
-        }
+        BukkitConfigManager cm = plugin.getConfigManager();
+        cm.getConfigManager().createDefaultConfig("config.yml");
         MySQL.load();
         Settings.load();
         EmailVerify.load();
@@ -261,12 +234,18 @@ public class Config {
     }
 
     public static Optional<Location> getOfflineLocation(Player player) {
-        return Optional.ofNullable(plugin.getConfig().getString("offlineLocations." + player.getName())).map(Config::str2Location);
+        BukkitConfigManager cm = plugin.getConfigManager();
+        String locStr = cm.getMainConfig().getString("offlineLocations." + player.getName());
+        if (locStr != null) {
+            return Optional.of(str2Location(locStr));
+        }
+        return Optional.empty();
     }
 
     public static void setOfflineLocation(Player player) {
-        plugin.getConfig().set("offlineLocations." + player.getName(), loc2String(player.getLocation()));
-        plugin.saveConfig();
+        BukkitConfigManager cm = plugin.getConfigManager();
+        cm.getMainConfig().set("offlineLocations." + player.getName(), loc2String(player.getLocation()));
+        cm.getConfigManager().saveConfig("config.yml");
     }
 
     private static Location str2Location(String str){
@@ -289,22 +268,22 @@ public class Config {
     private static String loc2String(Location loc) {
         try {
             return String.format("%s:%.2f:%.2f:%.2f:%.2f:%.2f",
-                                 loc.getWorld().getName(),
-                                 loc.getX(),
-                                 loc.getY(),
-                                 loc.getZ(),
-                                 loc.getYaw(),
-                                 loc.getPitch());
+                    loc.getWorld().getName(),
+                    loc.getX(),
+                    loc.getY(),
+                    loc.getZ(),
+                    loc.getYaw(),
+                    loc.getPitch());
         } catch (Exception e) {
             e.printStackTrace();
             Location defaultLoc = getDefaultWorld().getSpawnLocation();
             return String.format("%s:%.2f:%.2f:%.2f:%.2f:%.2f",
-                                 defaultLoc.getWorld().getName(),
-                                 defaultLoc.getX(),
-                                 defaultLoc.getY(),
-                                 defaultLoc.getZ(),
-                                 defaultLoc.getYaw(),
-                                 defaultLoc.getPitch());
+                    defaultLoc.getWorld().getName(),
+                    defaultLoc.getX(),
+                    defaultLoc.getY(),
+                    defaultLoc.getZ(),
+                    defaultLoc.getYaw(),
+                    defaultLoc.getPitch());
         }
     }
 
@@ -314,15 +293,15 @@ public class Config {
             return Bukkit.getWorlds().get(0);
         }
 
-        try (InputStream is = new BufferedInputStream(Files.newInputStream(serverPropertiesFile.toPath()))) {
-            Properties properties = new Properties();
+        try (java.io.InputStream is = new java.io.BufferedInputStream(java.nio.file.Files.newInputStream(serverPropertiesFile.toPath()))) {
+            java.util.Properties properties = new java.util.Properties();
             properties.load(is);
             String worldName = properties.getProperty("level-name");
             World world = Bukkit.getWorld(worldName);
             if (world != null) {
                 return world;
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

@@ -45,6 +45,7 @@ public class CatSeedLogin extends JavaPlugin implements Listener {
 
         try {
             configManager.reload();
+            Config.load();
         } catch (Exception e) {
             e.printStackTrace();
             getServer().getLogger().warning("加载配置文件时出错，请检查你的配置文件。");
