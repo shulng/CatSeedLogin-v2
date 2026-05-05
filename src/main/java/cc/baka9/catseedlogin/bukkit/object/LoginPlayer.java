@@ -16,6 +16,7 @@ import java.util.Objects;
 public class LoginPlayer {
     private String name, password, email, ips;
     private long lastAction;
+    private String location;
 
     public LoginPlayer(String name, String password) {
         this.name = name; this.password = password;

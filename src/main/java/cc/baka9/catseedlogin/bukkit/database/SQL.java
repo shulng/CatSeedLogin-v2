@@ -18,7 +18,7 @@ public abstract class SQL {
     }
 
     public void init() throws Exception {
-        flush(new BufferStatement("CREATE TABLE IF NOT EXISTS accounts (name CHAR(255), password CHAR(255), email CHAR(255), ips CHAR(255), lastAction TIMESTAMP)"));
+        flush(new BufferStatement("CREATE TABLE IF NOT EXISTS accounts (name CHAR(255), password CHAR(255), email CHAR(255), ips CHAR(255), lastAction TIMESTAMP, location CHAR(255) DEFAULT NULL)"));
 
         try {
             flush(new BufferStatement("ALTER TABLE accounts ADD email CHAR(255)"));
@@ -31,11 +31,17 @@ public abstract class SQL {
         } catch (Exception e) {
             if (!e.getMessage().toLowerCase().contains("duplicate column name")) throw e;
         }
+
+        try {
+            flush(new BufferStatement("ALTER TABLE accounts ADD location CHAR(255)"));
+        } catch (Exception e) {
+            if (!e.getMessage().toLowerCase().contains("duplicate column name")) throw e;
+        }
     }
 
     public void add(LoginPlayer lp) throws Exception {
-        flush(new BufferStatement("INSERT INTO accounts (name, password, lastAction, email, ips) VALUES (?, ?, ?, ?, ?)",
-            lp.getName(), lp.getPassword(), new Date(), lp.getEmail(), lp.getIps()));
+        flush(new BufferStatement("INSERT INTO accounts (name, password, lastAction, email, ips, location) VALUES (?, ?, ?, ?, ?, ?)",
+            lp.getName(), lp.getPassword(), new Date(), lp.getEmail(), lp.getIps(), lp.getLocation()));
         Cache.refresh(lp.getName());
     }
 
@@ -45,9 +51,25 @@ public abstract class SQL {
     }
 
     public void edit(LoginPlayer lp) throws Exception {
-        flush(new BufferStatement("UPDATE accounts SET password = ?, lastAction = ?, email = ?, ips = ? WHERE name = ?",
-            lp.getPassword(), new Date(), lp.getEmail(), lp.getIps(), lp.getName()));
+        flush(new BufferStatement("UPDATE accounts SET password = ?, lastAction = ?, email = ?, ips = ?, location = ? WHERE name = ?",
+            lp.getPassword(), new Date(), lp.getEmail(), lp.getIps(), lp.getLocation(), lp.getName()));
         Cache.refresh(lp.getName());
+    }
+
+    public void updateLocation(String name, String location) throws Exception {
+        flush(new BufferStatement("UPDATE accounts SET location = ? WHERE name = ?", location, name));
+    }
+
+    public String getLocation(String name) throws Exception {
+        PreparedStatement ps = new BufferStatement("SELECT location FROM accounts WHERE name = ?", name).prepareStatement(getConnection());
+        ResultSet resultSet = ps.executeQuery();
+        String location = null;
+        if (resultSet.next()) {
+            location = resultSet.getString("location");
+        }
+        resultSet.close();
+        ps.close();
+        return location;
     }
 
     public LoginPlayer get(String name) throws Exception {
@@ -59,6 +81,7 @@ public abstract class SQL {
             lp.setLastAction(resultSet.getTimestamp("lastAction").getTime());
             lp.setEmail(resultSet.getString("email"));
             lp.setIps(resultSet.getString("ips"));
+            lp.setLocation(resultSet.getString("location"));
         }
         resultSet.close();
         ps.close();
@@ -74,6 +97,7 @@ public abstract class SQL {
             lp.setLastAction(resultSet.getTimestamp("lastAction").getTime());
             lp.setEmail(resultSet.getString("email"));
             lp.setIps(resultSet.getString("ips"));
+            lp.setLocation(resultSet.getString("location"));
             lps.add(lp);
         }
         return lps;
@@ -88,6 +112,7 @@ public abstract class SQL {
             lp.setLastAction(resultSet.getTimestamp("lastAction").getTime());
             lp.setEmail(resultSet.getString("email"));
             lp.setIps(resultSet.getString("ips"));
+            lp.setLocation(resultSet.getString("location"));
             lps.add(lp);
         }
         return lps;

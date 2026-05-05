@@ -234,18 +234,28 @@ public class Config {
     }
 
     public static Optional<Location> getOfflineLocation(Player player) {
-        BukkitConfigManager cm = plugin.getConfigManager();
-        String locStr = cm.getMainConfig().getString("offlineLocations." + player.getName());
-        if (locStr != null) {
-            return Optional.of(str2Location(locStr));
+        try {
+            String locStr = CatSeedLogin.sql.getLocation(player.getName());
+            if (locStr != null && !locStr.isEmpty()) {
+                return Optional.of(str2Location(locStr));
+            }
+        } catch (Exception e) {
+            plugin.getLogger().warning("获取玩家离线位置失败: " + player.getName());
+            e.printStackTrace();
         }
         return Optional.empty();
     }
 
     public static void setOfflineLocation(Player player) {
-        BukkitConfigManager cm = plugin.getConfigManager();
-        cm.getMainConfig().set("offlineLocations." + player.getName(), loc2String(player.getLocation()));
-        cm.getConfigManager().saveConfig("config.yml");
+        String locStr = loc2String(player.getLocation());
+        plugin.runTaskAsync(() -> {
+            try {
+                CatSeedLogin.sql.updateLocation(player.getName(), locStr);
+            } catch (Exception e) {
+                plugin.getLogger().warning("保存玩家离线位置失败: " + player.getName());
+                e.printStackTrace();
+            }
+        });
     }
 
     private static Location str2Location(String str){
