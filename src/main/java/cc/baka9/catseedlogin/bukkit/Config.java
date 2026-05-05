@@ -216,7 +216,7 @@ public class Config {
 
     public static void load(){
         BukkitConfigManager cm = plugin.getConfigManager();
-        cm.getConfigManager().createDefaultConfig("config.yml");
+        cm.createDefaultConfig("config.yml");
         MySQL.load();
         Settings.load();
         EmailVerify.load();

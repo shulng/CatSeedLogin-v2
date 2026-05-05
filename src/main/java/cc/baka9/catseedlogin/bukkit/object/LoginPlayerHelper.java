@@ -111,7 +111,7 @@ public class LoginPlayerHelper {
     }
 
     public static void sendBlankInventoryPacket(Player player) {
-        if (!Config.Settings.Emptybackpack) return;
+        if (!Config.Settings.EmptyBackpack) return;
 
         ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
         PacketContainer inventoryPacket = protocolManager.createPacket(PacketType.Play.Server.WINDOW_ITEMS);
