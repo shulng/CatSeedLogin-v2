@@ -240,7 +240,7 @@ bedrock:
 same-ip-login:
   # 是否启用同IP免登录
   enabled: false
-  # IP超时时间 (秒)
+  # IP超时时间 (分钟)
   timeout: 5
 
 # 登录前隐藏背包 (需要ProtocolLib)
