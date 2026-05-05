@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
@@ -63,9 +64,13 @@ public class YamlConfiguration implements Configuration {
         if (file.getParentFile() != null && !file.getParentFile().exists()) {
             file.getParentFile().mkdirs();
         }
-        try (java.io.FileWriter writer = new java.io.FileWriter(file, StandardCharsets.UTF_8)) {
+        try (java.io.OutputStreamWriter writer = new OutputStreamWriter(new java.io.FileOutputStream(file), StandardCharsets.UTF_8)) {
             yaml.dump(data, writer);
         }
+    }
+
+    public Map<String, Object> getDataMap() {
+        return data;
     }
 
     @Override

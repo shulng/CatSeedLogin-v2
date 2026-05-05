@@ -47,11 +47,9 @@ public abstract class ConfigManager {
 
     @SuppressWarnings("unchecked")
     private void mergeDefaults(YamlConfiguration config, YamlConfiguration defaults) {
-        if (defaults.data != null) {
-            for (Map.Entry<String, Object> entry : defaults.data.entrySet()) {
-                if (!config.contains(entry.getKey())) {
-                    config.set(entry.getKey(), entry.getValue());
-                }
+        for (Map.Entry<String, Object> entry : defaults.getDataMap().entrySet()) {
+            if (!config.contains(entry.getKey())) {
+                config.set(entry.getKey(), entry.getValue());
             }
         }
     }

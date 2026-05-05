@@ -61,10 +61,10 @@ public class CatScheduler {
     }
 
     public static ScheduledTask runTaskLaterAsync(Runnable runnable, long delay) {
-        return CatSeedLogin.morePaperLib.scheduling().asyncScheduler().runDelayed(runnable, java.time.Duration.ofTicks(delay));
+        return CatSeedLogin.morePaperLib.scheduling().asyncScheduler().runDelayed(runnable, java.time.Duration.ofMillis(delay * 50));
     }
 
     public static ScheduledTask runTaskTimerAsync(Runnable runnable, long delay, long period) {
-        return CatSeedLogin.morePaperLib.scheduling().asyncScheduler().runAtFixedRate(runnable, java.time.Duration.ofTicks(delay), java.time.Duration.ofTicks(period));
+        return CatSeedLogin.morePaperLib.scheduling().asyncScheduler().runAtFixedRate(runnable, java.time.Duration.ofMillis(delay * 50), java.time.Duration.ofMillis(period * 50));
     }
 }
