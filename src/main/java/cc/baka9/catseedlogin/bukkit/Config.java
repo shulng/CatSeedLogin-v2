@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Properties;
-import java.lang.reflect.Field;
 import java.util.regex.Pattern;
 import java.io.InputStreamReader;
 import java.io.BufferedInputStream;
@@ -25,21 +24,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-/**
- * 加载/保存/重载 yml配置文件
- * config.yml 玩家退出服务器的位置
- * emailVerify.yml 邮箱找回密码
- * language.yml 语言，提示
- * settings.yml 设置
- * sql.yml 数据库
- */
+import cc.baka9.catseedlogin.bukkit.config.BukkitConfigManager;
+import cc.baka9.catseedlogin.common.i18n.MessageKey;
+
 public class Config {
     private static final CatSeedLogin plugin = CatSeedLogin.instance;
     private static final Map<String, String> offlineLocations = new ConcurrentHashMap<>();
 
-    /**
-     * 数据库
-     */
     public static class MySQL {
         public static boolean Enable;
         public static String Host;
@@ -49,13 +40,13 @@ public class Config {
         public static String Password;
 
         public static void load(){
-            FileConfiguration config = getConfig("sql.yml");
-            MySQL.Enable = config.getBoolean("MySQL.Enable");
-            MySQL.Host = config.getString("MySQL.Host");
-            MySQL.Port = config.getString("MySQL.Port");
-            MySQL.Database = config.getString("MySQL.Database");
-            MySQL.User = config.getString("MySQL.User");
-            MySQL.Password = config.getString("MySQL.Password");
+            BukkitConfigManager cm = plugin.getConfigManager();
+            Enable = cm.isMySQL();
+            Host = cm.getHost();
+            Port = String.valueOf(cm.getPort());
+            Database = cm.getDatabase();
+            User = cm.getUser();
+            Password = cm.getPassword();
         }
     }
 
@@ -66,18 +57,14 @@ public class Config {
         public static String AuthKey;
 
         public static void load(){
-
-            FileConfiguration config = getConfig("bungeecord.yml");
-            BungeeCord.Enable = config.getBoolean("Enable");
-            BungeeCord.Host = config.getString("Host");
-            BungeeCord.Port = config.getString("Port");
-            BungeeCord.AuthKey = config.getString("AuthKey");
+            BukkitConfigManager cm = plugin.getConfigManager();
+            Enable = cm.isEnable();
+            Host = cm.getHost();
+            Port = String.valueOf(cm.getPort());
+            AuthKey = cm.getAuthKey();
         }
     }
 
-    /**
-     * 设置
-     */
     public static class Settings {
         public static int IpRegisterCountLimit;
         public static int IpCountLimit;
@@ -96,75 +83,58 @@ public class Config {
         public static List<Pattern> CommandWhiteList = new ArrayList<>();
         public static int AutoKick;
         public static String NamePattern;
-        // 死亡状态退出游戏是否记录退出位置 (玩家可以通过死亡时退出服务器然后重新进入，再复活，登录返回死亡地点)
         public static boolean DeathStateQuitRecordLocation;
         public static boolean FloodgatePrefixProtect;
 
         public static void load(){
-            FileConfiguration config = getConfig("settings.yml");
-            FileConfiguration resourceConfig = getResourceConfig("settings.yml");
-
-            IpRegisterCountLimit = config.getInt("IpRegisterCountLimit", resourceConfig.getInt("IpRegisterCountLimit"));
-            IpCountLimit = config.getInt("IpCountLimit", resourceConfig.getInt("IpCountLimit"));
-            LimitChineseID = config.getBoolean("LimitChineseID", resourceConfig.getBoolean("LimitChineseID"));
-            MinLengthID = config.getInt("MinLengthID", resourceConfig.getInt("MinLengthID"));
-            BedrockLoginBypass = config.getBoolean("BedrockLoginBypass", resourceConfig.getBoolean("BedrockLoginBypass"));
-            LoginwiththesameIP = config.getBoolean("LoginwiththesameIP", resourceConfig.getBoolean("LoginwiththesameIP"));
-            Emptybackpack = config.getBoolean("Emptybackpack", resourceConfig.getBoolean("Emptybackpack"));
-            MaxLengthID = config.getInt("MaxLengthID", resourceConfig.getInt("MaxLengthID"));
-            BeforeLoginNoDamage = config.getBoolean("BeforeLoginNoDamage", resourceConfig.getBoolean("BeforeLoginNoDamage"));
-            ReenterInterval = config.getLong("ReenterInterval", resourceConfig.getLong("ReenterInterval"));
-            AfterLoginBack = config.getBoolean("AfterLoginBack", resourceConfig.getBoolean("AfterLoginBack"));
-            CanTpSpawnLocation = config.getBoolean("CanTpSpawnLocation", resourceConfig.getBoolean("CanTpSpawnLocation"));
-            NamePattern = config.getString("NamePattern", resourceConfig.getString("NamePattern", "^\\w+$"));
-            List<String> commandWhiteList = config.getStringList("CommandWhiteList");
-            if (commandWhiteList.isEmpty()) {
-                commandWhiteList = resourceConfig.getStringList("CommandWhiteList");
-            }
-            Settings.CommandWhiteList.clear();
-            Settings.CommandWhiteList.addAll(commandWhiteList.stream().map(Pattern::compile).collect(Collectors.toList()));
-            AutoKick = config.getInt("AutoKick", 120);
-            IPTimeout = config.getInt("IPTimeout", 5);
-            SpawnLocation = str2Location(config.getString("SpawnLocation"));
-            DeathStateQuitRecordLocation = config.getBoolean("DeathStateQuitRecordLocation", resourceConfig.getBoolean("DeathStateQuitRecordLocation"));
-            FloodgatePrefixProtect = config.getBoolean("FloodgatePrefixProtect", resourceConfig.getBoolean("FloodgatePrefixProtect"));
-
-
+            BukkitConfigManager cm = plugin.getConfigManager();
+            IpRegisterCountLimit = cm.getIpRegisterCountLimit();
+            IpCountLimit = cm.getIpCountLimit();
+            LimitChineseID = cm.isLimitChineseID();
+            MinLengthID = cm.getMinLengthID();
+            BedrockLoginBypass = cm.isBedrockLoginBypass();
+            LoginwiththesameIP = cm.isLoginWithSameIP();
+            Emptybackpack = cm.isEmptyBackpack();
+            MaxLengthID = cm.getMaxLengthID();
+            BeforeLoginNoDamage = cm.isBeforeLoginNoDamage();
+            ReenterInterval = cm.getReenterInterval();
+            AfterLoginBack = cm.isAfterLoginBack();
+            CanTpSpawnLocation = cm.isCanTpSpawnLocation();
+            NamePattern = cm.getNamePattern();
+            CommandWhiteList = cm.getCommandWhiteList();
+            AutoKick = cm.getAutoKick();
+            IPTimeout = cm.getIPTimeout();
+            SpawnLocation = cm.getBukkitSpawnLocation();
+            DeathStateQuitRecordLocation = cm.isDeathStateQuitRecordLocation();
+            FloodgatePrefixProtect = cm.isFloodgatePrefixProtect();
         }
 
         public static void save(){
-            FileConfiguration config = getConfig("settings.yml");
-            config.set("IpRegisterCountLimit", IpRegisterCountLimit);
-            config.set("IpCountLimit", IpCountLimit);
-            config.set("SpawnWorld", null);
-            config.set("LimitChineseID", LimitChineseID);
-            config.set("BedrockLoginBypass",BedrockLoginBypass);
-            config.set("LoginwiththesameIP",LoginwiththesameIP);
-            config.set("Emptybackpack",Emptybackpack);
-            config.set("IPTimeout", IPTimeout);
-            config.set("MinLengthID", MinLengthID);
-            config.set("MaxLengthID", MaxLengthID);
-            config.set("BeforeLoginNoDamage", BeforeLoginNoDamage);
-            config.set("ReenterInterval", ReenterInterval);
-            config.set("AfterLoginBack", AfterLoginBack);
-            config.set("CanTpSpawnLocation", CanTpSpawnLocation);
-            config.set("AutoKick", AutoKick);
-            config.set("SpawnLocation", loc2String(SpawnLocation));
-            config.set("CommandWhiteList", CommandWhiteList.stream().map(Pattern::toString).collect(Collectors.toList()));
-            config.set("DeathStateQuitRecordLocation", DeathStateQuitRecordLocation);
-            config.set("FloodgatePrefixProtect", FloodgatePrefixProtect);
-            config.set("NamePattern", NamePattern);
-            try {
-                config.save(new File(CatSeedLogin.instance.getDataFolder(), "settings.yml"));
-            } catch (IOException e) {
-                e.printStackTrace();
+            BukkitConfigManager cm = plugin.getConfigManager();
+            cm.set("settings.ip-register-count-limit", IpRegisterCountLimit);
+            cm.set("settings.ip-count-limit", IpCountLimit);
+            cm.set("settings.limit-chinese-id", LimitChineseID);
+            cm.set("bedrock.login-bypass", BedrockLoginBypass);
+            cm.set("same-ip-login.enabled", LoginwiththesameIP);
+            cm.set("empty-backpack", Emptybackpack);
+            cm.set("same-ip-login.timeout", IPTimeout);
+            cm.set("settings.min-length-id", MinLengthID);
+            cm.set("settings.max-length-id", MaxLengthID);
+            cm.set("settings.before-login-no-damage", BeforeLoginNoDamage);
+            cm.set("settings.reenter-interval", ReenterInterval);
+            cm.set("settings.after-login-back", AfterLoginBack);
+            cm.set("settings.can-tp-spawn-location", CanTpSpawnLocation);
+            cm.set("settings.auto-kick", AutoKick);
+            cm.set("settings.death-state-quit-record-location", DeathStateQuitRecordLocation);
+            cm.set("bedrock.floodgate-prefix-protect", FloodgatePrefixProtect);
+            cm.set("settings.name-pattern", NamePattern);
+            
+            if (SpawnLocation != null) {
+                cm.setSpawnLocation(SpawnLocation);
             }
         }
     }
 
-    /**
-     * 语言，提示
-     */
     public static class Language {
         public static String LOGIN_REQUEST;
         public static String REGISTER_REQUEST;
@@ -199,26 +169,41 @@ public class Config {
         public static String LOGIN_WITH_THE_SAME_IP;
 
         public static void load(){
-            FileConfiguration resourceConfig = getResourceConfig("language.yml");
-            FileConfiguration config = getConfig("language.yml");
-            for (Field field : Language.class.getDeclaredFields()) {
-                try {
-                    String fieldName = field.getName();
-                    String value = config.getString(fieldName, resourceConfig.getString(fieldName));
-                    field.set(null, value.replace('&', ChatColor.COLOR_CHAR));
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-            }
+            LOGIN_REQUEST = MessageKey.LOGIN_REQUEST.get();
+            REGISTER_REQUEST = MessageKey.REGISTER_REQUEST.get();
+            LOGIN_NOREGISTER = MessageKey.LOGIN_NOREGISTER.get();
+            LOGIN_REPEAT = MessageKey.LOGIN_REPEAT.get();
+            LOGIN_SUCCESS = MessageKey.LOGIN_SUCCESS.get();
+            LOGIN_FAIL = MessageKey.LOGIN_FAIL.get();
+            LOGIN_FAIL_IF_FORGET = MessageKey.LOGIN_FAIL_IF_FORGET.get();
+            REGISTER_SUCCESS = MessageKey.REGISTER_SUCCESS.get();
+            REGISTER_BEFORE_LOGIN_ALREADY = MessageKey.REGISTER_BEFORE_LOGIN_ALREADY.get();
+            REGISTER_AFTER_LOGIN_ALREADY = MessageKey.REGISTER_AFTER_LOGIN_ALREADY.get();
+            REGISTER_PASSWORD_CONFIRM_FAIL = MessageKey.REGISTER_PASSWORD_CONFIRM_FAIL.get();
+            COMMON_PASSWORD_SO_SIMPLE = MessageKey.COMMON_PASSWORD_SO_SIMPLE.get();
+            RESETPASSWORD_NOREGISTER = MessageKey.RESETPASSWORD_NOREGISTER.get();
+            RESETPASSWORD_EMAIL_DISABLE = MessageKey.RESETPASSWORD_EMAIL_DISABLE.get();
+            RESETPASSWORD_EMAIL_NO_SET = MessageKey.RESETPASSWORD_EMAIL_NO_SET.get();
+            RESETPASSWORD_EMAIL_REPEAT_SEND_MESSAGE = MessageKey.RESETPASSWORD_EMAIL_REPEAT_SEND_MESSAGE.get();
+            RESETPASSWORD_EMAIL_SENDING_MESSAGE = MessageKey.RESETPASSWORD_EMAIL_SENDING_MESSAGE.get();
+            RESETPASSWORD_EMAIL_SENT_MESSAGE = MessageKey.RESETPASSWORD_EMAIL_SENT_MESSAGE.get();
+            RESETPASSWORD_EMAIL_WARN = MessageKey.RESETPASSWORD_EMAIL_WARN.get();
+            RESETPASSWORD_SUCCESS = MessageKey.RESETPASSWORD_SUCCESS.get();
+            RESETPASSWORD_EMAILCODE_INCORRECT = MessageKey.RESETPASSWORD_EMAILCODE_INCORRECT.get();
+            RESETPASSWORD_FAIL = MessageKey.RESETPASSWORD_FAIL.get();
+            CHANGEPASSWORD_NOREGISTER = MessageKey.CHANGEPASSWORD_NOREGISTER.get();
+            CHANGEPASSWORD_NOLOGIN = MessageKey.CHANGEPASSWORD_NOLOGIN.get();
+            CHANGEPASSWORD_OLDPASSWORD_INCORRECT = MessageKey.CHANGEPASSWORD_OLDPASSWORD_INCORRECT.get();
+            CHANGEPASSWORD_PASSWORD_CONFIRM_FAIL = MessageKey.CHANGEPASSWORD_PASSWORD_CONFIRM_FAIL.get();
+            CHANGEPASSWORD_SUCCESS = MessageKey.CHANGEPASSWORD_SUCCESS.get();
+            AUTO_KICK = MessageKey.AUTO_KICK.get();
+            REGISTER_MORE = MessageKey.REGISTER_MORE.get();
+            BEDROCK_LOGIN_BYPASS = MessageKey.BEDROCK_LOGIN_BYPASS.get();
+            LOGIN_WITH_THE_SAME_IP = MessageKey.LOGIN_WITH_THE_SAME_IP.get();
         }
-
     }
 
-    /**
-     * 邮箱找回密码
-     */
     public static class EmailVerify {
-
         public static boolean Enable;
         public static String EmailAccount;
         public static String EmailPassword;
@@ -227,21 +212,18 @@ public class Config {
         public static boolean SSLAuthVerify;
         public static String FromPersonal;
 
-
         public static void load(){
-            FileConfiguration config = getConfig("emailVerify.yml");
-            Enable = config.getBoolean("Enable");
-            EmailAccount = config.getString("EmailAccount");
-            EmailPassword = config.getString("EmailPassword");
-            EmailSmtpHost = config.getString("EmailSmtpHost");
-            EmailSmtpPort = config.getString("EmailSmtpPort");
-            SSLAuthVerify = config.getBoolean("SSLAuthVerify");
-            FromPersonal = config.getString("FromPersonal");
-
+            BukkitConfigManager cm = plugin.getConfigManager();
+            Enable = cm.isEnable();
+            EmailAccount = cm.getEmailAccount();
+            EmailPassword = cm.getEmailPassword();
+            EmailSmtpHost = cm.getEmailSmtpHost();
+            EmailSmtpPort = cm.getEmailSmtpPort();
+            SSLAuthVerify = cm.isSSLAuthVerify();
+            FromPersonal = cm.getFromPersonal();
         }
-
     }
-    // 获取插件文件夹中的配置文件，如果不存在则从插件jar包中获取配置文件保存到插件文件夹中
+
     public static FileConfiguration getConfig(String yamlFileName){
         File file = new File(plugin.getDataFolder(), yamlFileName);
         if (!file.exists()) {
@@ -250,7 +232,6 @@ public class Config {
         return YamlConfiguration.loadConfiguration(file);
     }
 
-    // 获取插件jar包中的配置文件
     public static FileConfiguration getResourceConfig(String yamlFileName){
         return YamlConfiguration.loadConfiguration(new InputStreamReader(plugin.getResource(yamlFileName), StandardCharsets.UTF_8));
     }
@@ -275,23 +256,19 @@ public class Config {
     }
 
     public static void reload(){
-        plugin.reloadConfig();
+        plugin.getConfigManager().reload();
         load();
-
     }
 
-    // 获取玩家退出服务器时的位置
     public static Optional<Location> getOfflineLocation(Player player) {
         return Optional.ofNullable(plugin.getConfig().getString("offlineLocations." + player.getName())).map(Config::str2Location);
     }
 
-    // 保存玩家退出服务器的位置
     public static void setOfflineLocation(Player player) {
         plugin.getConfig().set("offlineLocations." + player.getName(), loc2String(player.getLocation()));
         plugin.saveConfig();
     }
 
-    // 字符串转成位置
     private static Location str2Location(String str){
         Location loc;
         try {
@@ -307,56 +284,48 @@ public class Config {
             loc = getDefaultWorld().getSpawnLocation();
         }
         return loc;
-
     }
-    // 位置转成字符串
+
     private static String loc2String(Location loc) {
-    try {
-        return String.format("%s:%.2f:%.2f:%.2f:%.2f:%.2f",
-                             loc.getWorld().getName(),
-                             loc.getX(),
-                             loc.getY(),
-                             loc.getZ(),
-                             loc.getYaw(),
-                             loc.getPitch());
-    } catch (Exception e) {
-        // 记录错误日志
-        e.printStackTrace();
-        // 使用默认世界的出生点位置
-        Location defaultLoc = getDefaultWorld().getSpawnLocation();
-        return String.format("%s:%.2f:%.2f:%.2f:%.2f:%.2f",
-                             defaultLoc.getWorld().getName(),
-                             defaultLoc.getX(),
-                             defaultLoc.getY(),
-                             defaultLoc.getZ(),
-                             defaultLoc.getYaw(),
-                             defaultLoc.getPitch());
+        try {
+            return String.format("%s:%.2f:%.2f:%.2f:%.2f:%.2f",
+                                 loc.getWorld().getName(),
+                                 loc.getX(),
+                                 loc.getY(),
+                                 loc.getZ(),
+                                 loc.getYaw(),
+                                 loc.getPitch());
+        } catch (Exception e) {
+            e.printStackTrace();
+            Location defaultLoc = getDefaultWorld().getSpawnLocation();
+            return String.format("%s:%.2f:%.2f:%.2f:%.2f:%.2f",
+                                 defaultLoc.getWorld().getName(),
+                                 defaultLoc.getX(),
+                                 defaultLoc.getY(),
+                                 defaultLoc.getZ(),
+                                 defaultLoc.getYaw(),
+                                 defaultLoc.getPitch());
+        }
     }
-}
 
-
-    // 获取默认世界
     private static World getDefaultWorld() {
-    File serverPropertiesFile = new File("server.properties");
-    if (!serverPropertiesFile.exists()) {
+        File serverPropertiesFile = new File("server.properties");
+        if (!serverPropertiesFile.exists()) {
+            return Bukkit.getWorlds().get(0);
+        }
+
+        try (InputStream is = new BufferedInputStream(Files.newInputStream(serverPropertiesFile.toPath()))) {
+            Properties properties = new Properties();
+            properties.load(is);
+            String worldName = properties.getProperty("level-name");
+            World world = Bukkit.getWorld(worldName);
+            if (world != null) {
+                return world;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         return Bukkit.getWorlds().get(0);
     }
-
-    try (InputStream is = new BufferedInputStream(Files.newInputStream(serverPropertiesFile.toPath()))) {
-        Properties properties = new Properties();
-        properties.load(is);
-        String worldName = properties.getProperty("level-name");
-        World world = Bukkit.getWorld(worldName);
-        if (world != null) {
-            return world;
-        }
-    } catch (IOException e) {
-        e.printStackTrace();
-    }
-
-    return Bukkit.getWorlds().get(0);
-}
-
-
-
 }

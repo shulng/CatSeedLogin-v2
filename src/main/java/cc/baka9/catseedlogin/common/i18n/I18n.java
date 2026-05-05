@@ -1,0 +1,183 @@
+package cc.baka9.catseedlogin.common.i18n;
+
+import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+public class I18n {
+
+    private static I18n instance;
+
+    private final File dataFolder;
+    private final ResourceProvider resourceProvider;
+    private Locale currentLocale = Locale.SIMPLIFIED_CHINESE;
+    private final Map<Locale, Map<String, String>> messages = new ConcurrentHashMap<>();
+    private final Map<String, Object> placeholders = new ConcurrentHashMap<>();
+    private char colorChar = '&';
+
+    public interface ResourceProvider {
+        InputStream getResource(String name);
+    }
+
+    public I18n(File dataFolder, ResourceProvider resourceProvider) {
+        this.dataFolder = dataFolder;
+        this.resourceProvider = resourceProvider;
+        instance = this;
+    }
+
+    public static I18n getInstance() {
+        return instance;
+    }
+
+    public void setLocale(Locale locale) {
+        this.currentLocale = locale;
+        loadMessages(locale);
+    }
+
+    public void setLocale(String languageTag) {
+        setLocale(Locale.forLanguageTag(languageTag));
+    }
+
+    public Locale getLocale() {
+        return currentLocale;
+    }
+
+    public void loadMessages(Locale locale) {
+        if (messages.containsKey(locale)) {
+            return;
+        }
+
+        Map<String, String> localeMessages = new HashMap<>();
+        String fileName = "language_" + locale.toLanguageTag() + ".yml";
+        File customFile = new File(dataFolder, fileName);
+
+        if (customFile.exists()) {
+            loadFromFile(customFile, localeMessages);
+        }
+
+        try (InputStream defaultStream = resourceProvider.getResource("language.yml")) {
+            if (defaultStream != null) {
+                loadFromStream(defaultStream, localeMessages);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        messages.put(locale, localeMessages);
+    }
+
+    private void loadFromFile(File file, Map<String, String> messages) {
+        try {
+            org.yaml.snakeyaml.Yaml yaml = new org.yaml.snakeyaml.Yaml();
+            try (InputStreamReader reader = new InputStreamReader(
+                    new java.io.FileInputStream(file), StandardCharsets.UTF_8)) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> data = yaml.load(reader);
+                if (data != null) {
+                    flattenMap(messages, "", data);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadFromStream(InputStream stream, Map<String, String> messages) {
+        try {
+            org.yaml.snakeyaml.Yaml yaml = new org.yaml.snakeyaml.Yaml();
+            try (InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> data = yaml.load(reader);
+                if (data != null) {
+                    flattenMap(messages, "", data);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void flattenMap(Map<String, String> result, String prefix, Map<String, Object> map) {
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            String key = prefix.isEmpty() ? entry.getKey() : prefix + "." + entry.getKey();
+            if (entry.getValue() instanceof Map) {
+                flattenMap(result, key, (Map<String, Object>) entry.getValue());
+            } else if (entry.getValue() != null) {
+                result.put(key, String.valueOf(entry.getValue()));
+            }
+        }
+    }
+
+    public String get(String key) {
+        Map<String, String> localeMessages = messages.get(currentLocale);
+        if (localeMessages != null && localeMessages.containsKey(key)) {
+            return translateColors(localeMessages.get(key));
+        }
+        return key;
+    }
+
+    public String get(String key, Object... args) {
+        String message = get(key);
+        if (args != null && args.length > 0) {
+            try {
+                return MessageFormat.format(message, args);
+            } catch (IllegalArgumentException e) {
+                return message;
+            }
+        }
+        return message;
+    }
+
+    public String getOrDefault(String key, String defaultValue) {
+        Map<String, String> localeMessages = messages.get(currentLocale);
+        if (localeMessages != null && localeMessages.containsKey(key)) {
+            return translateColors(localeMessages.get(key));
+        }
+        return defaultValue;
+    }
+
+    public void setPlaceholder(String key, Object value) {
+        placeholders.put(key, value);
+    }
+
+    public void removePlaceholder(String key) {
+        placeholders.remove(key);
+    }
+
+    public void clearPlaceholders() {
+        placeholders.clear();
+    }
+
+    public String translateColors(String message) {
+        if (message == null) return null;
+        return message.replace(colorChar, '\u00A7');
+    }
+
+    public void setColorChar(char colorChar) {
+        this.colorChar = colorChar;
+    }
+
+    public char getColorChar() {
+        return colorChar;
+    }
+
+    public void reload() {
+        messages.clear();
+        loadMessages(currentLocale);
+    }
+
+    public static String tr(String key) {
+        return instance != null ? instance.get(key) : key;
+    }
+
+    public static String tr(String key, Object... args) {
+        return instance != null ? instance.get(key, args) : key;
+    }
+}

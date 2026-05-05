@@ -1,8 +1,9 @@
 package cc.baka9.catseedlogin.velocity;
 
-import cc.baka9.catseedlogin.common.CommonConfig;
-import cc.baka9.catseedlogin.common.CommonCommunication;
-import cc.baka9.catseedlogin.common.CommonPlugin;
+import cc.baka9.catseedlogin.velocity.config.VelocityConfigManager;
+import cc.baka9.catseedlogin.velocity.config.VelocityPlatformAdapter;
+import cc.baka9.catseedlogin.common.api.PlatformAdapter;
+import cc.baka9.catseedlogin.common.i18n.I18n;
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
@@ -13,10 +14,6 @@ import org.slf4j.Logger;
 
 import java.util.concurrent.TimeUnit;
 
-/**
- * Velocity 主类
- * 适配原Bungee版本的CatSeedLogin功能
- */
 @Plugin(
     id = "catseedlogin-velocity",
     name = "CatSeedLogin-Velocity",
@@ -24,12 +21,13 @@ import java.util.concurrent.TimeUnit;
     description = "Velocity adapter for CatSeedLogin",
     authors = {"CatSeed"}
 )
-public class PluginMain implements CommonPlugin {
+public class PluginMain {
     
     private static PluginMain instance;
     private final ProxyServer proxyServer;
     private final Logger logger;
-    private VelocityConfig config;
+    private VelocityConfigManager configManager;
+    private VelocityPlatformAdapter platformAdapter;
     private VelocityCommunication communication;
     
     @Inject
@@ -53,14 +51,13 @@ public class PluginMain implements CommonPlugin {
     
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
-        config = new VelocityConfig();
+        configManager = new VelocityConfigManager(this);
+        platformAdapter = new VelocityPlatformAdapter(this, configManager.getI18n());
         communication = new VelocityCommunication();
-        config.load();
+        configManager.reload();
         
-        // 注册监听器
         proxyServer.getEventManager().register(this, new Listeners());
         
-        // 注册命令
         proxyServer.getCommandManager().register(
             proxyServer.getCommandManager().metaBuilder("CatSeedLoginVelocity")
                 .aliases("cslv")
@@ -71,18 +68,12 @@ public class PluginMain implements CommonPlugin {
         logger.info("CatSeedLogin-Velocity has been enabled!");
     }
     
-    /**
-     * 异步执行任务
-     */
     public static ScheduledTask runAsync(Runnable runnable) {
         return instance.proxyServer.getScheduler()
             .buildTask(instance, runnable)
             .schedule();
     }
     
-    /**
-     * 延迟异步执行任务
-     */
     public static ScheduledTask runAsyncDelayed(Runnable runnable, long delay, TimeUnit unit) {
         return instance.proxyServer.getScheduler()
             .buildTask(instance, runnable)
@@ -90,28 +81,19 @@ public class PluginMain implements CommonPlugin {
             .schedule();
     }
 
-    @Override
-    public CommonConfig getConfig() {
-        return config;
+    public VelocityConfigManager getConfigManager() {
+        return configManager;
     }
 
-    @Override
-    public CommonCommunication getCommunication() {
+    public VelocityPlatformAdapter getPlatformAdapter() {
+        return platformAdapter;
+    }
+
+    public I18n getI18n() {
+        return configManager.getI18n();
+    }
+
+    public VelocityCommunication getCommunication() {
         return communication;
-    }
-
-    @Override
-    public void logInfo(String message) {
-        logger.info(message);
-    }
-
-    @Override
-    public void logWarn(String message) {
-        logger.warn(message);
-    }
-
-    @Override
-    public void logError(String message, Throwable throwable) {
-        logger.error(message, throwable);
     }
 }

@@ -11,12 +11,15 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import cc.baka9.catseedlogin.bukkit.command.*;
+import cc.baka9.catseedlogin.bukkit.config.BukkitConfigManager;
+import cc.baka9.catseedlogin.bukkit.config.BukkitPlatformAdapter;
 import cc.baka9.catseedlogin.bukkit.database.*;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayerHelper;
 import cc.baka9.catseedlogin.bukkit.task.Task;
+import cc.baka9.catseedlogin.common.api.PlatformAdapter;
+import cc.baka9.catseedlogin.common.i18n.I18n;
 import cn.handyplus.lib.adapter.HandySchedulerUtil;
 import space.arim.morepaperlib.MorePaperLib;
 
@@ -26,6 +29,9 @@ public class CatSeedLogin extends JavaPlugin implements Listener {
     public static SQL sql;
     public static boolean loadProtocolLib = false;
     public static MorePaperLib morePaperLib;
+    
+    private BukkitConfigManager configManager;
+    private BukkitPlatformAdapter platformAdapter;
 
     @Override
     public void onEnable() {
@@ -34,16 +40,17 @@ public class CatSeedLogin extends JavaPlugin implements Listener {
         HandySchedulerUtil.init(this);
         getServer().getPluginManager().registerEvents(this, this);
 
-        // Config
+        configManager = new BukkitConfigManager(this);
+        platformAdapter = new BukkitPlatformAdapter(this, configManager.getI18n());
+
         try {
-            Config.load();
-            Config.save();
+            configManager.reload();
         } catch (Exception e) {
             e.printStackTrace();
             getServer().getLogger().warning("加载配置文件时出错，请检查你的配置文件。");
         }
 
-        sql = Config.MySQL.Enable ? new MySQL(this) : new SQLite(this);
+        sql = configManager.isMySQL() ? new MySQL(this) : new SQLite(this);
         try {
             sql.init();
             Cache.refreshAll();
@@ -52,11 +59,9 @@ public class CatSeedLogin extends JavaPlugin implements Listener {
             e.printStackTrace();
         }
 
-        // Listeners
         getServer().getPluginManager().registerEvents(new Listeners(), this);
 
-        // ProtocolLibListeners
-        if (Config.Settings.Emptybackpack) {
+        if (configManager.isEmptyBackpack()) {
             try {
                 Class.forName("com.comphenix.protocol.ProtocolLib");
                 ProtocolLibListeners.enable();
@@ -66,20 +71,16 @@ public class CatSeedLogin extends JavaPlugin implements Listener {
             }
         }
 
-        // BungeeCord
-        if (Config.BungeeCord.Enable) {
+        if (configManager.isEnable()) {
             Communication.socketServerStartAsync();
         }
 
-        // Floodgate
-        if (Bukkit.getPluginManager().getPlugin("floodgate") != null && Config.Settings.BedrockLoginBypass) {
+        if (Bukkit.getPluginManager().getPlugin("floodgate") != null && configManager.isBedrockLoginBypass()) {
             getLogger().info("检测到floodgate，基岩版兼容已装载");
         }
 
-        // Commands
         registerCommands();
 
-        // Task
         Task.runAll();
     }
 
@@ -138,21 +139,20 @@ public class CatSeedLogin extends JavaPlugin implements Listener {
         LoginPlayerHelper.onPlayerQuit(event.getPlayer().getName());
     }
 
-@EventHandler
-public void onPlayerJoin(PlayerJoinEvent event) {
-    // 使用 CatScheduler 的 runTaskTimer 方法
-    CatScheduler.runTaskTimer(
-        () -> LoginPlayerHelper.recordPlayerExitTime(event.getPlayer().getName()),
-        1L,  // 初始延迟（Folia 需要至少 1 tick）
-        20L  // 执行间隔（20 ticks = 1 秒）
-    );
-}
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        CatScheduler.runTaskTimer(
+            () -> LoginPlayerHelper.recordPlayerExitTime(event.getPlayer().getName()),
+            1L,
+            20L
+        );
+    }
 
     @Override
     public void onDisable() {
         Task.cancelAll();
         Bukkit.getOnlinePlayers().forEach(p -> {
-            if (LoginPlayerHelper.isLogin(p.getName()) && (!p.isDead() || Config.Settings.DeathStateQuitRecordLocation)) {
+            if (LoginPlayerHelper.isLogin(p.getName()) && (!p.isDead() || configManager.isDeathStateQuitRecordLocation())) {
                 Config.setOfflineLocation(p);
             }
         });
@@ -173,5 +173,17 @@ public void onPlayerJoin(PlayerJoinEvent event) {
         if (runnable != null) {  
             CatScheduler.runTaskAsync(runnable);
         }
+    }
+
+    public BukkitConfigManager getConfigManager() {
+        return configManager;
+    }
+
+    public BukkitPlatformAdapter getPlatformAdapter() {
+        return platformAdapter;
+    }
+
+    public I18n getI18n() {
+        return configManager.getI18n();
     }
 }

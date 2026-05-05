@@ -1,5 +1,6 @@
 package cc.baka9.catseedlogin.velocity;
 
+import cc.baka9.catseedlogin.common.i18n.MessageKey;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.command.SimpleCommand;
 import net.kyori.adventure.text.Component;
@@ -10,10 +11,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-/**
- * Velocity 命令类
- * 保持与Bungee版本一致的管理功能
- */
 public class Commands implements SimpleCommand {
 
     @Override
@@ -22,7 +19,7 @@ public class Commands implements SimpleCommand {
         String[] args = invocation.arguments();
         
         if (!source.hasPermission("catseedlogin.admin")) {
-            source.sendMessage(Component.text("你没有权限执行此命令!", NamedTextColor.RED));
+            source.sendMessage(Component.text(MessageKey.NO_PERMISSION.get()));
             return;
         }
         
@@ -67,8 +64,8 @@ public class Commands implements SimpleCommand {
     
     private void handleReload(CommandSource source) {
         try {
-            PluginMain.getInstance().getConfig().load();
-            source.sendMessage(Component.text("配置文件已重载!", NamedTextColor.GREEN));
+            PluginMain.getInstance().getConfigManager().reload();
+            source.sendMessage(Component.text(MessageKey.CONFIG_RELOADED.get()));
         } catch (Exception e) {
             source.sendMessage(Component.text("重载配置文件时出错: " + e.getMessage(), NamedTextColor.RED));
             PluginMain.getInstance().getLogger().error("Failed to reload config", e);
@@ -78,14 +75,13 @@ public class Commands implements SimpleCommand {
     private void handleStatus(CommandSource source) {
         source.sendMessage(Component.text("=== CatSeedLogin-Velocity 状态 ===", NamedTextColor.GOLD));
         
-        String host = PluginMain.getInstance().getConfig().getHost();
-        int port = PluginMain.getInstance().getConfig().getPort();
-        String loginServerName = PluginMain.getInstance().getConfig().getLoginServerName();
+        String host = PluginMain.getInstance().getConfigManager().getHost();
+        int port = PluginMain.getInstance().getConfigManager().getPort();
+        String loginServerName = PluginMain.getInstance().getConfigManager().getLoginServerName();
         
         source.sendMessage(Component.text("监听地址: " + host + ":" + port, NamedTextColor.YELLOW));
         source.sendMessage(Component.text("登录服务器: " + loginServerName, NamedTextColor.YELLOW));
         
-        // 检查登录服务器是否在线
         boolean loginServerOnline = PluginMain.getInstance().getProxyServer()
             .getServer(loginServerName)
             .isPresent();

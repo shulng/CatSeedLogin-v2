@@ -1,5 +1,6 @@
 package cc.baka9.catseedlogin.bukkit;
 
+import cc.baka9.catseedlogin.bukkit.config.BukkitConfigManager;
 import cc.baka9.catseedlogin.bukkit.database.Cache;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayer;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayerHelper;
@@ -15,21 +16,14 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-/**
- * bukkit 与 bc 的通讯交流
- */
 public class Communication {
     private static ServerSocket serverSocket;
 
-    /**
-     * 异步关闭 socket server
-     */
     public static void socketServerStopAsync() {
         CatSeedLogin.instance.runTaskAsync(Communication::socketServerStop);
     }
 
     public static void socketServerStop() {
-
         if (serverSocket != null && !serverSocket.isClosed()) {
             try {
                 serverSocket.close();
@@ -37,23 +31,17 @@ public class Communication {
                 e.printStackTrace();
             }
         }
-
     }
 
-    /**
-     * 异步启动 socket server 监听bc端发来的请求
-     */
     public static void socketServerStartAsync() {
         CatSeedLogin.instance.runTaskAsync(Communication::socketServerStart);
     }
 
-    /**
-     * 启动 socket server 监听bc端发来的请求
-     */
     public static void socketServerStart() {
+        BukkitConfigManager config = CatSeedLogin.instance.getConfigManager();
         try {
-            InetAddress inetAddress = InetAddress.getByName(Config.BungeeCord.Host);
-            serverSocket = new ServerSocket(Integer.parseInt(Config.BungeeCord.Port), 50, inetAddress);
+            InetAddress inetAddress = InetAddress.getByName(config.getHost());
+            serverSocket = new ServerSocket(config.getPort(), 50, inetAddress);
             while (!serverSocket.isClosed()) {
                 Socket socket;
                 try {
@@ -71,10 +59,6 @@ public class Communication {
         }
     }
 
-
-    /**
-     * 处理请求
-     */
     private static void handleRequest(Socket socket) throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         String requestType = bufferedReader.readLine();
@@ -95,11 +79,9 @@ public class Communication {
     }
 
     private static void handleKeepLoggedInRequest(String playerName, String time, String sign) {
-        // 验证请求的合法性
-        // 对比玩家名，时间戳，和authKey加密的结果（加密是因为如果登录服不在内网环境下，则可能会被人使用这个功能给发包来直接绕过登录）
-        if (sign.equals(CommunicationAuth.encryption(playerName, time, Config.BungeeCord.AuthKey))) {
-            // 切换主线程给予登录状态
-            CatScheduler.runTask( () -> {
+        BukkitConfigManager config = CatSeedLogin.instance.getConfigManager();
+        if (sign.equals(CommunicationAuth.encryption(playerName, time, config.getAuthKey()))) {
+            CatScheduler.runTask(() -> {
                 LoginPlayer lp = Cache.getIgnoreCase(playerName);
                 if (lp != null) {
                     LoginPlayerHelper.add(lp);
@@ -108,17 +90,14 @@ public class Communication {
                         player.updateInventory();
                     }
                 }
-
             });
         }
     }
 
     private static void handleConnectRequest(Socket socket, String playerName) {
-        // 切换主线程获取是否已登录
-        CatScheduler.runTask( () -> {
+        CatScheduler.runTask(() -> {
             boolean result = LoginPlayerHelper.isLogin(playerName);
             
-            // 切换异步线程返回结果
             CatSeedLogin.instance.runTaskAsync(() -> {
                 try {
                     socket.getOutputStream().write(result ? 1 : 0);
@@ -126,11 +105,7 @@ public class Communication {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
             });
-
         });
     }
-
-
 }
