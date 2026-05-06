@@ -72,8 +72,10 @@
         <java.version>8</java.version>
         
         <!-- 依赖版本 -->
+        <bukkit.version>1.12.2-R0.1-SNAPSHOT</bukkit.version>
         <paper.version>26.1.2.build.60-stable</paper.version>
         <spigot.version>1.15.2-R0.1-SNAPSHOT</spigot.version>
+        <folia.version>1.20.6-R0.1-SNAPSHOT</folia.version>
         <lombok.version>1.18.46</lombok.version>
         <protocollib.version>5.4.0</protocollib.version>
         <bungeecord.version>1.21-R0.4</bungeecord.version>
@@ -104,11 +106,11 @@
 
     <!-- 依赖配置 -->
     <dependencies>
-        <!-- Paper API -->
+        <!-- Bukkit API -->
         <dependency>
-            <groupId>io.papermc.paper</groupId>
-            <artifactId>paper-api</artifactId>
-            <version>${paper.version}</version>
+            <groupId>org.bukkit</groupId>
+            <artifactId>bukkit</artifactId>
+            <version>${bukkit.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -117,6 +119,22 @@
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
             <version>${spigot.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Paper API -->
+        <dependency>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>${paper.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Folia API -->
+        <dependency>
+            <groupId>dev.folia</groupId>
+            <artifactId>folia-api</artifactId>
+            <version>${folia.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -253,6 +271,18 @@
         <repository>
             <id>papermc</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
+        </repository>
+
+        <!-- Folia -->
+        <repository>
+            <id>folia</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
+        </repository>
+
+        <!-- Bukkit -->
+        <repository>
+            <id>bukkit-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
 
         <!-- Spigot -->
