@@ -72,7 +72,7 @@
         <java.version>8</java.version>
         
         <!-- 依赖版本 -->
-        <paper.version>1.21.8-R0.1-SNAPSHOT</paper.version>
+        <paper.version>26.1.2.build.60-stable</paper.version>
         <spigot.version>1.15.2-R0.1-SNAPSHOT</spigot.version>
         <lombok.version>1.18.46</lombok.version>
         <protocollib.version>5.4.0</protocollib.version>
