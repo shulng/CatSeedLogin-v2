@@ -67,9 +67,9 @@
     <properties>
         <!-- 基础配置 -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>25</maven.compiler.source>
-        <maven.compiler.target>25</maven.compiler.target>
-        <java.version>25</java.version>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <java.version>8</java.version>
         
         <!-- 依赖版本 -->
         <paper.version>1.21.8-R0.1-SNAPSHOT</paper.version>
