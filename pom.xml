@@ -25,6 +25,7 @@
         <developer>
             <id>catseed</id>
             <name>CatSeed</name>
+            <url>https://github.com/CatSeed/CatSeedLogin</url>
             <roles>
                 <role>Original Author</role>
             </roles>
