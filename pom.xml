@@ -21,11 +21,21 @@
 
     <!-- 开发者信息 -->
     <developers>
+        <!-- 原作者 -->
+        <developer>
+            <id>catseed</id>
+            <name>CatSeed</name>
+            <roles>
+                <role>Original Author</role>
+            </roles>
+        </developer>
+        <!-- 二次开发作者 -->
         <developer>
             <id>shulng</id>
             <name>shulng</name>
-            <email>shulng@baka9.cc</email>
+            <email>shulng@qq.com</email>
             <roles>
+                <role>Maintainer</role>
                 <role>Developer</role>
             </roles>
         </developer>
