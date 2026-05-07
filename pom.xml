@@ -218,6 +218,13 @@
                     <include>*.*</include>
                 </includes>
             </resource>
+            <resource>
+                <directory>src/main/java</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/Version.java</include>
+                </includes>
+            </resource>
         </resources>
 
         <plugins>

@@ -1,6 +1,7 @@
 package cc.baka9.catseedlogin.bungee.config;
 
 import cc.baka9.catseedlogin.bungee.PluginMain;
+import cc.baka9.catseedlogin.common.Version;
 import cc.baka9.catseedlogin.common.api.PlatformAdapter;
 import cc.baka9.catseedlogin.common.i18n.I18n;
 
@@ -24,7 +25,7 @@ public class BungeePlatformAdapter implements PlatformAdapter {
 
     @Override
     public String getVersion() {
-        return plugin.getDescription().getVersion();
+        return Version.VERSION;
     }
 
     @Override
