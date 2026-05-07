@@ -35,7 +35,7 @@ public class VelocityConfigManager extends ConfigManager implements BungeeCordCo
         if (name.startsWith("languages/")) {
             return getClass().getClassLoader().getResourceAsStream(name);
         }
-        return getClass().getClassLoader().getResourceAsStream("proxy-resources/" + name);
+        return getClass().getClassLoader().getResourceAsStream(name);
     }
 
     public I18n getI18n() {

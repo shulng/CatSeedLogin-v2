@@ -35,7 +35,7 @@ public class BungeeConfigManager extends ConfigManager implements BungeeCordConf
         if (name.startsWith("languages/")) {
             return plugin.getResourceAsStream(name);
         }
-        return plugin.getResourceAsStream("proxy-resources/" + name);
+        return plugin.getResourceAsStream(name);
     }
 
     public I18n getI18n() {
