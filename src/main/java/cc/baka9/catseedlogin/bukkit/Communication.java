@@ -40,8 +40,8 @@ public class Communication {
     public static void socketServerStart() {
         BukkitConfigManager config = CatSeedLogin.instance.getConfigManager();
         try {
-            InetAddress inetAddress = InetAddress.getByName(config.getHost());
-            serverSocket = new ServerSocket(config.getPort(), 50, inetAddress);
+            InetAddress inetAddress = InetAddress.getByName(config.getProxyHost());
+            serverSocket = new ServerSocket(config.getProxyPort(), 50, inetAddress);
             while (!serverSocket.isClosed()) {
                 Socket socket;
                 try {

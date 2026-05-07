@@ -231,6 +231,14 @@ public class BukkitConfigManager extends ConfigManager implements CoreConfig, Da
         return mainConfig.getInt("database.port", 3306);
     }
 
+    public String getProxyHost() {
+        return mainConfig.getString("proxy.host", "127.0.0.1");
+    }
+
+    public int getProxyPort() {
+        return mainConfig.getInt("proxy.port", 2333);
+    }
+
     @Override
     public String getDatabase() {
         return mainConfig.getString("database.database", "catseedlogin");
