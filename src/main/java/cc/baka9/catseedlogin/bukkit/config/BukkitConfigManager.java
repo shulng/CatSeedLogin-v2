@@ -260,6 +260,11 @@ public class BukkitConfigManager extends ConfigManager implements CoreConfig, Da
     }
 
     @Override
+    public boolean isEmailEnable() {
+        return mainConfig.getBoolean("email.enabled", false);
+    }
+
+    @Override
     public String getAuthKey() {
         return mainConfig.getString("proxy.auth-key", "");
     }

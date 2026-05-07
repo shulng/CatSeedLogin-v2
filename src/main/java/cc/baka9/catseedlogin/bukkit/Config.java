@@ -45,8 +45,8 @@ public class Config {
         public static void load(){
             BukkitConfigManager cm = plugin.getConfigManager();
             Enable = cm.isEnable();
-            Host = cm.getHost();
-            Port = String.valueOf(cm.getPort());
+            Host = cm.getProxyHost();
+            Port = String.valueOf(cm.getProxyPort());
             AuthKey = cm.getAuthKey();
         }
     }
@@ -204,7 +204,7 @@ public class Config {
 
         public static void load(){
             BukkitConfigManager cm = plugin.getConfigManager();
-            Enable = cm.isEnable();
+            Enable = cm.isEmailEnable();
             EmailAccount = cm.getEmailAccount();
             EmailPassword = cm.getEmailPassword();
             EmailSmtpHost = cm.getEmailSmtpHost();

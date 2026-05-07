@@ -2,7 +2,7 @@ package cc.baka9.catseedlogin.common.api;
 
 public interface EmailConfig {
 
-    boolean isEnable();
+    boolean isEmailEnable();
     String getEmailAccount();
     String getEmailPassword();
     String getEmailSmtpHost();
