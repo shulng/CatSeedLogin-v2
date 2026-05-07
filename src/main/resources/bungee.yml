@@ -1,4 +1,5 @@
-name: CatSeedLogin-Bungee
-main: cc.baka9.catseedlogin.bungee.PluginMain
+name: CatSeedLogin
 version: ${version}
+main: cc.baka9.catseedlogin.bungee.PluginMain
 author: CatSeed
+description: CatSeedLogin的BungeeCord适配版本

@@ -32,7 +32,10 @@ public class BungeeConfigManager extends ConfigManager implements BungeeCordConf
 
     @Override
     protected InputStream getResource(String name) {
-        return plugin.getResourceAsStream(name);
+        if (name.startsWith("languages/")) {
+            return plugin.getResourceAsStream(name);
+        }
+        return plugin.getResourceAsStream("bungee-resources/" + name);
     }
 
     public I18n getI18n() {

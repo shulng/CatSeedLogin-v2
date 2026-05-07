@@ -8,7 +8,6 @@ import cc.baka9.catseedlogin.common.api.BungeeCordConfig;
 
 import java.io.File;
 import java.io.InputStream;
-import java.nio.file.Paths;
 
 public class VelocityConfigManager extends ConfigManager implements BungeeCordConfig {
 
@@ -17,7 +16,7 @@ public class VelocityConfigManager extends ConfigManager implements BungeeCordCo
     private YamlConfiguration mainConfig;
 
     public VelocityConfigManager(PluginMain plugin) {
-        super(Paths.get("plugins", "CatSeedLogin-Velocity").toFile());
+        super(plugin.getDataDirectory().toFile());
         this.plugin = plugin;
         init();
     }
@@ -33,7 +32,10 @@ public class VelocityConfigManager extends ConfigManager implements BungeeCordCo
 
     @Override
     protected InputStream getResource(String name) {
-        return getClass().getClassLoader().getResourceAsStream(name);
+        if (name.startsWith("languages/")) {
+            return getClass().getClassLoader().getResourceAsStream(name);
+        }
+        return getClass().getClassLoader().getResourceAsStream("velocity-resources/" + name);
     }
 
     public I18n getI18n() {

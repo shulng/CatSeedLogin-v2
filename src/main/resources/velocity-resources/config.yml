@@ -1,0 +1,20 @@
+# CatSeedLogin Velocity 配置文件
+# Version: 2.0.0
+
+# 语言设置 (使用下划线格式，如 zh_CN, en_US)
+# 对应的语言文件存放在 languages/ 文件夹中
+# 文件名使用标准格式，如 zh-CN.yml, en-US.yml
+language: "zh_CN"
+
+# Velocity 代理设置
+proxy:
+  # 是否启用代理模式
+  enabled: true
+  # 通讯IP (建议使用内网)
+  host: "127.0.0.1"
+  # 通讯端口
+  port: 2333
+  # 验证密钥
+  auth-key: ""
+  # 登录服务器名称
+  login-server-name: "lobby"
