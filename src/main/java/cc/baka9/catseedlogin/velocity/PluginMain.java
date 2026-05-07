@@ -17,11 +17,11 @@ import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
 @Plugin(
-    id = "catseedlogin-velocity",
-    name = "CatSeedLogin-Velocity",
+    id = "catseedlogin",
+    name = "CatSeedLogin",
     version = "2.0.0",
-    description = "Velocity adapter for CatSeedLogin",
-    authors = {"CatSeed"}
+    description = "CatSeedLogin的Velocity适配版本，提供跨服登录验证功能",
+    authors = {"shulng"}
 )
 public class PluginMain {
     

@@ -1,11 +1,11 @@
 {
-  "id": "catseedlogin-velocity",
+  "id": "catseedlogin",
   "main": "cc.baka9.catseedlogin.velocity.PluginMain",
-  "name": "CatSeedLogin-Velocity",
+  "name": "CatSeedLogin",
   "version": "${version}",
   "description": "CatSeedLogin的Velocity适配版本，提供跨服登录验证功能",
-  "url": "https://github.com/CatSeed/CatSeedLogin",
+  "url": "https://github.com/shulng/CatSeedLogin-v2",
   "authors": [
-    "CatSeed"
+    "shulng"
   ]
 }
