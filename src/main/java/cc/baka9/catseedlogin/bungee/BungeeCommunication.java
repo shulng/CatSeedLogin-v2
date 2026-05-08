@@ -44,7 +44,7 @@ public class BungeeCommunication {
 
     private static Socket getSocket() throws IOException {
         try {
-            return new Socket(PluginMain.instance.getConfigManager().getHost(), PluginMain.instance.getConfigManager().getPort());
+            return new Socket(PluginMain.instance.getConfigManager().getProxyHost(), PluginMain.instance.getConfigManager().getProxyPort());
         } catch (IOException e) {
             ProxyServer.getInstance().getLogger().warning("§c请检查装载登录插件的子服是否在配置文件中开启了代理功能，以及Host和Port是否与代理端的配置相同");
             throw new IOException(e);

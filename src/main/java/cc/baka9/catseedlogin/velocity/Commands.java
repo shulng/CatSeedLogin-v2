@@ -75,8 +75,8 @@ public class Commands implements SimpleCommand {
     private void handleStatus(CommandSource source) {
         source.sendMessage(Component.text("=== CatSeedLogin-Velocity 状态 ===", NamedTextColor.GOLD));
         
-        String host = PluginMain.getInstance().getConfigManager().getHost();
-        int port = PluginMain.getInstance().getConfigManager().getPort();
+        String host = PluginMain.getInstance().getConfigManager().getProxyHost();
+        int port = PluginMain.getInstance().getConfigManager().getProxyPort();
         String loginServerName = PluginMain.getInstance().getConfigManager().getLoginServerName();
         
         source.sendMessage(Component.text("监听地址: " + host + ":" + port, NamedTextColor.YELLOW));

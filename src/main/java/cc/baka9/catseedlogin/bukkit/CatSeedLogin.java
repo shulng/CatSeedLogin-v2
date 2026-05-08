@@ -159,11 +159,9 @@ public class CatSeedLogin extends JavaPlugin implements Listener {
         });
 
         try {
-            if (sql.getConnection() != null) { 
-                sql.getConnection().close();
-            }
+            sql.closeConnection();
         } catch (Exception e) {
-            getLogger().warning("获取数据库连接时出错");
+            getLogger().warning("关闭数据库连接时出错");
             e.printStackTrace();
         }
         Communication.socketServerStop();

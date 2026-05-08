@@ -47,7 +47,7 @@ public class VelocityCommunication {
 
     private static Socket getSocket() throws IOException {
         try {
-            return new Socket(PluginMain.getInstance().getConfigManager().getHost(), PluginMain.getInstance().getConfigManager().getPort());
+            return new Socket(PluginMain.getInstance().getConfigManager().getProxyHost(), PluginMain.getInstance().getConfigManager().getProxyPort());
         } catch (IOException e) {
             PluginMain instance = PluginMain.getInstance();
             ProxyServer proxyServer = instance.getProxyServer();

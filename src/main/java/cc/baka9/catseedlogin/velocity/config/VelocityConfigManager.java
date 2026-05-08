@@ -60,12 +60,12 @@ public class VelocityConfigManager extends ConfigManager implements BungeeCordCo
     }
 
     @Override
-    public String getHost() {
+    public String getProxyHost() {
         return mainConfig.getString("proxy.host", "127.0.0.1");
     }
 
     @Override
-    public int getPort() {
+    public int getProxyPort() {
         return mainConfig.getInt("proxy.port", 2333);
     }
 

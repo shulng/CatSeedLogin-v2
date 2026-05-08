@@ -3,6 +3,7 @@ package cc.baka9.catseedlogin.bukkit.database;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.PreparedStatement;
 import org.bukkit.plugin.java.JavaPlugin;
 import cc.baka9.catseedlogin.bukkit.Config;
 
@@ -18,6 +19,7 @@ public class MySQL extends SQL {
         if (isConnectionValid()) {
             return this.connection;
         }
+        closeConnection();
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             this.connection = DriverManager.getConnection(
@@ -31,6 +33,26 @@ public class MySQL extends SQL {
     }
 
     private boolean isConnectionValid() throws SQLException {
-        return this.connection != null && !this.connection.isClosed() && this.connection.isValid(10);
+        if (this.connection == null || this.connection.isClosed()) {
+            return false;
+        }
+        try (PreparedStatement ps = this.connection.prepareStatement("SELECT 1")) {
+            ps.executeQuery();
+            return true;
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public void closeConnection() {
+        try {
+            if (this.connection != null && !this.connection.isClosed()) {
+                this.connection.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        this.connection = null;
     }
 }

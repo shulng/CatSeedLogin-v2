@@ -3,6 +3,7 @@ package cc.baka9.catseedlogin.bukkit.database;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.PreparedStatement;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class SQLite extends SQL {
@@ -14,10 +15,24 @@ public class SQLite extends SQL {
 
     @Override
     public synchronized Connection getConnection() throws SQLException {
-        if (connection == null || connection.isClosed()) {
-            connection = createConnection();
+        if (isConnectionValid()) {
+            return connection;
         }
+        closeConnection();
+        connection = createConnection();
         return connection;
+    }
+
+    private boolean isConnectionValid() throws SQLException {
+        if (connection == null || connection.isClosed()) {
+            return false;
+        }
+        try (PreparedStatement ps = connection.prepareStatement("SELECT 1")) {
+            ps.executeQuery();
+            return true;
+        } catch (SQLException e) {
+            return false;
+        }
     }
 
     private Connection createConnection() throws SQLException {
@@ -36,6 +51,7 @@ public class SQLite extends SQL {
         }
     }
 
+    @Override
     public void closeConnection() {
         try {
             if (connection != null && !connection.isClosed()) {
@@ -43,5 +59,6 @@ public class SQLite extends SQL {
             }
         } catch (SQLException e) {
         }
+        connection = null;
     }
 }
