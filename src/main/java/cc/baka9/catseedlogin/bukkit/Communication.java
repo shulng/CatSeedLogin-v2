@@ -1,22 +1,21 @@
 package cc.baka9.catseedlogin.bukkit;
 
-import cc.baka9.catseedlogin.bukkit.config.BukkitConfigManager;
+import cc.baka9.catseedlogin.common.communication.BaseCommunication;
 import cc.baka9.catseedlogin.bukkit.database.Cache;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayer;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayerHelper;
-import cc.baka9.catseedlogin.util.CommunicationAuth;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.InetAddress;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
-public class Communication {
+public class Communication extends BaseCommunication {
     private static ServerSocket serverSocket;
 
     public static void socketServerStopAsync() {
@@ -38,10 +37,8 @@ public class Communication {
     }
 
     public static void socketServerStart() {
-        BukkitConfigManager config = CatSeedLogin.instance.getConfigManager();
         try {
-            InetAddress inetAddress = InetAddress.getByName(config.getProxyHost());
-            serverSocket = new ServerSocket(config.getProxyPort(), 50, inetAddress);
+            serverSocket = new ServerSocket(CatSeedLogin.instance.getConfigManager().getProxyPort(), 50);
             while (!serverSocket.isClosed()) {
                 Socket socket;
                 try {
@@ -51,36 +48,34 @@ public class Communication {
                     break;
                 }
             }
-        } catch (UnknownHostException e) {
-            CatSeedLogin.instance.getLogger().warning("无法解析域名或IP地址");
-            e.printStackTrace();
         } catch (IOException e) {
+            CatSeedLogin.instance.getLogger().warning("无法启动Socket服务器: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     private static void handleRequest(Socket socket) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        String requestType = bufferedReader.readLine();
-        String playerName = bufferedReader.readLine();
-        switch (requestType) {
-            case "Connect":
-                handleConnectRequest(socket, playerName);
-                break;
-            case "KeepLoggedIn":
-                String time = bufferedReader.readLine();
-                String sign = bufferedReader.readLine();
-                handleKeepLoggedInRequest(playerName, time, sign);
-                socket.close();
-                break;
-            default:
-                break;
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+             OutputStream outputStream = socket.getOutputStream()) {
+            String requestType = bufferedReader.readLine();
+            String playerName = bufferedReader.readLine();
+            switch (requestType) {
+                case "Connect":
+                    handleConnectRequest(outputStream, playerName);
+                    break;
+                case "KeepLoggedIn":
+                    String time = bufferedReader.readLine();
+                    String sign = bufferedReader.readLine();
+                    handleKeepLoggedInRequest(playerName, time, sign);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
     private static void handleKeepLoggedInRequest(String playerName, String time, String sign) {
-        BukkitConfigManager config = CatSeedLogin.instance.getConfigManager();
-        if (sign.equals(CommunicationAuth.encryption(playerName, time, config.getAuthKey()))) {
+        if (sign.equals(cc.baka9.catseedlogin.util.CommunicationAuth.encryption(playerName, time, CatSeedLogin.instance.getConfigManager().getAuthKey()))) {
             CatScheduler.runTask(() -> {
                 LoginPlayer lp = Cache.getIgnoreCase(playerName);
                 if (lp != null) {
@@ -94,18 +89,41 @@ public class Communication {
         }
     }
 
-    private static void handleConnectRequest(Socket socket, String playerName) {
+    private static void handleConnectRequest(OutputStream outputStream, String playerName) {
         CatScheduler.runTask(() -> {
             boolean result = LoginPlayerHelper.isLogin(playerName);
-            
-            CatSeedLogin.instance.runTaskAsync(() -> {
-                try {
-                    socket.getOutputStream().write(result ? 1 : 0);
-                    socket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
+            try {
+                outputStream.write(result ? 1 : 0);
+                outputStream.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
+    }
+
+    @Override
+    protected String getProxyHost() {
+        return CatSeedLogin.instance.getConfigManager().getProxyHost();
+    }
+
+    @Override
+    protected int getProxyPort() {
+        return CatSeedLogin.instance.getConfigManager().getProxyPort();
+    }
+
+    @Override
+    protected String getAuthKey() {
+        return CatSeedLogin.instance.getConfigManager().getAuthKey();
+    }
+
+    @Override
+    protected void logError(String message, Exception e) {
+        CatSeedLogin.instance.getLogger().severe(message);
+        e.printStackTrace();
+    }
+
+    @Override
+    protected void logWarning(String message) {
+        CatSeedLogin.instance.getLogger().warning(message);
     }
 }
