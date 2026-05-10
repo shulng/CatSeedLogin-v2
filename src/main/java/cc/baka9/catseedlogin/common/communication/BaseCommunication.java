@@ -9,9 +9,9 @@ import java.net.Socket;
 
 public abstract class BaseCommunication {
 
-    protected abstract String getHost();
+    protected abstract String getProxyHost();
 
-    protected abstract int getPort();
+    protected abstract int getProxyPort();
 
     protected abstract void logError(String message, Exception e);
 
@@ -49,7 +49,7 @@ public abstract class BaseCommunication {
 
     protected Socket createSocket() throws IOException {
         try {
-            return new Socket(getHost(), getPort());
+            return new Socket(getProxyHost(), getProxyPort());
         } catch (IOException e) {
             logWarning("请检查装载登录插件的子服是否在配置文件中开启了代理功能，以及Host和Port是否与代理端的配置相同");
             throw new IOException(e);

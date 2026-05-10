@@ -5,12 +5,12 @@ import cc.baka9.catseedlogin.common.communication.BaseCommunication;
 public class BungeeCommunication extends BaseCommunication {
 
     @Override
-    protected String getHost() {
+    protected String getProxyHost() {
         return PluginMain.instance.getConfigManager().getProxyHost();
     }
 
     @Override
-    protected int getPort() {
+    protected int getProxyPort() {
         return PluginMain.instance.getConfigManager().getProxyPort();
     }
 

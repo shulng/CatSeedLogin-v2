@@ -5,12 +5,12 @@ import cc.baka9.catseedlogin.common.communication.BaseCommunication;
 public class VelocityCommunication extends BaseCommunication {
 
     @Override
-    protected String getHost() {
+    protected String getProxyHost() {
         return PluginMain.getInstance().getConfigManager().getProxyHost();
     }
 
     @Override
-    protected int getPort() {
+    protected int getProxyPort() {
         return PluginMain.getInstance().getConfigManager().getProxyPort();
     }
 
