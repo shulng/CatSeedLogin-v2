@@ -58,6 +58,7 @@ public class SQLite extends SQL {
                 connection.close();
             }
         } catch (SQLException e) {
+            plugin.getLogger().warning("关闭SQLite连接时出错: " + e.getMessage());
         }
         connection = null;
     }
