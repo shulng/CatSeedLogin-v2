@@ -7,12 +7,4 @@ public interface BungeeCordConfig {
     int getProxyPort();
     String getAuthKey();
     String getLoginServerName();
-
-    default String getHost() {
-        return getProxyHost();
-    }
-
-    default int getPort() {
-        return getProxyPort();
-    }
 }

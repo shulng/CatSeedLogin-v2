@@ -1,18 +1,21 @@
 package cc.baka9.catseedlogin.bukkit;
 
-import java.io.File;
-import java.util.List;
-import java.util.Optional;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import cc.baka9.catseedlogin.common.config.ConfigConstants;
+import cc.baka9.catseedlogin.common.config.ConfigHelper;
+import cc.baka9.catseedlogin.common.util.ValidationUtil;
+import cc.baka9.catseedlogin.bukkit.config.BukkitConfigManager;
+import cc.baka9.catseedlogin.common.i18n.MessageKey;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import cc.baka9.catseedlogin.bukkit.config.BukkitConfigManager;
-import cc.baka9.catseedlogin.common.i18n.MessageKey;
+import java.io.File;
+import java.util.List;
+import java.util.Optional;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class Config {
     private static final CatSeedLogin plugin = CatSeedLogin.instance;
@@ -28,11 +31,11 @@ public class Config {
         public static void load(){
             BukkitConfigManager cm = plugin.getConfigManager();
             Enable = cm.isMySQL();
-            Host = cm.getHost();
-            Port = String.valueOf(cm.getPort());
-            Database = cm.getDatabase();
-            User = cm.getUser();
-            Password = cm.getPassword();
+            Host = cm.getDatabaseHost();
+            Port = String.valueOf(cm.getDatabasePort());
+            Database = cm.getDatabaseName();
+            User = cm.getDatabaseUser();
+            Password = cm.getDatabasePassword();
         }
     }
 
@@ -97,26 +100,27 @@ public class Config {
 
         public static void save(){
             BukkitConfigManager cm = plugin.getConfigManager();
-            cm.set("settings.ip-register-count-limit", IpRegisterCountLimit);
-            cm.set("settings.ip-count-limit", IpCountLimit);
-            cm.set("settings.limit-chinese-id", LimitChineseID);
-            cm.set("bedrock.login-bypass", BedrockLoginBypass);
-            cm.set("same-ip-login.enabled", LoginwiththesameIP);
-            cm.set("empty-backpack", EmptyBackpack);
-            cm.set("same-ip-login.timeout", IPTimeout);
-            cm.set("settings.min-length-id", MinLengthID);
-            cm.set("settings.max-length-id", MaxLengthID);
-            cm.set("settings.before-login-no-damage", BeforeLoginNoDamage);
-            cm.set("settings.reenter-interval", ReenterInterval);
-            cm.set("settings.after-login-back", AfterLoginBack);
-            cm.set("settings.can-tp-spawn-location", CanTpSpawnLocation);
-            cm.set("settings.auto-kick", AutoKick);
-            cm.set("settings.death-state-quit-record-location", DeathStateQuitRecordLocation);
-            cm.set("bedrock.floodgate-prefix-protect", FloodgatePrefixProtect);
-            cm.set("settings.name-pattern", NamePattern);
+            cm.set(ConfigConstants.Path.SETTINGS_IP_REGISTER_LIMIT, IpRegisterCountLimit);
+            cm.set(ConfigConstants.Path.SETTINGS_IP_COUNT_LIMIT, IpCountLimit);
+            cm.set(ConfigConstants.Path.SETTINGS_LIMIT_CHINESE_ID, LimitChineseID);
+            cm.set(ConfigConstants.Path.BEDROCK_LOGIN_BYPASS, BedrockLoginBypass);
+            cm.set(ConfigConstants.Path.SAME_IP_ENABLED, LoginwiththesameIP);
+            cm.set(ConfigConstants.Path.EMPTY_BACKPACK, EmptyBackpack);
+            cm.set(ConfigConstants.Path.SAME_IP_TIMEOUT, IPTimeout);
+            cm.set(ConfigConstants.Path.SETTINGS_MIN_LENGTH_ID, MinLengthID);
+            cm.set(ConfigConstants.Path.SETTINGS_MAX_LENGTH_ID, MaxLengthID);
+            cm.set(ConfigConstants.Path.SETTINGS_BEFORE_LOGIN_NO_DAMAGE, BeforeLoginNoDamage);
+            cm.set(ConfigConstants.Path.SETTINGS_REENTER_INTERVAL, ReenterInterval);
+            cm.set(ConfigConstants.Path.SETTINGS_AFTER_LOGIN_BACK, AfterLoginBack);
+            cm.set(ConfigConstants.Path.SETTINGS_CAN_TP_SPAWN_LOCATION, CanTpSpawnLocation);
+            cm.set(ConfigConstants.Path.SETTINGS_AUTO_KICK, AutoKick);
+            cm.set(ConfigConstants.Path.SETTINGS_DEATH_STATE_QUIT_RECORD, DeathStateQuitRecordLocation);
+            cm.set(ConfigConstants.Path.BEDROCK_FLOODGATE_PREFIX, FloodgatePrefixProtect);
+            cm.set(ConfigConstants.Path.SETTINGS_NAME_PATTERN, NamePattern);
             
             if (CommandWhiteList != null && !CommandWhiteList.isEmpty()) {
-                cm.getMainConfig().set("settings.command-white-list", CommandWhiteList.stream().map(Pattern::toString).collect(Collectors.toList()));
+                cm.getMainConfig().set(ConfigConstants.Path.SETTINGS_COMMAND_WHITELIST, 
+                    CommandWhiteList.stream().map(Pattern::toString).collect(Collectors.toList()));
             }
             
             if (SpawnLocation != null) {

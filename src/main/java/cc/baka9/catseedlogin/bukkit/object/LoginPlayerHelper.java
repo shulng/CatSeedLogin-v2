@@ -1,5 +1,8 @@
 package cc.baka9.catseedlogin.bukkit.object;
 
+import cc.baka9.catseedlogin.common.util.ValidationUtil;
+import cc.baka9.catseedlogin.common.util.DateUtil;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.*;
@@ -58,7 +61,7 @@ public class LoginPlayerHelper {
             List<String> storedIPs = getStoredIPs(storedPlayer);
             Long exitTime = playerExitTimes.get(player.getName());
 
-            if (isLoopbackAddress(currentIP)) return false;
+            if (ValidationUtil.isLoopbackAddress(currentIP)) return false;
             return Config.Settings.IPTimeout == 0 ? storedIPs.contains(currentIP) :
                    exitTime != null && storedIPs.contains(currentIP) && (System.currentTimeMillis() - exitTime) <= (long) Config.Settings.IPTimeout * 60 * 1000L;
         }
@@ -96,9 +99,11 @@ public class LoginPlayerHelper {
 
     public static void recordCurrentIP(Player player, LoginPlayer lp) {
         String currentIp = player.getAddress().getAddress().getHostAddress();
-        List<String> ipsList = lp.getIpsList();
+        List<String> ipsList = new ArrayList<>(lp.getIpsList());
         ipsList = ipsList.stream().distinct().collect(Collectors.toList());
-        if (!ipsList.isEmpty()) ipsList.remove(0);
+        if (!ipsList.isEmpty()) {
+            ipsList.remove(0);
+        }
         ipsList.add(currentIp);
         lp.setIps(String.join(";", ipsList));
         CatSeedLogin.instance.runTaskAsync(() -> {
@@ -128,13 +133,5 @@ public class LoginPlayerHelper {
         }
 
         protocolManager.sendServerPacket(player, inventoryPacket, false);
-    }
-
-    private static boolean isLoopbackAddress(String currentIP) {
-        try {
-            return InetAddress.getByName(currentIP).isLoopbackAddress();
-        } catch (UnknownHostException e) {
-            return false;
-        }
     }
 }

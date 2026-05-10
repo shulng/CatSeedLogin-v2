@@ -4,9 +4,9 @@ public interface DatabaseConfig {
 
     boolean isMySQL();
 
-    String getHost();
-    int getPort();
-    String getDatabase();
-    String getUser();
-    String getPassword();
+    String getDatabaseHost();
+    int getDatabasePort();
+    String getDatabaseName();
+    String getDatabaseUser();
+    String getDatabasePassword();
 }

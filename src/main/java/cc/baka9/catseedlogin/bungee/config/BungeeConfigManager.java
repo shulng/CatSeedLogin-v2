@@ -1,81 +1,86 @@
 package cc.baka9.catseedlogin.bungee.config;
 
 import cc.baka9.catseedlogin.bungee.PluginMain;
-import cc.baka9.catseedlogin.common.config.ConfigManager;
+import cc.baka9.catseedlogin.common.config.BaseConfigManager;
 import cc.baka9.catseedlogin.common.config.YamlConfiguration;
-import cc.baka9.catseedlogin.common.i18n.I18n;
-import cc.baka9.catseedlogin.common.api.BungeeCordConfig;
 
 import java.io.File;
 import java.io.InputStream;
 
-public class BungeeConfigManager extends ConfigManager implements BungeeCordConfig {
+public class BungeeConfigManager extends BaseConfigManager {
 
     private final PluginMain plugin;
-    private I18n i18n;
-    private YamlConfiguration mainConfig;
 
     public BungeeConfigManager(PluginMain plugin) {
-        super(plugin.getDataFolder());
+        super();
         this.plugin = plugin;
-        init();
-    }
-
-    private void init() {
-        createDefaultConfig("config.yml");
-        mainConfig = getConfig("config.yml");
-        
-        i18n = new I18n(dataFolder, this::getResource);
-        String language = mainConfig.getString("language", "zh_CN");
-        i18n.setLocale(language.replace("_", "-"));
+        initConfig(plugin.getDataFolder(), "config.yml");
     }
 
     @Override
-    protected InputStream getResource(String name) {
+    public InputStream getResource(String name) {
         if (name.startsWith("languages/")) {
             return plugin.getResourceAsStream(name);
         }
         return plugin.getResourceAsStream(name);
     }
 
-    public I18n getI18n() {
-        return i18n;
-    }
-
-    public YamlConfiguration getMainConfig() {
-        return mainConfig;
-    }
-
-    public void reload() {
-        reloadAll();
-        mainConfig = getConfig("config.yml");
-        String language = mainConfig.getString("language", "zh_CN");
-        i18n.setLocale(language.replace("_", "-"));
-        i18n.reload();
+    @Override
+    public YamlConfiguration getConfig(String name) {
+        String fileName = name.endsWith(".yml") ? name : name + ".yml";
+        File file = new File(dataFolder, fileName);
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+        
+        String resourcePath = fileName;
+        try (InputStream defaultStream = getResource(resourcePath)) {
+            if (defaultStream != null) {
+                YamlConfiguration defaultConfig = new YamlConfiguration(null);
+                defaultConfig.loadFromResource(defaultStream);
+                mergeDefaults(config, defaultConfig);
+            }
+        } catch (Exception e) {
+            plugin.getLogger().warning("无法加载默认配置文件: " + e.getMessage());
+        }
+        
+        return config;
     }
 
     @Override
-    public boolean isEnable() {
-        return mainConfig.getBoolean("proxy.enabled", false);
+    public void createDefaultConfig(String name) {
+        String fileName = name.endsWith(".yml") ? name : name + ".yml";
+        File file = new File(dataFolder, fileName);
+        if (!file.exists()) {
+            try (InputStream in = getResource(fileName)) {
+                if (in != null) {
+                    java.nio.file.Files.copy(in, file.toPath());
+                }
+            } catch (Exception e) {
+                plugin.getLogger().warning("无法创建默认配置文件: " + e.getMessage());
+            }
+        }
     }
 
     @Override
-    public String getProxyHost() {
-        return mainConfig.getString("proxy.host", "127.0.0.1");
+    public void saveConfig(String name) {
+        YamlConfiguration config = getConfig(name);
+        if (config != null) {
+            try {
+                config.save();
+            } catch (Exception e) {
+                plugin.getLogger().warning("保存配置文件失败: " + e.getMessage());
+            }
+        }
     }
 
-    @Override
-    public int getProxyPort() {
-        return mainConfig.getInt("proxy.port", 2333);
+    private void mergeDefaults(YamlConfiguration config, YamlConfiguration defaults) {
+        for (java.util.Map.Entry<String, Object> entry : defaults.getDataMap().entrySet()) {
+            if (!config.contains(entry.getKey())) {
+                config.set(entry.getKey(), entry.getValue());
+            }
+        }
     }
 
-    @Override
-    public String getAuthKey() {
-        return mainConfig.getString("proxy.auth-key", "");
-    }
-
-    @Override
-    public String getLoginServerName() {
-        return mainConfig.getString("proxy.login-server-name", "lobby");
+    public File getDataFolder() {
+        return dataFolder;
     }
 }
