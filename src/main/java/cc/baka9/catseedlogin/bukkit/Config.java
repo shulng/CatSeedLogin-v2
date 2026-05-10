@@ -31,11 +31,11 @@ public class Config {
         public static void load(){
             BukkitConfigManager cm = plugin.getConfigManager();
             Enable = cm.isMySQL();
-            Host = cm.getHost();
-            Port = String.valueOf(cm.getPort());
-            Database = cm.getDatabase();
-            User = cm.getUser();
-            Password = cm.getPassword();
+            Host = cm.getDatabaseHost();
+            Port = String.valueOf(cm.getDatabasePort());
+            Database = cm.getDatabaseName();
+            User = cm.getDatabaseUser();
+            Password = cm.getDatabasePassword();
         }
     }
 

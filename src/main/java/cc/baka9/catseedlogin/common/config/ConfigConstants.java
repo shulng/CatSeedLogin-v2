@@ -107,4 +107,17 @@ public class ConfigConstants {
 
         public static final String LANGUAGE = "language";
     }
+
+    public static class Comment {
+        public static final String DATABASE_HOST = "数据库主机地址 (MySQL服务器IP)";
+        public static final String DATABASE_PORT = "数据库端口 (MySQL默认3306)";
+        public static final String DATABASE_NAME = "数据库名称";
+        public static final String DATABASE_USER = "数据库用户名";
+        public static final String DATABASE_PASSWORD = "数据库密码";
+
+        public static final String PROXY_HOST = "代理服务器通信地址 (Bukkit用于监听BungeeCord/Velocity连接)";
+        public static final String PROXY_PORT = "代理服务器通信端口 (Bukkit监听端口)";
+        public static final String PROXY_AUTH_KEY = "代理通信认证密钥 (确保Bukkit与代理通信安全)";
+        public static final String PROXY_LOGIN_SERVER_NAME = "登录服服务器名称 (在代理端配置的服务器名)";
+    }
 }

@@ -151,27 +151,27 @@ public abstract class BaseConfigManager implements CoreConfig, DatabaseConfig, B
     }
 
     @Override
-    public String getHost() {
+    public String getDatabaseHost() {
         return mainConfig.getString(ConfigConstants.Path.DATABASE_HOST, ConfigConstants.DEFAULT_PROXY_HOST);
     }
 
     @Override
-    public int getPort() {
+    public int getDatabasePort() {
         return mainConfig.getInt(ConfigConstants.Path.DATABASE_PORT, ConfigConstants.DEFAULT_MYSQL_PORT);
     }
 
     @Override
-    public String getDatabase() {
+    public String getDatabaseName() {
         return mainConfig.getString(ConfigConstants.Path.DATABASE_NAME, ConfigConstants.DEFAULT_DATABASE_NAME);
     }
 
     @Override
-    public String getUser() {
+    public String getDatabaseUser() {
         return mainConfig.getString(ConfigConstants.Path.DATABASE_USER, "root");
     }
 
     @Override
-    public String getPassword() {
+    public String getDatabasePassword() {
         return mainConfig.getString(ConfigConstants.Path.DATABASE_PASSWORD, "password");
     }
 
