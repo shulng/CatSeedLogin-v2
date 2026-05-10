@@ -3,7 +3,6 @@ package cc.baka9.catseedlogin.bukkit.config;
 import cc.baka9.catseedlogin.bukkit.CatSeedLogin;
 import cc.baka9.catseedlogin.common.config.BaseConfigManager;
 import cc.baka9.catseedlogin.common.config.ConfigConstants;
-import cc.baka9.catseedlogin.common.config.ConfigHelper;
 import cc.baka9.catseedlogin.common.config.YamlConfiguration;
 import cc.baka9.catseedlogin.common.api.CoreConfig;
 
@@ -84,12 +83,6 @@ public class BukkitConfigManager extends BaseConfigManager {
         }
     }
 
-    @Override
-    public CoreConfig.SpawnLocation getSpawnLocation() {
-        String locStr = mainConfig.getString(ConfigConstants.Path.SPAWN_LOCATION, ConfigConstants.DEFAULT_SPAWN_LOCATION);
-        return parseSpawnLocation(locStr);
-    }
-
     public void setSpawnLocation(Location location) {
         String locStr = String.format("%s:%.2f:%.2f:%.2f:%.2f:%.2f",
                 location.getWorld().getName(),
@@ -100,42 +93,6 @@ public class BukkitConfigManager extends BaseConfigManager {
                 location.getPitch());
         mainConfig.set(ConfigConstants.Path.SPAWN_LOCATION, locStr);
         saveConfig("config.yml");
-    }
-
-    private CoreConfig.SpawnLocation parseSpawnLocation(String str) {
-        ConfigHelper.LocationData data = ConfigHelper.parseLocationString(str, 
-            new ConfigHelper.LocationData("world", 0, 64, 0, 0, 0));
-        return new CoreConfig.SpawnLocation() {
-            @Override
-            public String getWorld() {
-                return data.world;
-            }
-
-            @Override
-            public double getX() {
-                return data.x;
-            }
-
-            @Override
-            public double getY() {
-                return data.y;
-            }
-
-            @Override
-            public double getZ() {
-                return data.z;
-            }
-
-            @Override
-            public float getYaw() {
-                return data.yaw;
-            }
-
-            @Override
-            public float getPitch() {
-                return data.pitch;
-            }
-        };
     }
 
     public Location getBukkitSpawnLocation() {

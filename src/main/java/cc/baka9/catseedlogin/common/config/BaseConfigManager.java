@@ -242,4 +242,46 @@ public abstract class BaseConfigManager implements CoreConfig, DatabaseConfig, B
         mainConfig.set(path, value);
         saveConfig("config.yml");
     }
+
+    @Override
+    public CoreConfig.SpawnLocation getSpawnLocation() {
+        String locStr = mainConfig.getString(ConfigConstants.Path.SPAWN_LOCATION, ConfigConstants.DEFAULT_SPAWN_LOCATION);
+        return parseSpawnLocation(locStr);
+    }
+
+    private CoreConfig.SpawnLocation parseSpawnLocation(String str) {
+        ConfigHelper.LocationData data = ConfigHelper.parseLocationString(str, 
+            new ConfigHelper.LocationData("world", 0, 64, 0, 0, 0));
+        return new CoreConfig.SpawnLocation() {
+            @Override
+            public String getWorld() {
+                return data.world;
+            }
+
+            @Override
+            public double getX() {
+                return data.x;
+            }
+
+            @Override
+            public double getY() {
+                return data.y;
+            }
+
+            @Override
+            public double getZ() {
+                return data.z;
+            }
+
+            @Override
+            public float getYaw() {
+                return data.yaw;
+            }
+
+            @Override
+            public float getPitch() {
+                return data.pitch;
+            }
+        };
+    }
 }
