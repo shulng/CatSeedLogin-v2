@@ -25,7 +25,7 @@ public class BukkitConfigManager extends BaseConfigManager {
     }
 
     @Override
-    protected InputStream getResource(String name) {
+    public InputStream getResource(String name) {
         return plugin.getResource(name);
     }
 

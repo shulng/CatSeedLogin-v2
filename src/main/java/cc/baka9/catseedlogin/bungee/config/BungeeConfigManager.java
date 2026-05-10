@@ -3,8 +3,9 @@ package cc.baka9.catseedlogin.bungee.config;
 import cc.baka9.catseedlogin.bungee.PluginMain;
 import cc.baka9.catseedlogin.common.config.BaseConfigManager;
 import cc.baka9.catseedlogin.common.config.ConfigConstants;
+import cc.baka9.catseedlogin.common.config.ConfigHelper;
 import cc.baka9.catseedlogin.common.config.YamlConfiguration;
-import cc.baka9.catseedlogin.common.i18n.I18n;
+import cc.baka9.catseedlogin.common.api.CoreConfig;
 
 import java.io.File;
 import java.io.InputStream;
@@ -20,7 +21,7 @@ public class BungeeConfigManager extends BaseConfigManager {
     }
 
     @Override
-    protected InputStream getResource(String name) {
+    public InputStream getResource(String name) {
         if (name.startsWith("languages/")) {
             return plugin.getResourceAsStream(name);
         }
@@ -80,6 +81,48 @@ public class BungeeConfigManager extends BaseConfigManager {
                 config.set(entry.getKey(), entry.getValue());
             }
         }
+    }
+
+    @Override
+    public CoreConfig.SpawnLocation getSpawnLocation() {
+        String locStr = mainConfig.getString(ConfigConstants.Path.SPAWN_LOCATION, ConfigConstants.DEFAULT_SPAWN_LOCATION);
+        return parseSpawnLocation(locStr);
+    }
+
+    private CoreConfig.SpawnLocation parseSpawnLocation(String str) {
+        ConfigHelper.LocationData data = ConfigHelper.parseLocationString(str, 
+            new ConfigHelper.LocationData("world", 0, 64, 0, 0, 0));
+        return new CoreConfig.SpawnLocation() {
+            @Override
+            public String getWorld() {
+                return data.world;
+            }
+
+            @Override
+            public double getX() {
+                return data.x;
+            }
+
+            @Override
+            public double getY() {
+                return data.y;
+            }
+
+            @Override
+            public double getZ() {
+                return data.z;
+            }
+
+            @Override
+            public float getYaw() {
+                return data.yaw;
+            }
+
+            @Override
+            public float getPitch() {
+                return data.pitch;
+            }
+        };
     }
 
     public File getDataFolder() {
