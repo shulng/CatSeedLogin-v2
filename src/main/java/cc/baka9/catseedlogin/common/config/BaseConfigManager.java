@@ -1,12 +1,15 @@
 package cc.baka9.catseedlogin.common.config;
 
+import cc.baka9.catseedlogin.common.api.CoreConfig;
+import cc.baka9.catseedlogin.common.api.DatabaseConfig;
+import cc.baka9.catseedlogin.common.api.BungeeCordConfig;
+import cc.baka9.catseedlogin.common.api.EmailConfig;
+import cc.baka9.catseedlogin.common.i18n.I18n;
+
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public abstract class BaseConfigManager implements CoreConfig, DatabaseConfig, BungeeCordConfig, EmailConfig {
 

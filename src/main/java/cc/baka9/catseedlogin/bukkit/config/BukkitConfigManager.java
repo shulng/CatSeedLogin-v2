@@ -5,7 +5,7 @@ import cc.baka9.catseedlogin.common.config.BaseConfigManager;
 import cc.baka9.catseedlogin.common.config.ConfigConstants;
 import cc.baka9.catseedlogin.common.config.ConfigHelper;
 import cc.baka9.catseedlogin.common.config.YamlConfiguration;
-import cc.baka9.catseedlogin.common.i18n.I18n;
+import cc.baka9.catseedlogin.common.api.CoreConfig;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -13,8 +13,6 @@ import org.bukkit.World;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.List;
-import java.util.regex.Pattern;
 
 public class BukkitConfigManager extends BaseConfigManager {
 
@@ -87,7 +85,7 @@ public class BukkitConfigManager extends BaseConfigManager {
     }
 
     @Override
-    public SpawnLocation getSpawnLocation() {
+    public CoreConfig.SpawnLocation getSpawnLocation() {
         String locStr = mainConfig.getString(ConfigConstants.Path.SPAWN_LOCATION, ConfigConstants.DEFAULT_SPAWN_LOCATION);
         return parseSpawnLocation(locStr);
     }
@@ -104,10 +102,10 @@ public class BukkitConfigManager extends BaseConfigManager {
         saveConfig("config.yml");
     }
 
-    private SpawnLocation parseSpawnLocation(String str) {
+    private CoreConfig.SpawnLocation parseSpawnLocation(String str) {
         ConfigHelper.LocationData data = ConfigHelper.parseLocationString(str, 
             new ConfigHelper.LocationData("world", 0, 64, 0, 0, 0));
-        return new SpawnLocation() {
+        return new CoreConfig.SpawnLocation() {
             @Override
             public String getWorld() {
                 return data.world;
@@ -141,7 +139,7 @@ public class BukkitConfigManager extends BaseConfigManager {
     }
 
     public Location getBukkitSpawnLocation() {
-        SpawnLocation spawn = getSpawnLocation();
+        CoreConfig.SpawnLocation spawn = getSpawnLocation();
         World world = Bukkit.getWorld(spawn.getWorld());
         if (world == null) {
             world = Bukkit.getWorlds().get(0);
