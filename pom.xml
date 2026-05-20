@@ -28,7 +28,7 @@
         <bungeecord.version>1.21-R0.4</bungeecord.version>
         <velocity.version>3.4.0</velocity.version>
         <sqlite.version>3.53.1.0</sqlite.version>
-        <mysql.version>8.0.30</mysql.version>
+        <mysql.version>8.0.33</mysql.version>
         <snakeyaml.version>2.6</snakeyaml.version>
         <commons-email.version>1.6.0</commons-email.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
