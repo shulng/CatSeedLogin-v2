@@ -20,7 +20,7 @@
         <java.version>8</java.version>
 
         <bukkit.version>1.12.2-R0.1-SNAPSHOT</bukkit.version>
-        <paper.version>26.1.2.build.63-stable</paper.version>
+        <paper.version>26.1.2.build.64-stable</paper.version>
         <spigot.version>1.15.2-R0.1-SNAPSHOT</spigot.version>
         <folia.version>26.1.2.build.8-stable</folia.version>
         <lombok.version>1.18.46</lombok.version>
