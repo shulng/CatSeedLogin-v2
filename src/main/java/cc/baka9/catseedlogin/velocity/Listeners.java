@@ -35,10 +35,9 @@ public class Listeners {
     @Subscribe
     public void onChat(com.velocitypowered.api.event.player.PlayerChatEvent event) {
         Player player = event.getPlayer();
-        String playerName = player.getUsername();
         String message = event.getMessage();
         
-        if (message.startsWith("/") && !loggedInPlayerList.contains(playerName)) {
+        if (message.startsWith("/") && isNotLoggedIn(player)) {
             event.setResult(com.velocitypowered.api.event.player.PlayerChatEvent.ChatResult.denied());
             handleLogin(player, message);
         }
@@ -51,10 +50,9 @@ public class Listeners {
         }
         
         Player player = (Player) event.getCommandSource();
-        String playerName = player.getUsername();
         String command = event.getCommand();
         
-        if (!loggedInPlayerList.contains(playerName) && 
+        if (isNotLoggedIn(player) && 
             !command.toLowerCase().startsWith("login") && 
             !command.toLowerCase().startsWith("register") &&
             !command.toLowerCase().startsWith("l") &&
@@ -145,6 +143,10 @@ public class Listeners {
                 Component.text("发生错误，请稍后再试。")
             ));
         }
+    }
+
+    private boolean isNotLoggedIn(Player player) {
+        return !loggedInPlayerList.contains(player.getUsername());
     }
 
     private void handleLogin(Player player, String message) {

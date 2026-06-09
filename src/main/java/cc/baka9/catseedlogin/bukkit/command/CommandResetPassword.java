@@ -43,7 +43,7 @@ public class CommandResetPassword implements CommandExecutor {
         }
 
         if (args[0].equalsIgnoreCase("re") && args.length > 2) {
-            return handleReset(sender, player, name, lp, args[1], args[2]);
+            return handleReset(player, lp, args[1], args[2]);
         }
 
         return true;
@@ -55,11 +55,15 @@ public class CommandResetPassword implements CommandExecutor {
             return true;
         }
 
-        Optional<EmailCode> optional = EmailCode.getByName(name, EmailCode.Type.ResetPassword);
-        if (optional.isPresent()) {
-            sender.sendMessage(Config.Language.RESETPASSWORD_EMAIL_REPEAT_SEND_MESSAGE
-                    .replace("{email}", optional.get().getEmail()));
-            return true;
+        try {
+            Optional<EmailCode> optional = EmailCode.getByName(name, EmailCode.Type.ResetPassword);
+            if (optional.isPresent()) {
+                sender.sendMessage(Config.Language.RESETPASSWORD_EMAIL_REPEAT_SEND_MESSAGE
+                        .replace("{email}", optional.get().getEmail()));
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         EmailCode emailCode = EmailCode.create(name, lp.getEmail(), EMAIL_CODE_DURATION, EmailCode.Type.ResetPassword);
@@ -90,42 +94,52 @@ public class CommandResetPassword implements CommandExecutor {
         });
     }
 
-    private boolean handleReset(CommandSender sender, Player player, String name, LoginPlayer lp, String code, String pwd) {
+    private boolean handleReset(Player player, LoginPlayer lp, String code, String pwd) {
+        CommandSender sender = player;
         if (lp.getEmail() == null) {
             sender.sendMessage(Config.Language.RESETPASSWORD_EMAIL_NO_SET);
             return true;
         }
 
-        Optional<EmailCode> optional = EmailCode.getByName(name, EmailCode.Type.ResetPassword);
-        if (!optional.isPresent()) {
+        try {
+            Optional<EmailCode> optional = EmailCode.getByName(lp.getName(), EmailCode.Type.ResetPassword);
+            if (!optional.isPresent()) {
+                sender.sendMessage(Config.Language.RESETPASSWORD_FAIL);
+                return true;
+            }
+            if (!optional.get().getCode().equals(code)) {
+                sender.sendMessage(Config.Language.RESETPASSWORD_EMAILCODE_INCORRECT);
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
             sender.sendMessage(Config.Language.RESETPASSWORD_FAIL);
             return true;
         }
-        if (!optional.get().getCode().equals(code)) {
-            sender.sendMessage(Config.Language.RESETPASSWORD_EMAILCODE_INCORRECT);
-            return true;
-        }
+
         if (Util.passwordIsDifficulty(pwd)) {
             sender.sendMessage(Config.Language.COMMON_PASSWORD_SO_SIMPLE);
             return true;
         }
 
         sender.sendMessage("§e密码重置中..");
-        processPasswordResetAsync(sender, player, name, lp, pwd);
+        processPasswordResetAsync(player, lp, pwd);
         return true;
     }
 
-    private void processPasswordResetAsync(CommandSender sender, Player player, String name, LoginPlayer lp, String pwd) {
+    private void processPasswordResetAsync(Player player, LoginPlayer lp, String pwd) {
+        CommandSender sender = player;
+        String name = lp.getName();
         CatScheduler.runTaskAsync(() -> {
             try {
                 lp.setPassword(pwd);
                 lp.crypt();
                 PluginContext.getSql().edit(lp);
-                Cache.refresh(lp.getName());
+                Cache.refresh(name);
                 LoginPlayerHelper.remove(lp);
                 EmailCode.removeByName(name, EmailCode.Type.ResetPassword);
 
-                CatScheduler.runTask(() -> notifyResetSuccess(lp, player, sender));
+                CatScheduler.runTask(() -> notifyResetSuccess(name, player));
             } catch (Exception e) {
                 CatScheduler.runTask(() -> sender.sendMessage("§c数据库异常!"));
                 e.printStackTrace();
@@ -133,8 +147,8 @@ public class CommandResetPassword implements CommandExecutor {
         });
     }
 
-    private void notifyResetSuccess(LoginPlayer lp, Player player, CommandSender sender) {
-        Player p = Bukkit.getPlayer(lp.getName());
+    private void notifyResetSuccess(String name, Player player) {
+        Player p = Bukkit.getPlayer(name);
         if (p == null || !p.isOnline()) return;
 
         if (Config.Settings.CanTpSpawnLocation) {

@@ -161,16 +161,20 @@ public class Listeners implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         if (LoginPlayerHelper.isLogin(player.getName())) {
-            try {
-                if (!player.isDead() || Config.Settings.DeathStateQuitRecordLocation) {
-                    Config.setOfflineLocation(player);
-                }
-            } catch (Exception e) {
-                player.getServer().getLogger().warning("保存玩家离线位置失败: " + player.getName());
-            }
+            saveOfflineLocation(player);
             CatScheduler.runTaskLater(() -> LoginPlayerHelper.remove(player.getName()), Config.Settings.ReenterInterval);
         }
         Task.getTaskAutoKick().playerJoinTime.remove(player.getName());
+    }
+
+    private void saveOfflineLocation(Player player) {
+        try {
+            if (!player.isDead() || Config.Settings.DeathStateQuitRecordLocation) {
+                Config.setOfflineLocation(player);
+            }
+        } catch (Exception e) {
+            player.getServer().getLogger().warning("保存玩家离线位置失败: " + player.getName());
+        }
     }
 
     @EventHandler

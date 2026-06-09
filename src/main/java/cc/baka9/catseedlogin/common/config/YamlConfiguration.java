@@ -86,10 +86,21 @@ public class YamlConfiguration implements Configuration {
         return defaultValue;
     }
 
+    private Object getNumeric(String path) {
+        Object value = get(path);
+        if (value instanceof Number) {
+            return value;
+        }
+        if (value instanceof String) {
+            return value;
+        }
+        return null;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public int getInt(String path, int defaultValue) {
-        Object value = get(path);
+        Object value = getNumeric(path);
         if (value instanceof Number) {
             return ((Number) value).intValue();
         }
@@ -106,7 +117,7 @@ public class YamlConfiguration implements Configuration {
     @Override
     @SuppressWarnings("unchecked")
     public long getLong(String path, long defaultValue) {
-        Object value = get(path);
+        Object value = getNumeric(path);
         if (value instanceof Number) {
             return ((Number) value).longValue();
         }
@@ -130,7 +141,7 @@ public class YamlConfiguration implements Configuration {
     @Override
     @SuppressWarnings("unchecked")
     public double getDouble(String path, double defaultValue) {
-        Object value = get(path);
+        Object value = getNumeric(path);
         if (value instanceof Number) {
             return ((Number) value).doubleValue();
         }

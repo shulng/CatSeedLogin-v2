@@ -85,32 +85,27 @@ public class I18n {
         messages.put(locale, localeMessages);
     }
 
+    private void loadYaml(Reader reader, Map<String, String> messages) {
+        org.yaml.snakeyaml.Yaml yaml = new org.yaml.snakeyaml.Yaml();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> data = yaml.load(reader);
+        if (data != null) {
+            flattenMap(messages, "", data);
+        }
+    }
+
     private void loadFromFile(File file, Map<String, String> messages) {
-        try {
-            org.yaml.snakeyaml.Yaml yaml = new org.yaml.snakeyaml.Yaml();
-            try (InputStreamReader reader = new InputStreamReader(
-                    new java.io.FileInputStream(file), StandardCharsets.UTF_8)) {
-                @SuppressWarnings("unchecked")
-                Map<String, Object> data = yaml.load(reader);
-                if (data != null) {
-                    flattenMap(messages, "", data);
-                }
-            }
+        try (InputStreamReader reader = new InputStreamReader(
+                new java.io.FileInputStream(file), StandardCharsets.UTF_8)) {
+            loadYaml(reader, messages);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     private void loadFromStream(InputStream stream, Map<String, String> messages) {
-        try {
-            org.yaml.snakeyaml.Yaml yaml = new org.yaml.snakeyaml.Yaml();
-            try (InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
-                @SuppressWarnings("unchecked")
-                Map<String, Object> data = yaml.load(reader);
-                if (data != null) {
-                    flattenMap(messages, "", data);
-                }
-            }
+        try (InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
+            loadYaml(reader, messages);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -128,12 +123,17 @@ public class I18n {
         }
     }
 
-    public String get(String key) {
+    private String lookup(String key) {
         Map<String, String> localeMessages = messages.get(currentLocale);
         if (localeMessages != null && localeMessages.containsKey(key)) {
             return translateColors(localeMessages.get(key));
         }
-        return key;
+        return null;
+    }
+
+    public String get(String key) {
+        String message = lookup(key);
+        return message != null ? message : key;
     }
 
     public String get(String key, Object... args) {
@@ -149,11 +149,8 @@ public class I18n {
     }
 
     public String getOrDefault(String key, String defaultValue) {
-        Map<String, String> localeMessages = messages.get(currentLocale);
-        if (localeMessages != null && localeMessages.containsKey(key)) {
-            return translateColors(localeMessages.get(key));
-        }
-        return defaultValue;
+        String message = lookup(key);
+        return message != null ? message : defaultValue;
     }
 
     public void setPlaceholder(String key, Object value) {

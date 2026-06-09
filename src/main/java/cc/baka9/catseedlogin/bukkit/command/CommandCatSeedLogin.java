@@ -221,10 +221,7 @@ public class CommandCatSeedLogin implements CommandExecutor {
     }
 
     private static void removeRegex(String regex) {
-        List<String> collect = Config.Settings.CommandWhiteList.stream()
-                .map(Pattern::toString).collect(Collectors.toList());
-        collect.remove(regex);
-        Config.Settings.CommandWhiteList = collect.stream().map(Pattern::compile).collect(Collectors.toList());
+        Config.Settings.CommandWhiteList.removeIf(p -> p.toString().equals(regex));
     }
 
     // ---- Spawn Location ----
@@ -254,9 +251,19 @@ public class CommandCatSeedLogin implements CommandExecutor {
             PluginContext.getLogger().warning("§c加载数据库时出错");
             e.printStackTrace();
         }
-        Communication.socketServerStopAsync();
+        try {
+            Communication.socketServerStopAsync();
+        } catch (Exception e) {
+            PluginContext.getLogger().warning("§c停止通信服务时出错");
+            e.printStackTrace();
+        }
         if (Config.BungeeCord.Enable) {
-            Communication.socketServerStartAsync();
+            try {
+                Communication.socketServerStartAsync();
+            } catch (Exception e) {
+                PluginContext.getLogger().warning("§c启动通信服务时出错");
+                e.printStackTrace();
+            }
         }
         sender.sendMessage("配置已重载!");
         return true;

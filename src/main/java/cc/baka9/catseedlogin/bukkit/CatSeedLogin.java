@@ -88,18 +88,33 @@ public class CatSeedLogin extends JavaPlugin implements Listener {
     }
 
     private void registerCommands() {
+        registerLoginCommand();
+        registerRegisterCommand();
+        registerChangePasswordCommand();
+        registerBindEmailCommand();
+        registerResetPasswordCommand();
+        registerCatSeedLoginCommand();
+    }
+
+    private void registerLoginCommand() {
         getServer().getPluginCommand("login").setExecutor(new CommandLogin());
         getServer().getPluginCommand("login").setTabCompleter((commandSender, command, s, args)
                 -> args.length == 1 ? Collections.singletonList("密码") : new ArrayList<>(0));
+    }
 
+    private void registerRegisterCommand() {
         getServer().getPluginCommand("register").setExecutor(new CommandRegister());
         getServer().getPluginCommand("register").setTabCompleter((commandSender, command, s, args)
                 -> args.length == 1 ? Collections.singletonList("密码 重复密码") : new ArrayList<>(0));
+    }
 
+    private void registerChangePasswordCommand() {
         getServer().getPluginCommand("changepassword").setExecutor(new CommandChangePassword());
         getServer().getPluginCommand("changepassword").setTabCompleter((commandSender, command, s, args)
                 -> args.length == 1 ? Collections.singletonList("旧密码 新密码 重复新密码") : new ArrayList<>(0));
+    }
 
+    private void registerBindEmailCommand() {
         PluginCommand bindemail = getServer().getPluginCommand("bindemail");
         bindemail.setExecutor(new CommandBindEmail());
         bindemail.setTabCompleter((commandSender, command, s, args) -> {
@@ -116,7 +131,9 @@ public class CatSeedLogin extends JavaPlugin implements Listener {
             }
             return Collections.emptyList();
         });
+    }
 
+    private void registerResetPasswordCommand() {
         PluginCommand resetpassword = getServer().getPluginCommand("resetpassword");
         resetpassword.setExecutor(new CommandResetPassword());
         resetpassword.setTabCompleter((commandSender, command, s, args) -> {
@@ -133,7 +150,9 @@ public class CatSeedLogin extends JavaPlugin implements Listener {
             }
             return Collections.emptyList();
         });
+    }
 
+    private void registerCatSeedLoginCommand() {
         getServer().getPluginCommand("catseedlogin").setExecutor(new CommandCatSeedLogin());
     }
 

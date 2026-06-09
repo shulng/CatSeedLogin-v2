@@ -89,12 +89,7 @@ public abstract class SQL {
              ResultSet resultSet = ps.executeQuery()) {
             List<LoginPlayer> lps = new ArrayList<>();
             while (resultSet.next()) {
-                LoginPlayer lp = new LoginPlayer(resultSet.getString("name"), resultSet.getString("password"));
-                lp.setLastAction(resultSet.getTimestamp("lastAction").getTime());
-                lp.setEmail(resultSet.getString("email"));
-                lp.setIps(resultSet.getString("ips"));
-                lp.setLocation(resultSet.getString("location"));
-                lps.add(lp);
+                lps.add(mapLoginPlayer(resultSet));
             }
             return lps;
         }
@@ -106,15 +101,19 @@ public abstract class SQL {
              ResultSet resultSet = ps.executeQuery()) {
             List<LoginPlayer> lps = new ArrayList<>();
             while (resultSet.next()) {
-                LoginPlayer lp = new LoginPlayer(resultSet.getString("name"), resultSet.getString("password"));
-                lp.setLastAction(resultSet.getTimestamp("lastAction").getTime());
-                lp.setEmail(resultSet.getString("email"));
-                lp.setIps(resultSet.getString("ips"));
-                lp.setLocation(resultSet.getString("location"));
-                lps.add(lp);
+                lps.add(mapLoginPlayer(resultSet));
             }
             return lps;
         }
+    }
+
+    private LoginPlayer mapLoginPlayer(ResultSet resultSet) throws SQLException {
+        LoginPlayer lp = new LoginPlayer(resultSet.getString("name"), resultSet.getString("password"));
+        lp.setLastAction(resultSet.getTimestamp("lastAction").getTime());
+        lp.setEmail(resultSet.getString("email"));
+        lp.setIps(resultSet.getString("ips"));
+        lp.setLocation(resultSet.getString("location"));
+        return lp;
     }
 
     public abstract Connection getConnection() throws SQLException;
