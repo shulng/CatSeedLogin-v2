@@ -49,6 +49,7 @@ public class CommandChangePassword implements CommandExecutor {
                 lp.setPassword(args[1]);
                 lp.crypt();
                 CatSeedLogin.sql.edit(lp);
+                Cache.refresh(lp.getName());
                 LoginPlayerHelper.remove(lp);
                 CatScheduler.runTask(() -> {
                     Player player = Bukkit.getPlayer(((Player) sender).getUniqueId());

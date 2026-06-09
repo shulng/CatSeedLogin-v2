@@ -32,6 +32,7 @@ public class PluginMain {
     private VelocityConfigManager configManager;
     private VelocityPlatformAdapter platformAdapter;
     private VelocityCommunication communication;
+    private Listeners listeners;
     
     @Inject
     public PluginMain(ProxyServer proxyServer, Logger logger, @DataDirectory Path dataDirectory) {
@@ -61,16 +62,17 @@ public class PluginMain {
     public void onProxyInitialization(ProxyInitializeEvent event) {
         configManager = new VelocityConfigManager(this);
         platformAdapter = new VelocityPlatformAdapter(this, configManager.getI18n());
-        communication = new VelocityCommunication();
+        communication = new VelocityCommunication(configManager, logger);
+        listeners = new Listeners(configManager, communication, proxyServer, logger);
         configManager.reload();
         
-        proxyServer.getEventManager().register(this, new Listeners());
+        proxyServer.getEventManager().register(this, listeners);
         
         proxyServer.getCommandManager().register(
             proxyServer.getCommandManager().metaBuilder("CatSeedLoginVelocity")
                 .aliases("cslv")
                 .build(),
-            new Commands()
+            new Commands(configManager, proxyServer, logger, listeners)
         );
         
         logger.info("CatSeedLogin-Velocity has been enabled!");
@@ -103,5 +105,9 @@ public class PluginMain {
 
     public VelocityCommunication getCommunication() {
         return communication;
+    }
+
+    public Listeners getListeners() {
+        return listeners;
     }
 }

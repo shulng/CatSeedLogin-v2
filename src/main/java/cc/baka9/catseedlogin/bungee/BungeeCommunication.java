@@ -1,32 +1,41 @@
 package cc.baka9.catseedlogin.bungee;
 
+import cc.baka9.catseedlogin.bungee.config.BungeeConfigManager;
 import cc.baka9.catseedlogin.common.communication.BaseCommunication;
 
 public class BungeeCommunication extends BaseCommunication {
 
+    private final BungeeConfigManager configManager;
+    private final java.util.logging.Logger logger;
+
+    public BungeeCommunication(BungeeConfigManager configManager, java.util.logging.Logger logger) {
+        this.configManager = configManager;
+        this.logger = logger;
+    }
+
     @Override
     protected String getProxyHost() {
-        return PluginMain.instance.getConfigManager().getProxyHost();
+        return configManager.getProxyHost();
     }
 
     @Override
     protected int getProxyPort() {
-        return PluginMain.instance.getConfigManager().getProxyPort();
+        return configManager.getProxyPort();
     }
 
     @Override
     protected void logError(String message, Exception e) {
-        PluginMain.instance.getLogger().severe(message);
+        logger.severe(message);
         e.printStackTrace();
     }
 
     @Override
     protected void logWarning(String message) {
-        PluginMain.instance.getLogger().warning(message);
+        logger.warning(message);
     }
 
     @Override
     protected String getAuthKey() {
-        return PluginMain.instance.getConfigManager().getAuthKey();
+        return configManager.getAuthKey();
     }
 }

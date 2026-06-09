@@ -52,6 +52,7 @@ public class CommandRegister implements CommandExecutor {
                     LoginPlayer lp = new LoginPlayer(name, args[0]);
                     lp.crypt();
                     CatSeedLogin.sql.add(lp);
+                    Cache.refresh(lp.getName());
                     LoginPlayerHelper.add(lp);
                     CatScheduler.runTask(() -> {
                         CatSeedPlayerRegisterEvent event = new CatSeedPlayerRegisterEvent(Bukkit.getPlayer(sender.getName()));

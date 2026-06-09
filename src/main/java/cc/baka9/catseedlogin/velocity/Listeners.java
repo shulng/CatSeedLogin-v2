@@ -7,8 +7,10 @@ import com.velocitypowered.api.event.connection.PreLoginEvent;
 import com.velocitypowered.api.event.player.ServerConnectedEvent;
 import com.velocitypowered.api.event.player.ServerPreConnectEvent;
 import com.velocitypowered.api.proxy.Player;
+import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import net.kyori.adventure.text.Component;
+import org.slf4j.Logger;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -16,7 +18,19 @@ import java.util.concurrent.TimeUnit;
 
 public class Listeners {
 
-    private static final List<String> loggedInPlayerList = new CopyOnWriteArrayList<>();
+    private final List<String> loggedInPlayerList = new CopyOnWriteArrayList<>();
+    private final VelocityConfigManager configManager;
+    private final VelocityCommunication communication;
+    private final ProxyServer proxyServer;
+    private final Logger logger;
+
+    public Listeners(VelocityConfigManager configManager, VelocityCommunication communication,
+                     ProxyServer proxyServer, Logger logger) {
+        this.configManager = configManager;
+        this.communication = communication;
+        this.proxyServer = proxyServer;
+        this.logger = logger;
+    }
 
     @Subscribe
     public void onChat(com.velocitypowered.api.event.player.PlayerChatEvent event) {
@@ -63,25 +77,23 @@ public class Listeners {
         
         String targetName = target.getServerInfo().getName();
         String playerName = player.getUsername();
-        VelocityConfigManager config = PluginMain.getInstance().getConfigManager();
-        String loginServerName = config.getLoginServerName();
+        String loginServerName = configManager.getLoginServerName();
 
         if (!loggedInPlayerList.contains(playerName)) {
             if (!targetName.equals(loginServerName)) {
                 PluginMain.runAsync(() -> {
                     try {
-                        if (PluginMain.getInstance().getCommunication().sendConnectRequest(playerName) == 1) {
+                        if (communication.sendConnectRequest(playerName) == 1) {
                             loggedInPlayerList.add(playerName);
                         } else {
-                            PluginMain.getInstance().getProxyServer()
+                            proxyServer
                                 .getServer(loginServerName)
                                 .ifPresent(loginServer -> {
                                     event.setResult(ServerPreConnectEvent.ServerResult.allowed(loginServer));
                                 });
                         }
                     } catch (Exception e) {
-                        PluginMain.getInstance().getLogger()
-                            .error("Error checking login status for player: " + playerName, e);
+                        logger.error("Error checking login status for player: " + playerName, e);
                     }
                 });
             } else {
@@ -94,12 +106,11 @@ public class Listeners {
     public void onServerConnected(ServerConnectedEvent event) {
         Player player = event.getPlayer();
         String serverName = event.getServer().getServerInfo().getName();
-        VelocityConfigManager config = PluginMain.getInstance().getConfigManager();
-        String loginServerName = config.getLoginServerName();
+        String loginServerName = configManager.getLoginServerName();
         
         if (serverName.equals(loginServerName) && loggedInPlayerList.contains(player.getUsername())) {
             PluginMain.runAsyncDelayed(() -> {
-                PluginMain.getInstance().getCommunication().sendKeepLoggedInRequest(player.getUsername());
+                communication.sendKeepLoggedInRequest(player.getUsername());
             }, 1, TimeUnit.SECONDS);
         }
     }
@@ -115,7 +126,7 @@ public class Listeners {
         String playerName = event.getUsername();
         
         try {
-            if (loggedInPlayerList.contains(playerName) && (PluginMain.getInstance().getCommunication().sendConnectRequest(playerName) == 1)) {
+            if (loggedInPlayerList.contains(playerName) && (communication.sendConnectRequest(playerName) == 1)) {
                 event.setResult(PreLoginEvent.PreLoginComponentResult.denied(
                     Component.text("您已经登录，请勿重复登录。")
                 ));
@@ -132,23 +143,22 @@ public class Listeners {
         
         PluginMain.runAsync(() -> {
             try {
-                if (PluginMain.getInstance().getCommunication().sendConnectRequest(playerName) == 1) {
+                if (communication.sendConnectRequest(playerName) == 1) {
                     loggedInPlayerList.add(playerName);
                     
                     if (message != null && !message.isEmpty() && message.startsWith("/")) {
-                        PluginMain.getInstance().getProxyServer()
+                        proxyServer
                             .getCommandManager()
                             .executeAsync(player, message.substring(1));
                     }
                 }
             } catch (Exception e) {
-                PluginMain.getInstance().getLogger()
-                    .error("Error handling login for player: " + playerName, e);
+                logger.error("Error handling login for player: " + playerName, e);
             }
         });
     }
     
-    public static List<String> getLoggedInPlayers() {
+    public List<String> getLoggedInPlayers() {
         return loggedInPlayerList;
     }
 }

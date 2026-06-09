@@ -1,10 +1,13 @@
 package cc.baka9.catseedlogin.velocity;
 
 import cc.baka9.catseedlogin.common.i18n.MessageKey;
+import cc.baka9.catseedlogin.velocity.config.VelocityConfigManager;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.command.SimpleCommand;
+import com.velocitypowered.api.proxy.ProxyServer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,6 +15,18 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class Commands implements SimpleCommand {
+
+    private final VelocityConfigManager configManager;
+    private final ProxyServer proxyServer;
+    private final Logger logger;
+    private final Listeners listeners;
+
+    public Commands(VelocityConfigManager configManager, ProxyServer proxyServer, Logger logger, Listeners listeners) {
+        this.configManager = configManager;
+        this.proxyServer = proxyServer;
+        this.logger = logger;
+        this.listeners = listeners;
+    }
 
     @Override
     public void execute(Invocation invocation) {
@@ -64,25 +79,25 @@ public class Commands implements SimpleCommand {
     
     private void handleReload(CommandSource source) {
         try {
-            PluginMain.getInstance().getConfigManager().reload();
+            configManager.reload();
             source.sendMessage(Component.text(MessageKey.CONFIG_RELOADED.get()));
         } catch (Exception e) {
             source.sendMessage(Component.text("重载配置文件时出错: " + e.getMessage(), NamedTextColor.RED));
-            PluginMain.getInstance().getLogger().error("Failed to reload config", e);
+            logger.error("Failed to reload config", e);
         }
     }
     
     private void handleStatus(CommandSource source) {
         source.sendMessage(Component.text("=== CatSeedLogin-Velocity 状态 ===", NamedTextColor.GOLD));
         
-        String host = PluginMain.getInstance().getConfigManager().getProxyHost();
-        int port = PluginMain.getInstance().getConfigManager().getProxyPort();
-        String loginServerName = PluginMain.getInstance().getConfigManager().getLoginServerName();
+        String host = configManager.getProxyHost();
+        int port = configManager.getProxyPort();
+        String loginServerName = configManager.getLoginServerName();
         
         source.sendMessage(Component.text("监听地址: " + host + ":" + port, NamedTextColor.YELLOW));
         source.sendMessage(Component.text("登录服务器: " + loginServerName, NamedTextColor.YELLOW));
         
-        boolean loginServerOnline = PluginMain.getInstance().getProxyServer()
+        boolean loginServerOnline = proxyServer
             .getServer(loginServerName)
             .isPresent();
         
@@ -91,7 +106,7 @@ public class Commands implements SimpleCommand {
     }
     
     private void handleList(CommandSource source) {
-        List<String> loggedInPlayers = Listeners.getLoggedInPlayers();
+        List<String> loggedInPlayers = listeners.getLoggedInPlayers();
         
         source.sendMessage(Component.text("=== 已登录玩家列表 ===", NamedTextColor.GOLD));
         source.sendMessage(Component.text("已登录玩家数量: " + loggedInPlayers.size(), NamedTextColor.YELLOW));

@@ -37,6 +37,7 @@ public class CatSeedLogin extends JavaPlugin implements Listener {
     public void onEnable() {
         instance = this;
         morePaperLib = new MorePaperLib(this);
+        CatScheduler.init(morePaperLib);
         HandySchedulerUtil.init(this);
         getServer().getPluginManager().registerEvents(this, this);
 

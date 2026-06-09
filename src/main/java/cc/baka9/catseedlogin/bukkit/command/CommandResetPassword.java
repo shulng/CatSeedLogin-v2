@@ -82,6 +82,7 @@ public class CommandResetPassword implements CommandExecutor {
                             lp.crypt();
                             try {
                                 CatSeedLogin.sql.edit(lp);
+                                Cache.refresh(lp.getName());
                                 LoginPlayerHelper.remove(lp);
                                 EmailCode.removeByName(name, EmailCode.Type.ResetPassword);
                                 CatScheduler.runTask(() -> {

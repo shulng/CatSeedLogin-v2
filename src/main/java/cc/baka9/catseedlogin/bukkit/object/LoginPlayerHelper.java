@@ -109,6 +109,7 @@ public class LoginPlayerHelper {
         CatSeedLogin.instance.runTaskAsync(() -> {
             try {
                 CatSeedLogin.sql.edit(lp);
+                Cache.refresh(lp.getName());
             } catch (Exception e) {
                 e.printStackTrace();
             }

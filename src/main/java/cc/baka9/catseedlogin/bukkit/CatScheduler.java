@@ -6,11 +6,19 @@ import java.lang.reflect.Method;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import space.arim.morepaperlib.MorePaperLib;
 import space.arim.morepaperlib.scheduling.ScheduledTask;
 
 public class CatScheduler {
-    private static final boolean folia = CatSeedLogin.morePaperLib.scheduling().isUsingFolia();
-    private static final Method teleportAsync = initTeleportAsync();
+    private static MorePaperLib morePaperLib;
+    private static boolean folia;
+    private static Method teleportAsync = null;
+
+    public static void init(MorePaperLib mpl) {
+        morePaperLib = mpl;
+        folia = mpl.scheduling().isUsingFolia();
+        teleportAsync = initTeleportAsync();
+    }
 
     private static Method initTeleportAsync() {
         if (folia) {
@@ -29,7 +37,7 @@ public class CatScheduler {
             player.teleport(location);
             return;
         }
-        CatSeedLogin.morePaperLib.scheduling().entitySpecificScheduler(player).run(() -> {
+        morePaperLib.scheduling().entitySpecificScheduler(player).run(() -> {
             try {
                 if (teleportAsync != null) {
                     teleportAsync.invoke(player, location);
@@ -41,30 +49,30 @@ public class CatScheduler {
     }
 
     public static void updateInventory(Player player) {
-        CatSeedLogin.morePaperLib.scheduling().entitySpecificScheduler(player).run(player::updateInventory, null);
+        morePaperLib.scheduling().entitySpecificScheduler(player).run(player::updateInventory, null);
     }
 
     public static ScheduledTask runTaskAsync(Runnable runnable) {
-        return CatSeedLogin.morePaperLib.scheduling().asyncScheduler().run(runnable);
+        return morePaperLib.scheduling().asyncScheduler().run(runnable);
     }
 
     public static ScheduledTask runTaskTimer(Runnable runnable, long delay, long period) {
-        return CatSeedLogin.morePaperLib.scheduling().globalRegionalScheduler().runAtFixedRate(runnable, delay == 0 ? 1 : delay, period);
+        return morePaperLib.scheduling().globalRegionalScheduler().runAtFixedRate(runnable, delay == 0 ? 1 : delay, period);
     }
 
     public static ScheduledTask runTask(Runnable runnable) {
-        return CatSeedLogin.morePaperLib.scheduling().globalRegionalScheduler().run(runnable);
+        return morePaperLib.scheduling().globalRegionalScheduler().run(runnable);
     }
 
     public static ScheduledTask runTaskLater(Runnable runnable, long delay) {
-        return CatSeedLogin.morePaperLib.scheduling().globalRegionalScheduler().runDelayed(runnable, delay);
+        return morePaperLib.scheduling().globalRegionalScheduler().runDelayed(runnable, delay);
     }
 
     public static ScheduledTask runTaskLaterAsync(Runnable runnable, long delay) {
-        return CatSeedLogin.morePaperLib.scheduling().asyncScheduler().runDelayed(runnable, java.time.Duration.ofMillis(delay * 50));
+        return morePaperLib.scheduling().asyncScheduler().runDelayed(runnable, java.time.Duration.ofMillis(delay * 50));
     }
 
     public static ScheduledTask runTaskTimerAsync(Runnable runnable, long delay, long period) {
-        return CatSeedLogin.morePaperLib.scheduling().asyncScheduler().runAtFixedRate(runnable, java.time.Duration.ofMillis(delay * 50), java.time.Duration.ofMillis(period * 50));
+        return morePaperLib.scheduling().asyncScheduler().runAtFixedRate(runnable, java.time.Duration.ofMillis(delay * 50), java.time.Duration.ofMillis(period * 50));
     }
 }
