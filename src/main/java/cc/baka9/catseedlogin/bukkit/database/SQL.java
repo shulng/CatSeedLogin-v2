@@ -6,6 +6,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -17,47 +18,47 @@ public abstract class SQL {
         this.plugin = plugin;
     }
 
-    public void init() throws Exception {
+    public void init() throws SQLException {
         flush(new BufferStatement("CREATE TABLE IF NOT EXISTS accounts (name CHAR(255), password CHAR(255), email CHAR(255), ips CHAR(255), lastAction TIMESTAMP, location CHAR(255) DEFAULT NULL)"));
 
         try {
             flush(new BufferStatement("ALTER TABLE accounts ADD email CHAR(255)"));
-        } catch (Exception e) {
+        } catch (SQLException e) {
             if (!e.getMessage().toLowerCase().contains("duplicate column name")) throw e;
         }
 
         try {
             flush(new BufferStatement("ALTER TABLE accounts ADD ips CHAR(255)"));
-        } catch (Exception e) {
+        } catch (SQLException e) {
             if (!e.getMessage().toLowerCase().contains("duplicate column name")) throw e;
         }
 
         try {
             flush(new BufferStatement("ALTER TABLE accounts ADD location CHAR(255)"));
-        } catch (Exception e) {
+        } catch (SQLException e) {
             if (!e.getMessage().toLowerCase().contains("duplicate column name")) throw e;
         }
     }
 
-    public void add(LoginPlayer lp) throws Exception {
+    public void add(LoginPlayer lp) throws SQLException {
         flush(new BufferStatement("INSERT INTO accounts (name, password, lastAction, email, ips, location) VALUES (?, ?, ?, ?, ?, ?)",
             lp.getName(), lp.getPassword(), new Date(), lp.getEmail(), lp.getIps(), lp.getLocation()));
     }
 
-    public void del(String name) throws Exception {
+    public void del(String name) throws SQLException {
         flush(new BufferStatement("DELETE FROM accounts WHERE name = ?", name));
     }
 
-    public void edit(LoginPlayer lp) throws Exception {
+    public void edit(LoginPlayer lp) throws SQLException {
         flush(new BufferStatement("UPDATE accounts SET password = ?, lastAction = ?, email = ?, ips = ?, location = ? WHERE name = ?",
             lp.getPassword(), new Date(), lp.getEmail(), lp.getIps(), lp.getLocation(), lp.getName()));
     }
 
-    public void updateLocation(String name, String location) throws Exception {
+    public void updateLocation(String name, String location) throws SQLException {
         flush(new BufferStatement("UPDATE accounts SET location = ? WHERE name = ?", location, name));
     }
 
-    public String getLocation(String name) throws Exception {
+    public String getLocation(String name) throws SQLException {
         try (PreparedStatement ps = new BufferStatement("SELECT location FROM accounts WHERE name = ?", name).prepareStatement(getConnection());
              ResultSet resultSet = ps.executeQuery()) {
             String location = null;
@@ -68,7 +69,7 @@ public abstract class SQL {
         }
     }
 
-    public LoginPlayer get(String name) throws Exception {
+    public LoginPlayer get(String name) throws SQLException {
         try (PreparedStatement ps = new BufferStatement("SELECT * FROM accounts WHERE name = ?", name).prepareStatement(getConnection());
              ResultSet resultSet = ps.executeQuery()) {
             LoginPlayer lp = null;
@@ -83,7 +84,7 @@ public abstract class SQL {
         }
     }
 
-    public List<LoginPlayer> getAll() throws Exception {
+    public List<LoginPlayer> getAll() throws SQLException {
         try (PreparedStatement ps = new BufferStatement("SELECT * FROM accounts").prepareStatement(getConnection());
              ResultSet resultSet = ps.executeQuery()) {
             List<LoginPlayer> lps = new ArrayList<>();
@@ -99,8 +100,9 @@ public abstract class SQL {
         }
     }
 
-    public List<LoginPlayer> getLikeByIp(String ip) throws Exception {
-        try (PreparedStatement ps = new BufferStatement("SELECT * FROM accounts WHERE ips LIKE ?", "%" + ip + "%").prepareStatement(getConnection());
+    public List<LoginPlayer> getLikeByIp(String ip) throws SQLException {
+        String likePattern = "%" + ip + "%";
+        try (PreparedStatement ps = new BufferStatement("SELECT * FROM accounts WHERE ips LIKE ?", likePattern).prepareStatement(getConnection());
              ResultSet resultSet = ps.executeQuery()) {
             List<LoginPlayer> lps = new ArrayList<>();
             while (resultSet.next()) {
@@ -115,13 +117,13 @@ public abstract class SQL {
         }
     }
 
-    public abstract Connection getConnection() throws Exception;
+    public abstract Connection getConnection() throws SQLException;
 
     public abstract void closeConnection();
 
-    public void flush(BufferStatement bufferStatement) throws Exception {
-        PreparedStatement ps = bufferStatement.prepareStatement(getConnection());
-        ps.executeUpdate();
-        ps.close();
+    public void flush(BufferStatement bufferStatement) throws SQLException {
+        try (PreparedStatement ps = bufferStatement.prepareStatement(getConnection())) {
+            ps.executeUpdate();
+        }
     }
 }
