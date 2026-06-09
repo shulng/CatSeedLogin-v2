@@ -8,21 +8,21 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.geysermc.floodgate.api.FloodgateApi;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.geysermc.floodgate.api.FloodgateApi;
 
 import cc.baka9.catseedlogin.bukkit.task.Task;
 import cc.baka9.catseedlogin.bukkit.database.Cache;
@@ -196,11 +196,10 @@ public class Listeners implements Listener {
     }
 
     private void teleportToLastLocation(Player player) {
-        if (Config.Settings.AfterLoginBack && Config.Settings.CanTpSpawnLocation) {
-            Config.getOfflineLocation(player).ifPresent(location ->
-                    CatScheduler.runTaskLater(() -> CatScheduler.teleport(player, location), 1L)
-            );
-        }
+        if (!Config.Settings.AfterLoginBack || !Config.Settings.CanTpSpawnLocation) return;
+        Config.getOfflineLocation(player).ifPresent(location ->
+                CatScheduler.runTaskLater(() -> CatScheduler.teleport(player, location), 1L)
+        );
     }
 
     //id只能下划线字母数字

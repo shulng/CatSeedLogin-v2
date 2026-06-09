@@ -27,33 +27,46 @@ public class EmailCode {
     }
 
     public static EmailCode create(String name, String email, long durability, Type type) {
-        EmailCode emailCode = new EmailCode(name, email, durability);
-        clear();
-        if (type == Type.Bind) {
-            bindMap.put(name, emailCode);
-        } else if (type == Type.ResetPassword) {
-            resetPasswordMap.put(name, emailCode);
+        try {
+            EmailCode emailCode = new EmailCode(name, email, durability);
+            clear();
+            if (type == Type.Bind) {
+                bindMap.put(name, emailCode);
+            } else if (type == Type.ResetPassword) {
+                resetPasswordMap.put(name, emailCode);
+            }
+            return emailCode;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
-        return emailCode;
     }
 
     public static Optional<EmailCode> getByName(String name, Type type) {
-        clear();
-        if (type == Type.Bind && bindMap.containsKey(name)) {
-            return Optional.ofNullable(bindMap.get(name));
+        try {
+            clear();
+            if (type == Type.Bind && bindMap.containsKey(name)) {
+                return Optional.ofNullable(bindMap.get(name));
+            }
+            if (type == Type.ResetPassword && resetPasswordMap.containsKey(name)) {
+                return Optional.ofNullable(resetPasswordMap.get(name));
+            }
+            return Optional.empty();
+        } catch (Exception e) {
+            return Optional.empty();
         }
-        if (type == Type.ResetPassword && resetPasswordMap.containsKey(name)) {
-            return Optional.ofNullable(resetPasswordMap.get(name));
-        }
-        return Optional.empty();
     }
 
     public static void removeByName(String name, Type type) {
-        clear();
-        if (type == Type.Bind) {
-            bindMap.remove(name);
-        } else if (type == Type.ResetPassword) {
-            resetPasswordMap.remove(name);
+        try {
+            clear();
+            if (type == Type.Bind) {
+                bindMap.remove(name);
+            } else if (type == Type.ResetPassword) {
+                resetPasswordMap.remove(name);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

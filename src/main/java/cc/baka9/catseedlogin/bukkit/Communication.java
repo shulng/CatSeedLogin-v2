@@ -40,17 +40,21 @@ public class Communication extends BaseCommunication {
         try {
             serverSocket = new ServerSocket(PluginContext.getConfigManager().getProxyPort(), 50);
             while (!serverSocket.isClosed()) {
-                Socket socket;
-                try {
-                    socket = serverSocket.accept();
-                    handleRequest(socket);
-                } catch (IOException e) {
-                    break;
-                }
+                acceptAndHandle();
             }
         } catch (IOException e) {
             PluginContext.getLogger().warning("无法启动Socket服务器: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    private static void acceptAndHandle() {
+        try (Socket socket = serverSocket.accept()) {
+            handleRequest(socket);
+        } catch (IOException e) {
+            if (!serverSocket.isClosed()) {
+                PluginContext.getLogger().warning("Socket连接处理异常: " + e.getMessage());
+            }
         }
     }
 
@@ -75,18 +79,19 @@ public class Communication extends BaseCommunication {
     }
 
     private static void handleKeepLoggedInRequest(String playerName, String time, String sign) {
-        if (sign.equals(cc.baka9.catseedlogin.util.CommunicationAuth.encryption(playerName, time, PluginContext.getConfigManager().getAuthKey()))) {
-            CatScheduler.runTask(() -> {
-                LoginPlayer lp = Cache.getIgnoreCase(playerName);
-                if (lp != null) {
-                    LoginPlayerHelper.add(lp);
-                    Player player = Bukkit.getPlayerExact(playerName);
-                    if (player != null) {
-                        player.updateInventory();
-                    }
-                }
-            });
-        }
+        String expectedSign = cc.baka9.catseedlogin.util.CommunicationAuth.encryption(
+                playerName, time, PluginContext.getConfigManager().getAuthKey());
+        if (!sign.equals(expectedSign)) return;
+
+        CatScheduler.runTask(() -> {
+            LoginPlayer lp = Cache.getIgnoreCase(playerName);
+            if (lp == null) return;
+            LoginPlayerHelper.add(lp);
+            Player player = Bukkit.getPlayerExact(playerName);
+            if (player != null) {
+                player.updateInventory();
+            }
+        });
     }
 
     private static void handleConnectRequest(OutputStream outputStream, String playerName) {

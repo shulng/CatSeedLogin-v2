@@ -59,29 +59,26 @@ public abstract class SQL {
     }
 
     public String getLocation(String name) throws SQLException {
-        try (PreparedStatement ps = new BufferStatement("SELECT location FROM accounts WHERE name = ?", name).prepareStatement(getConnection());
+        String sql = "SELECT location FROM accounts WHERE name = ?";
+        try (PreparedStatement ps = new BufferStatement(sql, name).prepareStatement(getConnection());
              ResultSet resultSet = ps.executeQuery()) {
-            String location = null;
-            if (resultSet.next()) {
-                location = resultSet.getString("location");
-            }
-            return location;
+            return resultSet.next() ? resultSet.getString("location") : null;
         }
     }
 
     public LoginPlayer get(String name) throws SQLException {
-        try (PreparedStatement ps = new BufferStatement("SELECT * FROM accounts WHERE name = ?", name).prepareStatement(getConnection());
+        String sql = "SELECT * FROM accounts WHERE name = ?";
+        try (PreparedStatement ps = new BufferStatement(sql, name).prepareStatement(getConnection());
              ResultSet resultSet = ps.executeQuery()) {
-            LoginPlayer lp = null;
-            if (resultSet.next()) {
-                lp = new LoginPlayer(name, resultSet.getString("password"));
-                lp.setLastAction(resultSet.getTimestamp("lastAction").getTime());
-                lp.setEmail(resultSet.getString("email"));
-                lp.setIps(resultSet.getString("ips"));
-                lp.setLocation(resultSet.getString("location"));
-            }
-            return lp;
+            return mapLoginPlayerOrNull(resultSet);
         }
+    }
+
+    private LoginPlayer mapLoginPlayerOrNull(ResultSet resultSet) throws SQLException {
+        if (resultSet.next()) {
+            return mapLoginPlayer(resultSet);
+        }
+        return null;
     }
 
     public List<LoginPlayer> getAll() throws SQLException {

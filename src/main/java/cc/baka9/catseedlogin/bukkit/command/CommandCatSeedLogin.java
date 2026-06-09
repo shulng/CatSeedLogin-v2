@@ -49,11 +49,27 @@ public class CommandCatSeedLogin implements CommandExecutor {
 
     // ---- Helper: Boolean Toggle ----
 
-    private boolean toggle(CommandSender sender, String[] args, String key, BooleanSupplier getter, Consumer<Boolean> setter, String label) {
+    private static class BoolSetting {
+        final BooleanSupplier getter;
+        final Consumer<Boolean> setter;
+        final String label;
+
+        BoolSetting(BooleanSupplier getter, Consumer<Boolean> setter, String label) {
+            this.getter = getter;
+            this.setter = setter;
+            this.label = label;
+        }
+    }
+
+    private boolean toggle(CommandSender sender, String[] args, String key, BoolSetting setting) {
         if (args.length == 0 || !args[0].equalsIgnoreCase(key)) return false;
-        setter.accept(!getter.getAsBoolean());
-        Config.Settings.save();
-        sender.sendMessage("§e" + label + " " + (getter.getAsBoolean() ? "§a开启" : "§8关闭"));
+        try {
+            setting.setter.accept(!setting.getter.getAsBoolean());
+            Config.Settings.save();
+            sender.sendMessage("§e" + setting.label + " " + (setting.getter.getAsBoolean() ? "§a开启" : "§8关闭"));
+        } catch (Exception e) {
+            sender.sendMessage("§c设置失败: " + e.getMessage());
+        }
         return true;
     }
 
@@ -61,51 +77,51 @@ public class CommandCatSeedLogin implements CommandExecutor {
 
     private boolean deathStateQuitRecordLocation(CommandSender sender, String[] args) {
         return toggle(sender, args, "deathStateQuitRecordLocation",
-                () -> Config.Settings.DeathStateQuitRecordLocation,
-                v -> Config.Settings.DeathStateQuitRecordLocation = v,
-                "死亡状态退出游戏记录退出位置");
+                new BoolSetting(() -> Config.Settings.DeathStateQuitRecordLocation,
+                        v -> Config.Settings.DeathStateQuitRecordLocation = v,
+                        "死亡状态退出游戏记录退出位置"));
     }
 
     private boolean canTpSpawnLocation(CommandSender sender, String[] args) {
         return toggle(sender, args, "canTpSpawnLocation",
-                () -> Config.Settings.CanTpSpawnLocation,
-                v -> Config.Settings.CanTpSpawnLocation = v,
-                "登录之前强制在登陆地点");
+                new BoolSetting(() -> Config.Settings.CanTpSpawnLocation,
+                        v -> Config.Settings.CanTpSpawnLocation = v,
+                        "登录之前强制在登陆地点"));
     }
 
     private boolean afterLoginBack(CommandSender sender, String[] args) {
         return toggle(sender, args, "afterLoginBack",
-                () -> Config.Settings.AfterLoginBack,
-                v -> Config.Settings.AfterLoginBack = v,
-                "登陆之后返回下线地点");
+                new BoolSetting(() -> Config.Settings.AfterLoginBack,
+                        v -> Config.Settings.AfterLoginBack = v,
+                        "登陆之后返回下线地点"));
     }
 
     private boolean beforeLoginNoDamage(CommandSender sender, String[] args) {
         return toggle(sender, args, "beforeLoginNoDamage",
-                () -> Config.Settings.BeforeLoginNoDamage,
-                v -> Config.Settings.BeforeLoginNoDamage = v,
-                "登陆之前不受到伤害");
+                new BoolSetting(() -> Config.Settings.BeforeLoginNoDamage,
+                        v -> Config.Settings.BeforeLoginNoDamage = v,
+                        "登陆之前不受到伤害"));
     }
 
     private boolean limitChineseID(CommandSender sender, String[] args) {
         return toggle(sender, args, "limitChineseID",
-                () -> Config.Settings.LimitChineseID,
-                v -> Config.Settings.LimitChineseID = v,
-                "限制中文游戏名");
+                new BoolSetting(() -> Config.Settings.LimitChineseID,
+                        v -> Config.Settings.LimitChineseID = v,
+                        "限制中文游戏名"));
     }
 
     private boolean bedrockLoginBypass(CommandSender sender, String[] args) {
         return toggle(sender, args, "bedrockLoginBypass",
-                () -> Config.Settings.BedrockLoginBypass,
-                v -> Config.Settings.BedrockLoginBypass = v,
-                "基岩版玩家登录跳过");
+                new BoolSetting(() -> Config.Settings.BedrockLoginBypass,
+                        v -> Config.Settings.BedrockLoginBypass = v,
+                        "基岩版玩家登录跳过"));
     }
 
     private boolean LoginwiththesameIP(CommandSender sender, String[] args) {
         return toggle(sender, args, "LoginwiththesameIP",
-                () -> Config.Settings.LoginwiththesameIP,
-                v -> Config.Settings.LoginwiththesameIP = v,
-                "同IP玩家登录跳过");
+                new BoolSetting(() -> Config.Settings.LoginwiththesameIP,
+                        v -> Config.Settings.LoginwiththesameIP = v,
+                        "同IP玩家登录跳过"));
     }
 
     // ---- Number Settings ----

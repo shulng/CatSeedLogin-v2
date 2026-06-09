@@ -116,10 +116,11 @@ public class I18n {
     private void flattenMap(Map<String, String> result, String prefix, Map<String, Object> map) {
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             String key = prefix.isEmpty() ? entry.getKey() : prefix + "." + entry.getKey();
-            if (entry.getValue() instanceof Map) {
-                flattenMap(result, key, (Map<String, Object>) entry.getValue());
-            } else if (entry.getValue() != null) {
-                result.put(key, String.valueOf(entry.getValue()));
+            Object value = entry.getValue();
+            if (value instanceof Map) {
+                flattenMap(result, key, (Map<String, Object>) value);
+            } else if (value != null) {
+                result.put(key, String.valueOf(value));
             }
         }
     }

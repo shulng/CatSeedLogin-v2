@@ -22,7 +22,7 @@ public class Commands extends net.md_5.bungee.api.plugin.Command {
                 commandSender.sendMessage(new TextComponent(MessageKey.CONFIG_RELOADED.get()));
             }
         } catch (Exception e) {
-            commandSender.sendMessage(new TextComponent("§c重载配置文件时出错: " + e.getMessage()));
+            commandSender.sendMessage(new TextComponent("§c指令执行时出错: " + e.getMessage()));
         }
     }
 }

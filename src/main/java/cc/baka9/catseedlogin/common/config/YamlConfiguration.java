@@ -73,6 +73,8 @@ public class YamlConfiguration implements Configuration {
         return data;
     }
 
+    // ---- Common value parsing ----
+
     @Override
     @SuppressWarnings("unchecked")
     public boolean getBoolean(String path, boolean defaultValue) {
@@ -86,49 +88,37 @@ public class YamlConfiguration implements Configuration {
         return defaultValue;
     }
 
+    private <T> T parseNumeric(String path, T defaultValue, java.util.function.Function<Number, T> numberFn, java.util.function.Function<String, T> stringFn) {
+        Object value = getNumeric(path);
+        if (value == null) return defaultValue;
+        if (value instanceof Number) return numberFn.apply((Number) value);
+        try {
+            return stringFn.apply((String) value);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
     private Object getNumeric(String path) {
         Object value = get(path);
-        if (value instanceof Number) {
-            return value;
-        }
-        if (value instanceof String) {
-            return value;
-        }
+        if (value instanceof Number) return value;
+        if (value instanceof String) return value;
         return null;
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public int getInt(String path, int defaultValue) {
-        Object value = getNumeric(path);
-        if (value instanceof Number) {
-            return ((Number) value).intValue();
-        }
-        if (value instanceof String) {
-            try {
-                return Integer.parseInt((String) value);
-            } catch (NumberFormatException e) {
-                return defaultValue;
-            }
-        }
-        return defaultValue;
+        return parseNumeric(path, defaultValue, Number::intValue, Integer::parseInt);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public long getLong(String path, long defaultValue) {
-        Object value = getNumeric(path);
-        if (value instanceof Number) {
-            return ((Number) value).longValue();
-        }
-        if (value instanceof String) {
-            try {
-                return Long.parseLong((String) value);
-            } catch (NumberFormatException e) {
-                return defaultValue;
-            }
-        }
-        return defaultValue;
+        return parseNumeric(path, defaultValue, Number::longValue, Long::parseLong);
+    }
+
+    @Override
+    public double getDouble(String path, double defaultValue) {
+        return parseNumeric(path, defaultValue, Number::doubleValue, Double::parseDouble);
     }
 
     @Override
@@ -136,23 +126,6 @@ public class YamlConfiguration implements Configuration {
     public String getString(String path, String defaultValue) {
         Object value = get(path);
         return value != null ? String.valueOf(value) : defaultValue;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public double getDouble(String path, double defaultValue) {
-        Object value = getNumeric(path);
-        if (value instanceof Number) {
-            return ((Number) value).doubleValue();
-        }
-        if (value instanceof String) {
-            try {
-                return Double.parseDouble((String) value);
-            } catch (NumberFormatException e) {
-                return defaultValue;
-            }
-        }
-        return defaultValue;
     }
 
     @Override

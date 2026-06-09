@@ -86,7 +86,11 @@ public class Listeners implements Listener {
 
     @EventHandler
     public void onPlayerDisconnect(PlayerDisconnectEvent event) {
-        loggedInPlayerList.remove(event.getPlayer().getName());
+        try {
+            loggedInPlayerList.remove(event.getPlayer().getName());
+        } catch (Exception e) {
+            proxyServer.getLogger().severe("移除玩家时出错: " + e.getMessage());
+        }
     }
 
     @EventHandler
