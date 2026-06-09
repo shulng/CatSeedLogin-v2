@@ -2,10 +2,8 @@ package cc.baka9.catseedlogin.bukkit.object;
 
 import cc.baka9.catseedlogin.common.model.LoginPlayer;
 import cc.baka9.catseedlogin.common.util.ValidationUtil;
-import cc.baka9.catseedlogin.common.util.DateUtil;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -160,16 +158,22 @@ public class LoginPlayerHelper {
             ipsList.add(currentIp);
             lp.setIps(String.join(";", ipsList));
 
-            CatSeedLogin.instance.runTaskAsync(() -> {
-                try {
-                    CatSeedLogin.sql.edit(lp);
-                    Cache.refresh(lp.getName());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
+            savePlayerIPAsync(player, lp);
         } catch (Exception e) {
             CatSeedLogin.instance.getLogger().warning("Failed to record IP for player: " + player.getName() + " - " + e.getMessage());
+        }
+    }
+
+    private static void savePlayerIPAsync(Player player, LoginPlayer lp) {
+        CatSeedLogin.instance.runTaskAsync(() -> savePlayerIP(lp));
+    }
+
+    private static void savePlayerIP(LoginPlayer lp) {
+        try {
+            CatSeedLogin.sql.edit(lp);
+            Cache.refresh(lp.getName());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
