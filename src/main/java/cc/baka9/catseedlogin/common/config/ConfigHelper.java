@@ -51,7 +51,7 @@ public class ConfigHelper {
             this(world, x, y, z, 0.0f, 0.0f);
         }
 
-        private LocationData(String world, double x, double y, double z, float yaw, float pitch) {
+        public LocationData(String world, double x, double y, double z, float yaw, float pitch) {
             this.world = world;
             this.x = x;
             this.y = y;
