@@ -23,7 +23,7 @@ import com.comphenix.protocol.reflect.StructureModifier;
 
 import cc.baka9.catseedlogin.bukkit.CatSeedLogin;
 import cc.baka9.catseedlogin.bukkit.Config;
-import cc.baka9.catseedlogin.bukkit.database.Cache;
+import cc.baka9.catseedlogin.bukkit.Cache;
 
 public class LoginPlayerHelper {
     private static final Set<LoginPlayer> set = ConcurrentHashMap.newKeySet();

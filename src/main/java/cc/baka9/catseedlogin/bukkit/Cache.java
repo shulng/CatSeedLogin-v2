@@ -1,11 +1,11 @@
-package cc.baka9.catseedlogin.bukkit.database;
+package cc.baka9.catseedlogin.bukkit;
+
+import cc.baka9.catseedlogin.bukkit.object.LoginPlayer;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import cc.baka9.catseedlogin.bukkit.CatSeedLogin;
-import cc.baka9.catseedlogin.bukkit.object.LoginPlayer;
 
 public class Cache {
     private static final Map<String, LoginPlayer> PLAYER_HASHTABLE = new ConcurrentHashMap<>();

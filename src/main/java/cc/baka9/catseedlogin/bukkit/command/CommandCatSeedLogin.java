@@ -16,7 +16,7 @@ import cc.baka9.catseedlogin.bukkit.CatScheduler;
 import cc.baka9.catseedlogin.bukkit.Communication;
 import cc.baka9.catseedlogin.bukkit.Config;
 import cc.baka9.catseedlogin.bukkit.PluginContext;
-import cc.baka9.catseedlogin.bukkit.database.Cache;
+import cc.baka9.catseedlogin.bukkit.Cache;
 import cc.baka9.catseedlogin.bukkit.database.MySQL;
 import cc.baka9.catseedlogin.bukkit.database.SQLite;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayer;

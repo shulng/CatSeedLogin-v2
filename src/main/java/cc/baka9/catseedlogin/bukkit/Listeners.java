@@ -26,7 +26,7 @@ import org.geysermc.floodgate.api.FloodgateApi;
 
 import cc.baka9.catseedlogin.bukkit.task.Task;
 import cc.baka9.catseedlogin.bukkit.task.TaskAutoKick;
-import cc.baka9.catseedlogin.bukkit.database.Cache;
+import cc.baka9.catseedlogin.bukkit.Cache;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayer;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayerHelper;
 

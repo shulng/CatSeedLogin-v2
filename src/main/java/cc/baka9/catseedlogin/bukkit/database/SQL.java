@@ -64,7 +64,12 @@ public abstract class SQL {
     }
 
     public String getLocation(String name) {
-        return queryForString("SELECT location FROM accounts WHERE name = ?", name);
+        try {
+            return queryForString("SELECT location FROM accounts WHERE name = ?", name);
+        } catch (Exception e) {
+            plugin.getLogger().severe("Failed to get location for player: " + name + " - " + e.getMessage());
+            return null;
+        }
     }
 
     public LoginPlayer get(String name) {

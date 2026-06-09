@@ -1,7 +1,7 @@
 package cc.baka9.catseedlogin.bukkit;
 
 import cc.baka9.catseedlogin.common.communication.BaseCommunication;
-import cc.baka9.catseedlogin.bukkit.database.Cache;
+import cc.baka9.catseedlogin.bukkit.Cache;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayer;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayerHelper;
 
