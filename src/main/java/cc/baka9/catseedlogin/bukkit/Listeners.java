@@ -25,6 +25,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.geysermc.floodgate.api.FloodgateApi;
 
 import cc.baka9.catseedlogin.bukkit.task.Task;
+import cc.baka9.catseedlogin.bukkit.task.TaskAutoKick;
 import cc.baka9.catseedlogin.bukkit.database.Cache;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayer;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayerHelper;
@@ -164,7 +165,14 @@ public class Listeners implements Listener {
             saveOfflineLocation(player);
             CatScheduler.runTaskLater(() -> LoginPlayerHelper.remove(player.getName()), Config.Settings.ReenterInterval);
         }
-        Task.getTaskAutoKick().playerJoinTime.remove(player.getName());
+        try {
+            TaskAutoKick task = Task.getTaskAutoKick();
+            if (task != null && task.playerJoinTime != null) {
+                task.playerJoinTime.remove(player.getName());
+            }
+        } catch (Exception e) {
+            player.getServer().getLogger().warning("Failed to remove player from auto-kick list: " + player.getName());
+        }
     }
 
     private void saveOfflineLocation(Player player) {
@@ -174,6 +182,17 @@ public class Listeners implements Listener {
             }
         } catch (Exception e) {
             player.getServer().getLogger().warning("保存玩家离线位置失败: " + player.getName());
+        }
+    }
+
+    private void safeRemovePlayerFromTask(String playerName) {
+        try {
+            TaskAutoKick task = Task.getTaskAutoKick();
+            if (task != null && task.playerJoinTime != null) {
+                task.playerJoinTime.remove(playerName);
+            }
+        } catch (Exception e) {
+            Bukkit.getLogger().warning("Failed to remove player from auto-kick list: " + playerName);
         }
     }
 

@@ -9,9 +9,16 @@ public final class EmailSender {
     private EmailSender() {}
 
     public static void sendEmail(String receiveMailAccount, String subject, String content) throws EmailException {
+        if (receiveMailAccount == null || receiveMailAccount.isEmpty()) {
+            throw new EmailException("Receiver email address cannot be null or empty");
+        }
         HtmlEmail email = new HtmlEmail();
         email.setHostName(Config.EmailVerify.EmailSmtpHost);
-        email.setSmtpPort(Integer.parseInt(Config.EmailVerify.EmailSmtpPort));
+        try {
+            email.setSmtpPort(Integer.parseInt(Config.EmailVerify.EmailSmtpPort));
+        } catch (NumberFormatException e) {
+            throw new EmailException("Invalid SMTP port: " + Config.EmailVerify.EmailSmtpPort);
+        }
         email.setAuthenticator(new DefaultAuthenticator(Config.EmailVerify.EmailAccount, Config.EmailVerify.EmailPassword));
         configureSecurity(email);
         email.setFrom(Config.EmailVerify.EmailAccount, Config.EmailVerify.FromPersonal);

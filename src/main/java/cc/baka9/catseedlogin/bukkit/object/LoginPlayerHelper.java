@@ -34,7 +34,10 @@ public class LoginPlayerHelper {
     public static void remove(LoginPlayer lp) { set.remove(lp); }
     
     public static void remove(String name) {
-        set.removeIf(lp -> lp.getName().equals(name));
+        if (name == null) {
+            return;
+        }
+        set.removeIf(lp -> lp != null && name.equals(lp.getName()));
     }
 
     public static boolean isLogin(String name) {
@@ -53,7 +56,13 @@ public class LoginPlayerHelper {
     }
 
     public static boolean recordCurrentIP(Player player) {
-        String currentIP = Optional.ofNullable(player.getAddress()).map(addr -> addr.getAddress().getHostAddress()).orElse(null);
+        if (player == null) {
+            return false;
+        }
+        String currentIP = Optional.ofNullable(player.getAddress())
+                .map(addr -> addr.getAddress())
+                .map(InetAddress::getHostAddress)
+                .orElse(null);
         if (currentIP == null) return false;
 
         LoginPlayer storedPlayer = Cache.getIgnoreCase(player.getName());
@@ -80,7 +89,14 @@ public class LoginPlayerHelper {
     }
 
     public static List<String> getStoredIPs(LoginPlayer lp) {
-        return (lp.getIps() != null) ? new ArrayList<>(Arrays.asList(lp.getIps().split(";"))) : new ArrayList<>();
+        if (lp == null || lp.getIps() == null) {
+            return new ArrayList<>();
+        }
+        try {
+            return new ArrayList<>(Arrays.asList(lp.getIps().split(";")));
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
     }
 
     public static boolean isFloodgatePlayer(String name) {

@@ -16,8 +16,11 @@ public class BungeeCommands extends net.md_5.bungee.api.plugin.Command {
 
     @Override
     public void execute(CommandSender commandSender, String[] args) {
+        if (args == null || args.length == 0) {
+            return;
+        }
         try {
-            if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
+            if (args[0].equalsIgnoreCase("reload")) {
                 configManager.reload();
                 commandSender.sendMessage(new TextComponent(MessageKey.CONFIG_RELOADED.get()));
             }

@@ -126,7 +126,11 @@ public class Listeners {
     public void onPlayerDisconnect(DisconnectEvent event) {
         Player player = event.getPlayer();
         if (player != null) {
-            loggedInPlayerList.remove(player.getUsername());
+            try {
+                loggedInPlayerList.remove(player.getUsername());
+            } catch (Exception e) {
+                logger.warn("Failed to remove player from logged-in list: " + player.getUsername());
+            }
         }
     }
 

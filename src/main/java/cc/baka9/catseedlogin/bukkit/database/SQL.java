@@ -67,6 +67,9 @@ public abstract class SQL {
         try (PreparedStatement ps = new BufferStatement(sql, name).prepareStatement(getConnection());
              ResultSet resultSet = ps.executeQuery()) {
             return mapLoginPlayerOrNull(resultSet);
+        } catch (SQLException e) {
+            plugin.getLogger().severe("Failed to get player: " + name);
+            throw e;
         }
     }
 

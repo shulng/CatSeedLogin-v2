@@ -83,7 +83,11 @@ public class I18n {
             }
         }
 
-        messages.put(locale, localeMessages);
+        try {
+            messages.put(locale, localeMessages);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void loadYaml(Reader reader, Map<String, String> messages) {
@@ -134,7 +138,11 @@ public class I18n {
         if (value instanceof Map) {
             flattenMap(result, key, (Map<String, Object>) value);
         } else if (value != null) {
-            result.put(key, String.valueOf(value));
+            try {
+                result.put(key, String.valueOf(value));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -156,7 +164,7 @@ public class I18n {
         if (args != null && args.length > 0) {
             try {
                 return MessageFormat.format(message, args);
-            } catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException | NullPointerException e) {
                 return message;
             }
         }
@@ -169,7 +177,9 @@ public class I18n {
     }
 
     public void setPlaceholder(String key, Object value) {
-        placeholders.put(key, value);
+        if (key != null) {
+            placeholders.put(key, value);
+        }
     }
 
     public void removePlaceholder(String key) {

@@ -26,13 +26,14 @@ public class ConfigHelper {
         }
         String[] parts = locationStr.split(":");
         try {
-            return new LocationData(
-                    parts.length > 0 ? parts[0] : defaultLocation.world,
-                    parts.length > 1 ? Double.parseDouble(parts[1]) : defaultLocation.x,
-                    parts.length > 2 ? Double.parseDouble(parts[2]) : defaultLocation.y,
-                    parts.length > 3 ? Double.parseDouble(parts[3]) : defaultLocation.z,
-                    parts.length > 4 ? Float.parseFloat(parts[4]) : defaultLocation.yaw,
-                    parts.length > 5 ? Float.parseFloat(parts[5]) : defaultLocation.pitch);
+            return LocationData.builder()
+                    .world(parts.length > 0 ? parts[0] : defaultLocation.world)
+                    .x(parts.length > 1 ? Double.parseDouble(parts[1]) : defaultLocation.x)
+                    .y(parts.length > 2 ? Double.parseDouble(parts[2]) : defaultLocation.y)
+                    .z(parts.length > 3 ? Double.parseDouble(parts[3]) : defaultLocation.z)
+                    .yaw(parts.length > 4 ? Float.parseFloat(parts[4]) : defaultLocation.yaw)
+                    .pitch(parts.length > 5 ? Float.parseFloat(parts[5]) : defaultLocation.pitch)
+                    .build();
         } catch (NumberFormatException e) {
             return defaultLocation;
         }

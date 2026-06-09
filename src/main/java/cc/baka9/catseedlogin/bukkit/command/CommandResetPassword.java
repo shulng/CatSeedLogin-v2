@@ -77,21 +77,32 @@ public class CommandResetPassword implements CommandExecutor {
     private void sendResetEmailAsync(CommandSender sender, String name, EmailCode emailCode) {
         CatScheduler.runTaskAsync(() -> {
             try {
-                String content = "你的验证码是 <strong>" + emailCode.getCode() + "</strong>" +
-                        "<br/>在服务器中使用帐号 " + name + " 输入指令<strong>/resetpassword re " +
-                        emailCode.getCode() + " 新密码</strong> 来重置新密码" +
-                        "<br/>此验证码有效期为 " + (emailCode.getDurability() / (1000 * 60)) + "分钟";
+                String content = buildResetEmailContent(name, emailCode);
                 EmailSender.sendEmail(emailCode.getEmail(), "重置密码", content);
-
-                Bukkit.getScheduler().runTask(PluginContext.getPlugin(), () ->
-                        sender.sendMessage(Config.Language.RESETPASSWORD_EMAIL_SENT_MESSAGE
-                                .replace("{email}", emailCode.getEmail())));
+                notifyEmailSent(sender, emailCode.getEmail());
             } catch (Exception e) {
-                Bukkit.getScheduler().runTask(PluginContext.getPlugin(), () ->
-                        sender.sendMessage(Config.Language.RESETPASSWORD_EMAIL_WARN));
+                notifyEmailFailed(sender);
                 e.printStackTrace();
             }
         });
+    }
+
+    private String buildResetEmailContent(String name, EmailCode emailCode) {
+        long minutes = emailCode.getDurability() / (1000 * 60);
+        return "你的验证码是 <strong>" + emailCode.getCode() + "</strong>" +
+                "<br/>在服务器中使用帐号 " + name + " 输入指令<strong>/resetpassword re " +
+                emailCode.getCode() + " 新密码</strong> 来重置新密码" +
+                "<br/>此验证码有效期为 " + minutes + "分钟";
+    }
+
+    private void notifyEmailSent(CommandSender sender, String email) {
+        Bukkit.getScheduler().runTask(PluginContext.getPlugin(), () ->
+                sender.sendMessage(Config.Language.RESETPASSWORD_EMAIL_SENT_MESSAGE.replace("{email}", email)));
+    }
+
+    private void notifyEmailFailed(CommandSender sender) {
+        Bukkit.getScheduler().runTask(PluginContext.getPlugin(), () ->
+                sender.sendMessage(Config.Language.RESETPASSWORD_EMAIL_WARN));
     }
 
     private boolean handleReset(Player player, LoginPlayer lp, String code, String pwd) {
