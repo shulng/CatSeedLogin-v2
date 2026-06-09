@@ -8,25 +8,29 @@ import cc.baka9.catseedlogin.bukkit.Config;
 public final class EmailSender {
     private EmailSender() {}
 
-    public static void sendEmail(String receiveMailAccount, String subject, String content) throws EmailException {
+    public static void sendEmail(String receiveMailAccount, String subject, String content) {
         if (receiveMailAccount == null || receiveMailAccount.isEmpty()) {
-            throw new EmailException("Receiver email address cannot be null or empty");
+            return;
         }
         HtmlEmail email = new HtmlEmail();
         email.setHostName(Config.EmailVerify.EmailSmtpHost);
         try {
             email.setSmtpPort(Integer.parseInt(Config.EmailVerify.EmailSmtpPort));
         } catch (NumberFormatException e) {
-            throw new EmailException("Invalid SMTP port: " + Config.EmailVerify.EmailSmtpPort);
+            return;
         }
         email.setAuthenticator(new DefaultAuthenticator(Config.EmailVerify.EmailAccount, Config.EmailVerify.EmailPassword));
         configureSecurity(email);
-        email.setFrom(Config.EmailVerify.EmailAccount, Config.EmailVerify.FromPersonal);
-        email.setSubject(subject);
-        email.setHtmlMsg(content);
-        email.addTo(receiveMailAccount);
-        email.setCharset("UTF-8");
-        email.send();
+        try {
+            email.setFrom(Config.EmailVerify.EmailAccount, Config.EmailVerify.FromPersonal);
+            email.setSubject(subject);
+            email.setHtmlMsg(content);
+            email.addTo(receiveMailAccount);
+            email.setCharset("UTF-8");
+            email.send();
+        } catch (EmailException e) {
+            e.printStackTrace();
+        }
     }
 
     private static void configureSecurity(HtmlEmail email) {

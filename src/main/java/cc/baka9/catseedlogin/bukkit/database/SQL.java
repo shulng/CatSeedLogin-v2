@@ -67,14 +67,14 @@ public abstract class SQL {
         return queryForString("SELECT location FROM accounts WHERE name = ?", name);
     }
 
-    public LoginPlayer get(String name) throws SQLException {
+    public LoginPlayer get(String name) {
         String sql = "SELECT * FROM accounts WHERE name = ?";
         try (PreparedStatement ps = new BufferStatement(sql, name).prepareStatement(getConnection());
              ResultSet resultSet = ps.executeQuery()) {
             return mapLoginPlayerOrNull(resultSet);
         } catch (SQLException e) {
             plugin.getLogger().severe("Failed to get player: " + name);
-            throw e;
+            return null;
         }
     }
 

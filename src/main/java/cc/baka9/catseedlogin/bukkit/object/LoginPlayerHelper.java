@@ -113,7 +113,11 @@ public class LoginPlayerHelper {
     }
 
     public static boolean isFloodgatePlayer(Player player) {
-        return Bukkit.getPluginManager().getPlugin("floodgate") != null && FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId());
+        try {
+            return Bukkit.getPluginManager().getPlugin("floodgate") != null && FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId());
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public static Long getLastLoginTime(String name) {
