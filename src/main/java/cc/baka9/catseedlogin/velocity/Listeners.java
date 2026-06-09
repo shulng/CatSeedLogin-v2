@@ -94,16 +94,19 @@ public class Listeners {
                 if (communication.sendConnectRequest(playerName) == 1) {
                     loggedInPlayerList.add(playerName);
                 } else {
-                    proxyServer
-                        .getServer(loginServerName)
-                        .ifPresent(loginServer -> {
-                            event.setResult(ServerPreConnectEvent.ServerResult.allowed(loginServer));
-                        });
+                    redirectToLoginServer(loginServerName, event);
                 }
             } catch (Exception e) {
                 logger.error("Error checking login status for player: " + playerName, e);
             }
         });
+    }
+
+    private void redirectToLoginServer(String loginServerName, ServerPreConnectEvent event) {
+        proxyServer.getServer(loginServerName)
+                .ifPresent(loginServer ->
+                        event.setResult(ServerPreConnectEvent.ServerResult.allowed(loginServer))
+                );
     }
 
     @Subscribe
@@ -122,7 +125,9 @@ public class Listeners {
     @Subscribe
     public void onPlayerDisconnect(DisconnectEvent event) {
         Player player = event.getPlayer();
-        loggedInPlayerList.remove(player.getUsername());
+        if (player != null) {
+            loggedInPlayerList.remove(player.getUsername());
+        }
     }
 
     @Subscribe

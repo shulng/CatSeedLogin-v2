@@ -161,8 +161,12 @@ public class Listeners implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         if (LoginPlayerHelper.isLogin(player.getName())) {
-            if (!player.isDead() || Config.Settings.DeathStateQuitRecordLocation) {
-                Config.setOfflineLocation(player);
+            try {
+                if (!player.isDead() || Config.Settings.DeathStateQuitRecordLocation) {
+                    Config.setOfflineLocation(player);
+                }
+            } catch (Exception e) {
+                player.getServer().getLogger().warning("保存玩家离线位置失败: " + player.getName());
             }
             CatScheduler.runTaskLater(() -> LoginPlayerHelper.remove(player.getName()), Config.Settings.ReenterInterval);
         }
@@ -178,18 +182,20 @@ public class Listeners implements Listener {
         }
         if (Config.Settings.LoginwiththesameIP && LoginPlayerHelper.recordCurrentIP(player)) {
             player.sendMessage(Config.Language.LOGIN_WITH_THE_SAME_IP);
-            // IP登录验证成功后，恢复上次退出时的位置
-            if (Config.Settings.AfterLoginBack && Config.Settings.CanTpSpawnLocation) {
-                Config.getOfflineLocation(player).ifPresent(location -> {
-                    // 延迟一tick执行，确保玩家完全加入游戏
-                    CatScheduler.runTaskLater(() -> CatScheduler.teleport(player, location), 1L);
-                });
-            }
+            teleportToLastLocation(player);
             return;
         }
         Cache.refresh(player.getName());
         if (Config.Settings.CanTpSpawnLocation) {
             CatScheduler.teleport(player, Config.Settings.SpawnLocation);
+        }
+    }
+
+    private void teleportToLastLocation(Player player) {
+        if (Config.Settings.AfterLoginBack && Config.Settings.CanTpSpawnLocation) {
+            Config.getOfflineLocation(player).ifPresent(location ->
+                    CatScheduler.runTaskLater(() -> CatScheduler.teleport(player, location), 1L)
+            );
         }
     }
 

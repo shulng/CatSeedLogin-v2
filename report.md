@@ -13,7 +13,7 @@
 
 | 指标摘要 | 评分 |
 |------|-------|
-| **糟糕指数** | **93.54/100** |
+| **糟糕指数** | **93.59/100** |
 | 屎山等级 | 🌸 偶有异味 |
 
 > 如沐春风，仿佛被天使亲吻过
@@ -24,38 +24,27 @@
 |--------|-------|
 | 总文件数 | 63 |
 | 已跳过 | 16 |
-| 耗时 | 224ms |
+| 耗时 | 225ms |
 
 ## 评分指标详情 {#metrics-details}
 
 | 指标摘要 | 评分 | 状态 |
 |:-----|------:|:------:|
-| 循环复杂度 | 1.11% | ✓✓ |
-| 认知复杂度 | 1.79% | ✓✓ |
-| 嵌套深度 | 1.27% | ✓✓ |
+| 循环复杂度 | 1.05% | ✓✓ |
+| 认知复杂度 | 1.58% | ✓✓ |
+| 嵌套深度 | 0.95% | ✓✓ |
 | 函数长度 | 0.00% | ✓✓ |
 | 文件长度 | 0.02% | ✓✓ |
 | 参数数量 | 2.74% | ✓✓ |
 | 代码重复 | 2.38% | ✓✓ |
 | 结构分析 | 8.04% | ✓✓ |
 | 错误处理 | 26.72% | ✓ |
-| 注释比例 | 98.65% | ✗ |
+| 注释比例 | 97.62% | ✗ |
 | 命名规范 | 6.63% | ✓✓ |
 
 ## 最屎代码排行榜 {#problem-files}
 
-### 1. src\main\java\cc\baka9\catseedlogin\bukkit\task\TaskAutoKick.java
-
-**糟糕指数: 13.47**
-
-**问题**: 🔄 复杂度问题: 1, 🏗️ 结构问题: 2, ❌ 错误处理问题: 1, 📝 注释问题: 1
-
-- 🔄 `run()` L14: 嵌套深度: 4
-- 🏗️ `run()` L14: 中等嵌套: 4
-- 🏗️ L1: 循环依赖: 3
-- ❌ L28: 未处理的易出错调用
-
-### 2. src\main\java\cc\baka9\catseedlogin\velocity\Listeners.java
+### 1. src\main\java\cc\baka9\catseedlogin\velocity\Listeners.java
 
 **糟糕指数: 12.99**
 
@@ -67,7 +56,7 @@
 - 🏗️ L1: 循环依赖: 1
 - ❌ L125: 未处理的易出错调用
 
-### 3. src\main\java\cc\baka9\catseedlogin\bukkit\Listeners.java
+### 2. src\main\java\cc\baka9\catseedlogin\bukkit\Listeners.java
 
 **糟糕指数: 11.28**
 
@@ -80,7 +69,7 @@
 - ❌ L167: 未处理的易出错调用
 - 🔍 ...还有 1 个问题实在太屎，列不完了
 
-### 4. src\main\java\cc\baka9\catseedlogin\velocity\Commands.java
+### 3. src\main\java\cc\baka9\catseedlogin\velocity\Commands.java
 
 **糟糕指数: 11.27**
 
@@ -92,7 +81,7 @@
 - ❌ L37: 未处理的易出错调用
 - 🏷️ `Commands()` L24: "Commands" - camelCase
 
-### 5. src\main\java\cc\baka9\catseedlogin\bukkit\command\CommandResetPassword.java
+### 4. src\main\java\cc\baka9\catseedlogin\bukkit\command\CommandResetPassword.java
 
 **糟糕指数: 10.95**
 
@@ -105,7 +94,7 @@
 - ❌ L61: 未处理的易出错调用
 - 🔍 ...还有 1 个问题实在太屎，列不完了
 
-### 6. src\main\java\cc\baka9\catseedlogin\common\i18n\I18n.java
+### 5. src\main\java\cc\baka9\catseedlogin\common\i18n\I18n.java
 
 **糟糕指数: 9.47**
 
@@ -118,7 +107,7 @@
 - ❌ L126: 未处理的易出错调用
 - 🔍 ...还有 4 个问题实在太屎，列不完了
 
-### 7. src\main\java\cc\baka9\catseedlogin\bukkit\database\SQL.java
+### 6. src\main\java\cc\baka9\catseedlogin\bukkit\database\SQL.java
 
 **糟糕指数: 9.31**
 
@@ -128,7 +117,7 @@
 - 🏗️ L1: 循环依赖: 1
 - ❌ L72: 未处理的易出错调用
 
-### 8. src\main\java\cc\baka9\catseedlogin\common\config\YamlConfiguration.java
+### 7. src\main\java\cc\baka9\catseedlogin\common\config\YamlConfiguration.java
 
 **糟糕指数: 9.15**
 
@@ -141,7 +130,7 @@
 - ❌ L194: 未处理的易出错调用
 - 🔍 ...还有 1 个问题实在太屎，列不完了
 
-### 9. src\main\java\cc\baka9\catseedlogin\bukkit\command\CommandCatSeedLogin.java
+### 8. src\main\java\cc\baka9\catseedlogin\bukkit\command\CommandCatSeedLogin.java
 
 **糟糕指数: 9.04**
 
@@ -152,7 +141,7 @@
 - ❌ L54: 未处理的易出错调用
 - ❌ L226: 未处理的易出错调用
 
-### 10. src\main\java\cc\baka9\catseedlogin\bukkit\command\CommandLogin.java
+### 9. src\main\java\cc\baka9\catseedlogin\bukkit\command\CommandLogin.java
 
 **糟糕指数: 8.91**
 
@@ -160,6 +149,17 @@
 
 - 🏗️ `onCommand()` L18: 中等嵌套: 3
 - 🏗️ L1: 循环依赖: 7
+
+### 10. src\main\java\cc\baka9\catseedlogin\bukkit\CatSeedLogin.java
+
+**糟糕指数: 8.60**
+
+**问题**: 🔄 复杂度问题: 2, 🏗️ 结构问题: 2, 📝 注释问题: 1
+
+- 🔄 `registerCommands()` L89: 复杂度: 12
+- 🔄 `registerCommands()` L89: 认知复杂度: 18
+- 🏗️ `registerCommands()` L89: 中等嵌套: 3
+- 🏗️ L1: 循环依赖: 8
 
 ## 诊断结论 {#conclusion}
 
