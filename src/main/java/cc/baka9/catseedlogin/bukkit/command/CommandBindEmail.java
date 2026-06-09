@@ -109,6 +109,7 @@ public class CommandBindEmail implements CommandExecutor {
             try {
                 lp.setEmail(bindEmail.getEmail());
                 CatSeedLogin.sql.edit(lp);
+                Cache.refresh(lp.getName());
                 Bukkit.getScheduler().runTask(CatSeedLogin.instance, () -> {
                     Player syncPlayer = Bukkit.getPlayer(((Player) sender).getUniqueId());
                     if (syncPlayer != null && syncPlayer.isOnline()) {

@@ -18,10 +18,10 @@ public class PluginMain extends Plugin {
         instance = this;
         configManager = new BungeeConfigManager(this);
         platformAdapter = new BungeePlatformAdapter(this, configManager.getI18n());
-        communication = new BungeeCommunication();
+        communication = new BungeeCommunication(configManager, getLogger());
         configManager.reload();
-        getProxy().getPluginManager().registerListener(this, new Listeners());
-        getProxy().getPluginManager().registerCommand(this, new Commands("CatSeedLoginBungee", "catseedlogin.admin", "cslb"));
+        getProxy().getPluginManager().registerListener(this, new Listeners(configManager, communication));
+        getProxy().getPluginManager().registerCommand(this, new Commands("CatSeedLoginBungee", "catseedlogin.admin", configManager, "cslb"));
     }
 
     public static ScheduledTask runAsync(Runnable runnable) {

@@ -263,6 +263,7 @@ public class CommandCatSeedLogin implements CommandExecutor {
                 CatSeedLogin.instance.runTaskAsync(() -> {
                     try {
                         CatSeedLogin.sql.del(lp.getName());
+                        Cache.refresh(lp.getName());
                         LoginPlayerHelper.remove(lp);
                         sender.sendMessage("§e已删除账户 §a" + lp.getName());
                         CatScheduler.runTask(() -> {
@@ -304,6 +305,7 @@ public class CommandCatSeedLogin implements CommandExecutor {
                     lp.crypt();
                     try {
                         CatSeedLogin.sql.add(lp);
+                        Cache.refresh(lp.getName());
                         sender.sendMessage("§a指定账户不存在,现已注册..");
                     } catch (Exception e) {
                         sender.sendMessage("§c数据库异常!");
@@ -314,6 +316,7 @@ public class CommandCatSeedLogin implements CommandExecutor {
                     lp.crypt();
                     try {
                         CatSeedLogin.sql.edit(lp);
+                        Cache.refresh(lp.getName());
                         LoginPlayerHelper.remove(lp);
                         sender.sendMessage(String.join(" ", "§a玩家", lp.getName(), "密码已设置"));
                         LoginPlayer finalLp = lp;

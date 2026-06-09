@@ -42,18 +42,15 @@ public abstract class SQL {
     public void add(LoginPlayer lp) throws Exception {
         flush(new BufferStatement("INSERT INTO accounts (name, password, lastAction, email, ips, location) VALUES (?, ?, ?, ?, ?, ?)",
             lp.getName(), lp.getPassword(), new Date(), lp.getEmail(), lp.getIps(), lp.getLocation()));
-        Cache.refresh(lp.getName());
     }
 
     public void del(String name) throws Exception {
         flush(new BufferStatement("DELETE FROM accounts WHERE name = ?", name));
-        Cache.refresh(name);
     }
 
     public void edit(LoginPlayer lp) throws Exception {
         flush(new BufferStatement("UPDATE accounts SET password = ?, lastAction = ?, email = ?, ips = ?, location = ? WHERE name = ?",
             lp.getPassword(), new Date(), lp.getEmail(), lp.getIps(), lp.getLocation(), lp.getName()));
-        Cache.refresh(lp.getName());
     }
 
     public void updateLocation(String name, String location) throws Exception {
