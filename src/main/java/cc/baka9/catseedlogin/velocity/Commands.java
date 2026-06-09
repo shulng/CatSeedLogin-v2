@@ -19,13 +19,11 @@ public class Commands implements SimpleCommand {
     private final VelocityConfigManager configManager;
     private final ProxyServer proxyServer;
     private final Logger logger;
-    private final Listeners listeners;
 
-    public Commands(VelocityConfigManager configManager, ProxyServer proxyServer, Logger logger, Listeners listeners) {
+    public Commands(VelocityConfigManager configManager, ProxyServer proxyServer, Logger logger) {
         this.configManager = configManager;
         this.proxyServer = proxyServer;
         this.logger = logger;
-        this.listeners = listeners;
     }
 
     @Override
@@ -33,29 +31,34 @@ public class Commands implements SimpleCommand {
         CommandSource source = invocation.source();
         String[] args = invocation.arguments();
         
-        if (!source.hasPermission("catseedlogin.admin")) {
-            source.sendMessage(Component.text(MessageKey.NO_PERMISSION.get()));
-            return;
-        }
-        
-        if (args.length == 0) {
-            sendHelp(source);
-            return;
-        }
-        
-        switch (args[0].toLowerCase()) {
-            case "reload":
-                handleReload(source);
-                break;
-            case "status":
-                handleStatus(source);
-                break;
-            case "list":
-                handleList(source);
-                break;
-            default:
+        try {
+            if (!source.hasPermission("catseedlogin.admin")) {
+                source.sendMessage(Component.text(MessageKey.NO_PERMISSION.get()));
+                return;
+            }
+            
+            if (args.length == 0) {
                 sendHelp(source);
-                break;
+                return;
+            }
+            
+            switch (args[0].toLowerCase()) {
+                case "reload":
+                    handleReload(source);
+                    break;
+                case "status":
+                    handleStatus(source);
+                    break;
+                case "list":
+                    handleList(source);
+                    break;
+                default:
+                    sendHelp(source);
+                    break;
+            }
+        } catch (Exception e) {
+            source.sendMessage(Component.text("执行命令时发生错误", NamedTextColor.RED));
+            logger.error("Error executing command", e);
         }
     }
     
@@ -88,35 +91,46 @@ public class Commands implements SimpleCommand {
     }
     
     private void handleStatus(CommandSource source) {
-        source.sendMessage(Component.text("=== CatSeedLogin-Velocity 状态 ===", NamedTextColor.GOLD));
-        
-        String host = configManager.getProxyHost();
-        int port = configManager.getProxyPort();
-        String loginServerName = configManager.getLoginServerName();
-        
-        source.sendMessage(Component.text("监听地址: " + host + ":" + port, NamedTextColor.YELLOW));
-        source.sendMessage(Component.text("登录服务器: " + loginServerName, NamedTextColor.YELLOW));
-        
-        boolean loginServerOnline = proxyServer
-            .getServer(loginServerName)
-            .isPresent();
-        
-        source.sendMessage(Component.text("登录服务器状态: " + (loginServerOnline ? "在线" : "离线"), 
-            loginServerOnline ? NamedTextColor.GREEN : NamedTextColor.RED));
+        try {
+            source.sendMessage(Component.text("=== CatSeedLogin-Velocity 状态 ===", NamedTextColor.GOLD));
+            
+            String host = configManager.getProxyHost();
+            int port = configManager.getProxyPort();
+            String loginServerName = configManager.getLoginServerName();
+            
+            source.sendMessage(Component.text("监听地址: " + host + ":" + port, NamedTextColor.YELLOW));
+            source.sendMessage(Component.text("登录服务器: " + loginServerName, NamedTextColor.YELLOW));
+            
+            boolean loginServerOnline = proxyServer
+                .getServer(loginServerName)
+                .isPresent();
+            
+            source.sendMessage(Component.text("登录服务器状态: " + (loginServerOnline ? "在线" : "离线"), 
+                loginServerOnline ? NamedTextColor.GREEN : NamedTextColor.RED));
+        } catch (Exception e) {
+            source.sendMessage(Component.text("获取状态时发生错误", NamedTextColor.RED));
+            logger.error("Error getting status", e);
+        }
     }
     
     private void handleList(CommandSource source) {
-        List<String> loggedInPlayers = listeners.getLoggedInPlayers();
-        
-        source.sendMessage(Component.text("=== 已登录玩家列表 ===", NamedTextColor.GOLD));
-        source.sendMessage(Component.text("已登录玩家数量: " + loggedInPlayers.size(), NamedTextColor.YELLOW));
-        
-        if (loggedInPlayers.isEmpty()) {
-            source.sendMessage(Component.text("暂无已登录玩家", NamedTextColor.GRAY));
-        } else {
-            loggedInPlayers.forEach(playerName -> 
-                source.sendMessage(Component.text("- " + playerName, NamedTextColor.WHITE))
-            );
+        try {
+            Listeners listeners = PluginMain.getInstance().getListeners();
+            List<String> loggedInPlayers = listeners.getLoggedInPlayers();
+            
+            source.sendMessage(Component.text("=== 已登录玩家列表 ===", NamedTextColor.GOLD));
+            source.sendMessage(Component.text("已登录玩家数量: " + loggedInPlayers.size(), NamedTextColor.YELLOW));
+            
+            if (loggedInPlayers.isEmpty()) {
+                source.sendMessage(Component.text("暂无已登录玩家", NamedTextColor.GRAY));
+            } else {
+                loggedInPlayers.forEach(playerName -> 
+                    source.sendMessage(Component.text("- " + playerName, NamedTextColor.WHITE))
+                );
+            }
+        } catch (Exception e) {
+            source.sendMessage(Component.text("获取玩家列表时发生错误", NamedTextColor.RED));
+            logger.error("Error getting player list", e);
         }
     }
 }

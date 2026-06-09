@@ -16,9 +16,13 @@ public class Commands extends net.md_5.bungee.api.plugin.Command {
 
     @Override
     public void execute(CommandSender commandSender, String[] args) {
-        if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
-            configManager.reload();
-            commandSender.sendMessage(new TextComponent(MessageKey.CONFIG_RELOADED.get()));
+        try {
+            if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
+                configManager.reload();
+                commandSender.sendMessage(new TextComponent(MessageKey.CONFIG_RELOADED.get()));
+            }
+        } catch (Exception e) {
+            commandSender.sendMessage(new TextComponent("§c重载配置文件时出错: " + e.getMessage()));
         }
     }
 }

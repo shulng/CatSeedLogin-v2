@@ -72,7 +72,7 @@ public class PluginMain {
             proxyServer.getCommandManager().metaBuilder("CatSeedLoginVelocity")
                 .aliases("cslv")
                 .build(),
-            new Commands(configManager, proxyServer, logger, listeners)
+            new Commands(configManager, proxyServer, logger)
         );
         
         logger.info("CatSeedLogin-Velocity has been enabled!");
