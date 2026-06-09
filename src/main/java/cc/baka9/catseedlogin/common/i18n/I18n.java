@@ -3,6 +3,7 @@ package cc.baka9.catseedlogin.common.i18n;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.HashMap;
