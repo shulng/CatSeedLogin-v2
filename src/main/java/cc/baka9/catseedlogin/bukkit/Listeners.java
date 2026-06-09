@@ -27,7 +27,7 @@ import org.geysermc.floodgate.api.FloodgateApi;
 import cc.baka9.catseedlogin.bukkit.task.Task;
 import cc.baka9.catseedlogin.bukkit.task.TaskAutoKick;
 import cc.baka9.catseedlogin.bukkit.Cache;
-import cc.baka9.catseedlogin.bukkit.object.LoginPlayer;
+import cc.baka9.catseedlogin.common.model.LoginPlayer;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayerHelper;
 
 public class Listeners implements Listener {
@@ -163,7 +163,13 @@ public class Listeners implements Listener {
         Player player = event.getPlayer();
         if (LoginPlayerHelper.isLogin(player.getName())) {
             saveOfflineLocation(player);
-            CatScheduler.runTaskLater(() -> LoginPlayerHelper.remove(player.getName()), Config.Settings.ReenterInterval);
+            CatScheduler.runTaskLater(() -> {
+                try {
+                    LoginPlayerHelper.remove(player.getName());
+                } catch (Exception e) {
+                    player.getServer().getLogger().warning("Failed to remove player on quit: " + player.getName());
+                }
+            }, Config.Settings.ReenterInterval);
         }
         try {
             TaskAutoKick task = Task.getTaskAutoKick();

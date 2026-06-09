@@ -1,4 +1,4 @@
-package cc.baka9.catseedlogin.bukkit.object;
+package cc.baka9.catseedlogin.common.model;
 
 import cc.baka9.catseedlogin.util.Crypt;
 import lombok.Getter;

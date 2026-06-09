@@ -1,5 +1,6 @@
 package cc.baka9.catseedlogin.bukkit.object;
 
+import cc.baka9.catseedlogin.common.model.LoginPlayer;
 import cc.baka9.catseedlogin.common.util.ValidationUtil;
 import cc.baka9.catseedlogin.common.util.DateUtil;
 
@@ -139,31 +140,37 @@ public class LoginPlayerHelper {
     }
 
     public static void recordCurrentIP(Player player, LoginPlayer lp) {
-        String currentIp = Optional.ofNullable(player.getAddress())
-                .map(addr -> addr.getAddress())
-                .map(InetAddress::getHostAddress)
-                .orElse(null);
-        
-        if (currentIp == null) {
-            return;
-        }
-
-        List<String> ipsList = new ArrayList<>(lp.getIpsList());
-        ipsList = ipsList.stream().distinct().collect(Collectors.toList());
-        if (!ipsList.isEmpty()) {
-            ipsList.remove(ipsList.size() - 1);
-        }
-        ipsList.add(currentIp);
-        lp.setIps(String.join(";", ipsList));
-        
-        CatSeedLogin.instance.runTaskAsync(() -> {
-            try {
-                CatSeedLogin.sql.edit(lp);
-                Cache.refresh(lp.getName());
-            } catch (Exception e) {
-                e.printStackTrace();
+        try {
+            String currentIp = Optional.ofNullable(player.getAddress())
+                    .map(addr -> addr.getAddress())
+                    .map(InetAddress::getHostAddress)
+                    .orElse(null);
+            
+            if (currentIp == null) {
+                return;
             }
-        });
+
+            List<String> ipsList = lp.getIpsList() != null
+                    ? new ArrayList<>(lp.getIpsList())
+                    : new ArrayList<>();
+            ipsList = ipsList.stream().distinct().collect(Collectors.toList());
+            if (!ipsList.isEmpty()) {
+                ipsList.remove(ipsList.size() - 1);
+            }
+            ipsList.add(currentIp);
+            lp.setIps(String.join(";", ipsList));
+
+            CatSeedLogin.instance.runTaskAsync(() -> {
+                try {
+                    CatSeedLogin.sql.edit(lp);
+                    Cache.refresh(lp.getName());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        } catch (Exception e) {
+            CatSeedLogin.instance.getLogger().warning("Failed to record IP for player: " + player.getName() + " - " + e.getMessage());
+        }
     }
 
     public static void sendBlankInventoryPacket(Player player) {

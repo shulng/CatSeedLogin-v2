@@ -157,34 +157,42 @@ public class YamlConfiguration implements Configuration {
 
     @SuppressWarnings("unchecked")
     private Object get(String path) {
-        String[] parts = path.split("\\.");
-        Map<String, Object> current = data;
-        for (int i = 0; i < parts.length - 1; i++) {
-            Object next = current.get(parts[i]);
-            if (!(next instanceof Map)) {
-                return null;
+        try {
+            String[] parts = path.split("\\.");
+            Map<String, Object> current = data;
+            for (int i = 0; i < parts.length - 1; i++) {
+                Object next = current.get(parts[i]);
+                if (!(next instanceof Map)) {
+                    return null;
+                }
+                current = (Map<String, Object>) next;
             }
-            current = (Map<String, Object>) next;
+            return current.get(parts[parts.length - 1]);
+        } catch (Exception e) {
+            return null;
         }
-        return current.get(parts[parts.length - 1]);
     }
 
     @SuppressWarnings("unchecked")
     private void setNestedValue(Map<String, Object> map, String[] keys, int index, Object value) {
-        if (index == keys.length - 1) {
-            if (value == null) {
-                map.remove(keys[index]);
-            } else {
-                map.put(keys[index], value);
+        try {
+            if (index == keys.length - 1) {
+                if (value == null) {
+                    map.remove(keys[index]);
+                } else {
+                    map.put(keys[index], value);
+                }
+                return;
             }
-            return;
+            Object next = map.computeIfAbsent(keys[index], k -> new HashMap<>());
+            if (!(next instanceof Map)) {
+                next = new HashMap<>();
+                map.put(keys[index], next);
+            }
+            setNestedValue((Map<String, Object>) next, keys, index + 1, value);
+        } catch (Exception e) {
+            // ignore
         }
-        Object next = map.computeIfAbsent(keys[index], k -> new HashMap<>());
-        if (!(next instanceof Map)) {
-            next = new HashMap<>();
-            map.put(keys[index], next);
-        }
-        setNestedValue((Map<String, Object>) next, keys, index + 1, value);
     }
 
     public File getFile() {
