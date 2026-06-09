@@ -251,7 +251,10 @@ public abstract class BaseConfigManager implements CoreConfig, DatabaseConfig, B
 
     private CoreConfig.SpawnLocation parseSpawnLocation(String str) {
         ConfigHelper.LocationData data = ConfigHelper.parseLocationString(str, 
-            new ConfigHelper.LocationData("world", 0, 64, 0, 0, 0));
+            ConfigHelper.LocationData.builder()
+                .world("world")
+                .x(0).y(64).z(0).yaw(0).pitch(0)
+                .build());
         return new CoreConfig.SpawnLocation() {
             @Override
             public String getWorld() {
