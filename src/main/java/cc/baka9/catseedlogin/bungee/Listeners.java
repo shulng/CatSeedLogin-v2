@@ -30,50 +30,57 @@ public class Listeners implements Listener {
 
     @EventHandler
     public void onChat(ChatEvent event) {
-        if (event.isProxyCommand() && event.getSender() instanceof ProxiedPlayer) {
-            ProxiedPlayer player = (ProxiedPlayer) event.getSender();
-            String playerName = player.getName();
-
-            if (!loggedInPlayerList.contains(playerName)) {
-                event.setCancelled(true);
-                handleLogin(player, event.getMessage());
-            }
+        if (!event.isProxyCommand() || !(event.getSender() instanceof ProxiedPlayer)) {
+            return;
+        }
+        ProxiedPlayer player = (ProxiedPlayer) event.getSender();
+        String playerName = player.getName();
+        if (!loggedInPlayerList.contains(playerName)) {
+            event.setCancelled(true);
+            handleLogin(player, event.getMessage());
         }
     }
 
     @EventHandler
     public void onServerConnect(ServerConnectEvent event) {
-        ServerInfo target = event.getTarget();
+        if (event.isCancelled()) {
+            return;
+        }
         String loginServerName = configManager.getLoginServerName();
-        if (!event.isCancelled() && !target.getName().equals(loginServerName)) {
-            ProxiedPlayer player = event.getPlayer();
-            String playerName = player.getName();
+        if (event.getTarget().getName().equals(loginServerName)) {
+            return;
+        }
+        ProxiedPlayer player = event.getPlayer();
+        String playerName = player.getName();
+        if (loggedInPlayerList.contains(playerName)) {
+            return;
+        }
+        PluginMain.runAsync(() -> checkLoginAndRedirect(player, playerName, event, loginServerName));
+    }
 
-            if (!loggedInPlayerList.contains(playerName)) {
-                PluginMain.runAsync(() -> {
-                    try {
-                        if (communication.sendConnectRequest(playerName) == 1) {
-                            loggedInPlayerList.add(playerName);
-                        } else {
-                            event.setTarget(proxyServer.getServerInfo(loginServerName));
-                        }
-                    } catch (Exception e) {
-                        proxyServer.getLogger().severe("Error checking login status for player: " + playerName);
-                        e.printStackTrace();
-                    }
-                });
+    private void checkLoginAndRedirect(ProxiedPlayer player, String playerName, ServerConnectEvent event,
+            String loginServerName) {
+        try {
+            if (communication.sendConnectRequest(playerName) == 1) {
+                loggedInPlayerList.add(playerName);
+            } else {
+                event.setTarget(proxyServer.getServerInfo(loginServerName));
             }
+        } catch (Exception e) {
+            proxyServer.getLogger().severe("Error checking login status for player: " + playerName);
+            e.printStackTrace();
         }
     }
 
     @EventHandler
     public void onServerConnected(ServerConnectedEvent event) {
         String loginServerName = configManager.getLoginServerName();
-        if (event.getServer().getInfo().getName().equals(loginServerName)) {
-            ProxiedPlayer player = event.getPlayer();
-            if (loggedInPlayerList.contains(player.getName())) {
-                PluginMain.runAsync(() -> communication.sendKeepLoggedInRequest(player.getName()));
-            }
+        if (!event.getServer().getInfo().getName().equals(loginServerName)) {
+            return;
+        }
+        ProxiedPlayer player = event.getPlayer();
+        if (loggedInPlayerList.contains(player.getName())) {
+            PluginMain.runAsync(() -> communication.sendKeepLoggedInRequest(player.getName()));
         }
     }
 
@@ -93,18 +100,18 @@ public class Listeners implements Listener {
         } catch (Exception e) {
             event.setCancelReason(new TextComponent("发生错误，请稍后再试。"));
             event.setCancelled(true);
-            throw e;
         }
     }
 
     private void handleLogin(ProxiedPlayer player, String message) {
         String playerName = player.getName();
         PluginMain.runAsync(() -> {
-            if (communication.sendConnectRequest(playerName) == 1) {
-                loggedInPlayerList.add(playerName);
-                if (message != null && !message.isEmpty()) {
-                    proxyServer.getPluginManager().dispatchCommand(player, message.substring(1));
-                }
+            if (communication.sendConnectRequest(playerName) != 1) {
+                return;
+            }
+            loggedInPlayerList.add(playerName);
+            if (message != null && !message.isEmpty()) {
+                proxyServer.getPluginManager().dispatchCommand(player, message.substring(1));
             }
         });
     }
