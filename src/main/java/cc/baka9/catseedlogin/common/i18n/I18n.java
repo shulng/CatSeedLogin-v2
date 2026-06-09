@@ -150,9 +150,13 @@ public class I18n {
     }
 
     private String lookup(String key) {
+        if (currentLocale == null || key == null) {
+            return null;
+        }
         Map<String, String> localeMessages = messages.get(currentLocale);
         if (localeMessages != null && localeMessages.containsKey(key)) {
-            return translateColors(localeMessages.get(key));
+            String value = localeMessages.get(key);
+            return value != null ? translateColors(value) : null;
         }
         return null;
     }

@@ -54,31 +54,17 @@ public abstract class ConfigManager {
         }
     }
 
-    public void saveConfig(String name) {
-        YamlConfiguration config = configs.get(name);
-        if (config != null) {
-            try {
-                config.save();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public void saveAll() {
-        for (String name : configs.keySet()) {
-            saveConfig(name);
-        }
-    }
-
     public void reloadConfig(String name) {
+        if (name == null) return;
         configs.remove(name);
         getConfig(name);
     }
 
     public void reloadAll() {
         for (String name : new HashMap<>(configs).keySet()) {
-            reloadConfig(name);
+            if (name != null) {
+                reloadConfig(name);
+            }
         }
     }
 
@@ -87,6 +73,7 @@ public abstract class ConfigManager {
     }
 
     public void createDefaultConfig(String name) {
+        if (name == null) return;
         String fileName = name.endsWith(".yml") ? name : name + ".yml";
         File file = new File(dataFolder, fileName);
         if (!file.exists()) {
@@ -94,6 +81,18 @@ public abstract class ConfigManager {
                 if (in != null) {
                     java.nio.file.Files.copy(in, file.toPath());
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void saveConfig(String name) {
+        if (name == null) return;
+        YamlConfiguration config = configs.get(name);
+        if (config != null) {
+            try {
+                config.save();
             } catch (IOException e) {
                 e.printStackTrace();
             }

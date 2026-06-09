@@ -19,7 +19,12 @@ public abstract class SQL {
     }
 
     public void init() throws SQLException {
-        flush(new BufferStatement("CREATE TABLE IF NOT EXISTS accounts (name CHAR(255), password CHAR(255), email CHAR(255), ips CHAR(255), lastAction TIMESTAMP, location CHAR(255) DEFAULT NULL)"));
+        try {
+            flush(new BufferStatement("CREATE TABLE IF NOT EXISTS accounts (name CHAR(255), password CHAR(255), email CHAR(255), ips CHAR(255), lastAction TIMESTAMP, location CHAR(255) DEFAULT NULL)"));
+        } catch (SQLException e) {
+            plugin.getLogger().severe("Failed to create accounts table: " + e.getMessage());
+            throw e;
+        }
 
         try {
             flush(new BufferStatement("ALTER TABLE accounts ADD email CHAR(255)"));

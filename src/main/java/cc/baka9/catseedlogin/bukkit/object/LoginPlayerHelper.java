@@ -30,8 +30,16 @@ public class LoginPlayerHelper {
     private static final Map<String, Long> playerExitTimes = new ConcurrentHashMap<>();
 
     public static List<LoginPlayer> getList() { return new ArrayList<>(set); }
-    public static void add(LoginPlayer lp) { set.add(lp); }
-    public static void remove(LoginPlayer lp) { set.remove(lp); }
+    public static void add(LoginPlayer lp) {
+        if (lp != null) {
+            set.add(lp);
+        }
+    }
+    public static void remove(LoginPlayer lp) {
+        if (lp != null) {
+            set.remove(lp);
+        }
+    }
     
     public static void remove(String name) {
         if (name == null) {
@@ -41,13 +49,13 @@ public class LoginPlayerHelper {
     }
 
     public static boolean isLogin(String name) {
-        return Config.Settings.BedrockLoginBypass && isFloodgatePlayer(name) ||
-                Config.Settings.LoginwiththesameIP && recordCurrentIP(name) ||
+        return (Config.Settings.BedrockLoginBypass && isFloodgatePlayer(name)) ||
+                (Config.Settings.LoginwiththesameIP && recordCurrentIP(name)) ||
                 set.stream().anyMatch(lp -> lp.getName().equals(name));
     }
 
     public static boolean isRegister(String name) {
-        return Config.Settings.BedrockLoginBypass && isFloodgatePlayer(name) || Cache.getIgnoreCase(name) != null;
+        return (Config.Settings.BedrockLoginBypass && isFloodgatePlayer(name)) || Cache.getIgnoreCase(name) != null;
     }
 
     public static boolean recordCurrentIP(String name) {

@@ -61,6 +61,7 @@ public class CommandBindEmail implements CommandExecutor {
         if (args.length <= 1) return;
 
         LoginPlayer lp = Cache.getIgnoreCase(name);
+        if (lp == null) return;
         if (lp.getEmail() != null && Util.checkMail(lp.getEmail())) {
             sender.sendMessage("§c你已经绑定过邮箱了!");
             return;
@@ -72,10 +73,14 @@ public class CommandBindEmail implements CommandExecutor {
             return;
         }
 
-        Optional<EmailCode> existingCode = EmailCode.getByName(name, EmailCode.Type.Bind);
-        if (existingCode.isPresent() && existingCode.get().getEmail().equals(mail)) {
-            sender.sendMessage("§c已经向 " + mail + " 邮箱中发送验证码，请不要重复此操作");
-            return;
+        try {
+            Optional<EmailCode> existingCode = EmailCode.getByName(name, EmailCode.Type.Bind);
+            if (existingCode.isPresent() && existingCode.get().getEmail().equals(mail)) {
+                sender.sendMessage("§c已经向 " + mail + " 邮箱中发送验证码，请不要重复此操作");
+                return;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         EmailCode bindEmail = EmailCode.create(name, mail, 1000 * 60 * 5, EmailCode.Type.Bind);

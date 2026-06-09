@@ -56,10 +56,18 @@ public enum MessageKey {
     }
 
     public String get() {
-        return I18n.tr(key);
+        try {
+            return I18n.tr(key);
+        } catch (Exception e) {
+            return key;
+        }
     }
 
     public String get(Object... args) {
-        return I18n.tr(key, args);
+        try {
+            return I18n.tr(key, args);
+        } catch (Exception e) {
+            return key;
+        }
     }
 }

@@ -16,7 +16,7 @@ public class BungeeCommands extends net.md_5.bungee.api.plugin.Command {
 
     @Override
     public void execute(CommandSender commandSender, String[] args) {
-        if (args == null || args.length == 0) {
+        if (commandSender == null || args == null || args.length == 0) {
             return;
         }
         try {
