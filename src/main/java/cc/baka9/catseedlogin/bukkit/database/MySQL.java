@@ -10,7 +10,7 @@ public class MySQL extends SQL {
     private Connection connection;
 
     public MySQL(JavaPlugin javaPlugin) {
-        super(javaPlugin);
+        super(javaPlugin.getLogger());
     }
 
     @Override

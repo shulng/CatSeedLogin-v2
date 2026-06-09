@@ -8,9 +8,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class SQLite extends SQL {
     private Connection connection;
+    private final JavaPlugin plugin;
 
     public SQLite(JavaPlugin javaPlugin) {
-        super(javaPlugin);
+        super(javaPlugin.getLogger());
+        this.plugin = javaPlugin;
     }
 
     @Override
@@ -58,7 +60,7 @@ public class SQLite extends SQL {
                 connection.close();
             }
         } catch (SQLException e) {
-            plugin.getLogger().warning("关闭SQLite连接时出错: " + e.getMessage());
+            logger.warning("关闭SQLite连接时出错: " + e.getMessage());
         }
         connection = null;
     }

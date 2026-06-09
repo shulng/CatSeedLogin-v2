@@ -1,7 +1,6 @@
 package cc.baka9.catseedlogin.bukkit.database;
 
 import cc.baka9.catseedlogin.common.model.LoginPlayer;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,19 +9,27 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
+/**
+ * 抽象数据库操作类，提供通用的 CRUD 方法。
+ * 子类需实现 getConnection() 和 closeConnection() 以提供具体连接。
+ */
 public abstract class SQL {
-    protected JavaPlugin plugin;
+    protected Logger logger;
 
-    public SQL(JavaPlugin plugin) {
-        this.plugin = plugin;
+    public SQL(Logger logger) {
+        this.logger = logger;
     }
 
+    /**
+     * 初始化数据库表结构。
+     */
     public void init() throws SQLException {
         try {
             flush(new BufferStatement("CREATE TABLE IF NOT EXISTS accounts (name CHAR(255), password CHAR(255), email CHAR(255), ips CHAR(255), lastAction TIMESTAMP, location CHAR(255) DEFAULT NULL)"));
         } catch (SQLException e) {
-            plugin.getLogger().severe("Failed to create accounts table: " + e.getMessage());
+            logger.severe("Failed to create accounts table: " + e.getMessage());
             throw e;
         }
 
@@ -45,66 +52,106 @@ public abstract class SQL {
         }
     }
 
+    /**
+     * 添加登录玩家。
+     *
+     * @param lp 登录玩家对象
+     */
     public void add(LoginPlayer lp) {
         try {
             flush(new BufferStatement("INSERT INTO accounts (name, password, lastAction, email, ips, location) VALUES (?, ?, ?, ?, ?, ?)",
                 lp.getName(), lp.getPassword(), new Date(), lp.getEmail(), lp.getIps(), lp.getLocation()));
         } catch (SQLException e) {
-            plugin.getLogger().severe("Failed to add player: " + lp.getName() + " - " + e.getMessage());
+            logger.severe("Failed to add player: " + lp.getName() + " - " + e.getMessage());
         }
     }
 
+    /**
+     * 删除登录玩家。
+     *
+     * @param name 玩家名称
+     */
     public void del(String name) {
         try {
             flush(new BufferStatement("DELETE FROM accounts WHERE name = ?", name));
         } catch (SQLException e) {
-            plugin.getLogger().severe("Failed to delete player: " + name + " - " + e.getMessage());
+            logger.severe("Failed to delete player: " + name + " - " + e.getMessage());
         }
     }
 
+    /**
+     * 更新登录玩家信息。
+     *
+     * @param lp 登录玩家对象
+     */
     public void edit(LoginPlayer lp) {
         try {
             flush(new BufferStatement("UPDATE accounts SET password = ?, lastAction = ?, email = ?, ips = ?, location = ? WHERE name = ?",
                 lp.getPassword(), new Date(), lp.getEmail(), lp.getIps(), lp.getLocation(), lp.getName()));
         } catch (SQLException e) {
-            plugin.getLogger().severe("Failed to edit player: " + lp.getName() + " - " + e.getMessage());
+            logger.severe("Failed to edit player: " + lp.getName() + " - " + e.getMessage());
         }
     }
 
+    /**
+     * 更新玩家位置信息。
+     *
+     * @param name     玩家名称
+     * @param location 位置字符串
+     */
     public void updateLocation(String name, String location) {
         try {
             flush(new BufferStatement("UPDATE accounts SET location = ? WHERE name = ?", location, name));
         } catch (SQLException e) {
-            plugin.getLogger().severe("Failed to update location for player: " + name + " - " + e.getMessage());
+            logger.severe("Failed to update location for player: " + name + " - " + e.getMessage());
         }
     }
 
+    /**
+     * 获取玩家位置信息。
+     *
+     * @param name 玩家名称
+     * @return 位置字符串，未找到时返回 null
+     */
     public String getLocation(String name) {
         try {
             return queryForString("SELECT location FROM accounts WHERE name = ?", name);
         } catch (Exception e) {
-            plugin.getLogger().severe("Failed to get location for player: " + name + " - " + e.getMessage());
+            logger.severe("Failed to get location for player: " + name + " - " + e.getMessage());
             return null;
         }
     }
 
+    /**
+     * 根据名称获取登录玩家信息。
+     *
+     * @param name 玩家名称
+     * @return LoginPlayer 对象，未找到时返回 null
+     */
     public LoginPlayer get(String name) {
         String sql = "SELECT * FROM accounts WHERE name = ?";
         try (PreparedStatement ps = new BufferStatement(sql, name).prepareStatement(getConnection());
              ResultSet resultSet = ps.executeQuery()) {
             return mapLoginPlayerOrNull(resultSet);
         } catch (SQLException e) {
-            plugin.getLogger().severe("Failed to get player: " + name);
+            logger.severe("Failed to get player: " + name + " - " + e.getMessage());
             return null;
         }
     }
 
+    /**
+     * 执行查询并返回单行单列字符串结果。
+     *
+     * @param sql    查询 SQL
+     * @param params 参数
+     * @return 查询结果字符串，未找到时返回 null
+     */
     private String queryForString(String sql, Object... params) {
         try (PreparedStatement ps = new BufferStatement(sql, params).prepareStatement(getConnection());
              ResultSet resultSet = ps.executeQuery()) {
             return resultSet.next() ? resultSet.getString(1) : null;
         } catch (SQLException e) {
-            plugin.getLogger().severe("Failed to query: " + sql + " - " + e.getMessage());
+            logger.severe("Failed to query: " + sql + " - " + e.getMessage());
             return null;
         }
     }
@@ -116,6 +163,11 @@ public abstract class SQL {
         return null;
     }
 
+    /**
+     * 获取所有登录玩家。
+     *
+     * @return 登录玩家列表
+     */
     public List<LoginPlayer> getAll() {
         try (PreparedStatement ps = new BufferStatement("SELECT * FROM accounts").prepareStatement(getConnection());
              ResultSet resultSet = ps.executeQuery()) {
@@ -125,11 +177,17 @@ public abstract class SQL {
             }
             return lps;
         } catch (SQLException e) {
-            plugin.getLogger().severe("Failed to get all players: " + e.getMessage());
+            logger.severe("Failed to get all players: " + e.getMessage());
             return new ArrayList<>();
         }
     }
 
+    /**
+     * 根据 IP 模糊匹配查询登录玩家。
+     *
+     * @param ip IP 地址
+     * @return 匹配的登录玩家列表
+     */
     public List<LoginPlayer> getLikeByIp(String ip) {
         String likePattern = "%" + ip + "%";
         try (PreparedStatement ps = new BufferStatement("SELECT * FROM accounts WHERE ips LIKE ?", likePattern).prepareStatement(getConnection());
@@ -140,7 +198,7 @@ public abstract class SQL {
             }
             return lps;
         } catch (SQLException e) {
-            plugin.getLogger().severe("Failed to query players by IP: " + ip + " - " + e.getMessage());
+            logger.severe("Failed to query players by IP: " + ip + " - " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -154,15 +212,28 @@ public abstract class SQL {
         return lp;
     }
 
+    /**
+     * 获取数据库连接。
+     *
+     * @return Connection 对象
+     */
     public abstract Connection getConnection() throws SQLException;
 
+    /**
+     * 关闭数据库连接。
+     */
     public abstract void closeConnection();
 
+    /**
+     * 执行缓冲语句。
+     *
+     * @param bufferStatement 缓冲 SQL 语句
+     */
     public void flush(BufferStatement bufferStatement) throws SQLException {
         try (PreparedStatement ps = bufferStatement.prepareStatement(getConnection())) {
             ps.executeUpdate();
         } catch (SQLException e) {
-            plugin.getLogger().severe("Failed to execute flush: " + e.getMessage());
+            logger.severe("Failed to execute flush: " + e.getMessage());
             throw e;
         }
     }
