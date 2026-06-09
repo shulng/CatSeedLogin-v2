@@ -87,6 +87,9 @@ public class LoginPlayerHelper {
     }
 
     public static void recordPlayerExitTime(String playerName) {
+        if (playerName == null) {
+            return;
+        }
         if (Config.Settings.IPTimeout != 0 && isLogin(playerName)) {
             playerExitTimes.put(playerName, System.currentTimeMillis());
         }

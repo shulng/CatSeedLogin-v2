@@ -229,21 +229,27 @@ public class Listeners implements Listener {
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "请使用由数字,字母和下划线组成的游戏名,才能进入游戏");
             return;
         }
-        if (Config.Settings.FloodgatePrefixProtect && Bukkit.getPluginManager().getPlugin("floodgate") != null) {
-            try {
-                String prefix = FloodgateApi.getInstance().getPlayerPrefix();
-                if (name.toLowerCase().startsWith(prefix.toLowerCase()) && !FloodgateApi.getInstance().isFloodgatePlayer(event.getUniqueId())) {
-                    event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "非法的基岩版玩家名称,请非基岩版玩家的名称不要以" + prefix + "开头");
-                    return;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        if (checkFloodgatePrefixProtect(event, name)) return;
         if (name.length() < Config.Settings.MinLengthID) {
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "你的游戏名太短了,至少需要 " + Config.Settings.MinLengthID + " 个字符的长度");
         } else if (name.length() > Config.Settings.MaxLengthID) {
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "你的游戏名太长了,最长只能到达 " + Config.Settings.MaxLengthID + " 个字符的长度");
         }
+    }
+
+    private boolean checkFloodgatePrefixProtect(AsyncPlayerPreLoginEvent event, String name) {
+        if (!Config.Settings.FloodgatePrefixProtect || Bukkit.getPluginManager().getPlugin("floodgate") == null) {
+            return false;
+        }
+        try {
+            String prefix = FloodgateApi.getInstance().getPlayerPrefix();
+            if (name.toLowerCase().startsWith(prefix.toLowerCase()) && !FloodgateApi.getInstance().isFloodgatePlayer(event.getUniqueId())) {
+                event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "非法的基岩版玩家名称,请非基岩版玩家的名称不要以" + prefix + "开头");
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

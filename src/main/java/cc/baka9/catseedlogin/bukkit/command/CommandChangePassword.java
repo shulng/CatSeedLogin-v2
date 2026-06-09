@@ -54,19 +54,21 @@ public class CommandChangePassword implements CommandExecutor {
     }
 
     private void changePasswordAsync(CommandSender sender, Player player, LoginPlayer lp, String newPwd) {
-        CatScheduler.runTaskAsync(() -> {
-            try {
-                lp.setPassword(newPwd);
-                lp.crypt();
-                PluginContext.getSql().edit(lp);
-                Cache.refresh(lp.getName());
-                LoginPlayerHelper.remove(lp);
-                CatScheduler.runTask(() -> notifyChangeSuccess(sender, player));
-            } catch (Exception e) {
-                e.printStackTrace();
-                sender.sendMessage("§c服务器内部错误!");
-            }
-        });
+        CatScheduler.runTaskAsync(() -> executePasswordChange(sender, player, lp, newPwd));
+    }
+
+    private void executePasswordChange(CommandSender sender, Player player, LoginPlayer lp, String newPwd) {
+        try {
+            lp.setPassword(newPwd);
+            lp.crypt();
+            PluginContext.getSql().edit(lp);
+            Cache.refresh(lp.getName());
+            LoginPlayerHelper.remove(lp);
+            CatScheduler.runTask(() -> notifyChangeSuccess(sender, player));
+        } catch (Exception e) {
+            e.printStackTrace();
+            sender.sendMessage("§c服务器内部错误!");
+        }
     }
 
     private void notifyChangeSuccess(CommandSender sender, Player player) {

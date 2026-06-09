@@ -162,11 +162,13 @@ public class I18n {
     }
 
     public String get(String key) {
+        if (key == null) return null;
         String message = lookup(key);
         return message != null ? message : key;
     }
 
     public String get(String key, Object... args) {
+        if (key == null) return null;
         String message = get(key);
         if (args != null && args.length > 0) {
             try {

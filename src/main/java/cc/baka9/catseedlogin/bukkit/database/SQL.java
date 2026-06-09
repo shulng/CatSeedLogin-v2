@@ -63,7 +63,7 @@ public abstract class SQL {
         flush(new BufferStatement("UPDATE accounts SET location = ? WHERE name = ?", location, name));
     }
 
-    public String getLocation(String name) throws SQLException {
+    public String getLocation(String name) {
         return queryForString("SELECT location FROM accounts WHERE name = ?", name);
     }
 
@@ -78,10 +78,13 @@ public abstract class SQL {
         }
     }
 
-    private String queryForString(String sql, Object... params) throws SQLException {
+    private String queryForString(String sql, Object... params) {
         try (PreparedStatement ps = new BufferStatement(sql, params).prepareStatement(getConnection());
              ResultSet resultSet = ps.executeQuery()) {
             return resultSet.next() ? resultSet.getString(1) : null;
+        } catch (SQLException e) {
+            plugin.getLogger().severe("Failed to query: " + sql + " - " + e.getMessage());
+            return null;
         }
     }
 
