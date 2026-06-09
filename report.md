@@ -13,7 +13,7 @@
 
 | 指标摘要 | 评分 |
 |------|-------|
-| **糟糕指数** | **95.06/100** |
+| **糟糕指数** | **95.12/100** |
 | 屎山等级 | 🌱 清新可人 |
 
 > 如沐春风，仿佛被天使亲吻过
@@ -24,20 +24,20 @@
 |--------|-------|
 | 总文件数 | 64 |
 | 已跳过 | 16 |
-| 耗时 | 209ms |
+| 耗时 | 226ms |
 
 ## 评分指标详情 {#metrics-details}
 
 | 指标摘要 | 评分 | 状态 |
 |:-----|------:|:------:|
-| 循环复杂度 | 1.00% | ✓✓ |
-| 认知复杂度 | 1.28% | ✓✓ |
+| 循环复杂度 | 0.97% | ✓✓ |
+| 认知复杂度 | 1.18% | ✓✓ |
 | 嵌套深度 | 0.00% | ✓✓ |
 | 函数长度 | 0.01% | ✓✓ |
 | 文件长度 | 0.04% | ✓✓ |
 | 参数数量 | 1.80% | ✓✓ |
 | 代码重复 | 0.62% | ✓✓ |
-| 结构分析 | 7.85% | ✓✓ |
+| 结构分析 | 7.76% | ✓✓ |
 | 错误处理 | 16.20% | ✓✓ |
 | 注释比例 | 97.85% | ✗ |
 | 命名规范 | 6.63% | ✓✓ |
@@ -73,7 +73,7 @@
 - ❌ L38: 未处理的易出错调用
 - ❌ L40: 未处理的易出错调用
 - ❌ L44: 未处理的易出错调用
-- ❌ L91: 未处理的易出错调用
+- ❌ L94: 未处理的易出错调用
 - 🔍 ...还有 1 个问题实在太屎，列不完了
 
 ### 4. src\main\java\cc\baka9\catseedlogin\common\config\ConfigHelper.java
@@ -93,22 +93,11 @@
 **问题**: ❌ 错误处理问题: 4, 📝 注释问题: 1
 
 - ❌ L164: 未处理的易出错调用
-- ❌ L169: 未处理的易出错调用
-- ❌ L188: 未处理的易出错调用
-- ❌ L193: 未处理的易出错调用
+- ❌ L170: 未处理的易出错调用
+- ❌ L190: 未处理的易出错调用
+- ❌ L195: 未处理的易出错调用
 
-### 6. src\main\java\cc\baka9\catseedlogin\bukkit\Listeners.java
-
-**糟糕指数: 7.29**
-
-**问题**: 🏗️ 结构问题: 3, ❌ 错误处理问题: 1, 📝 注释问题: 1
-
-- 🏗️ `onPlayerPreLogin()` L225: 中等嵌套: 3
-- 🏗️ L1: 导入过多: 27
-- 🏗️ L1: 循环依赖: 5
-- ❌ L166: 未处理的易出错调用
-
-### 7. src\main\java\cc\baka9\catseedlogin\common\i18n\MessageKey.java
+### 6. src\main\java\cc\baka9\catseedlogin\common\i18n\MessageKey.java
 
 **糟糕指数: 6.95**
 
@@ -118,7 +107,7 @@
 - ❌ L66: 未处理的易出错调用
 - 🏷️ `MessageKey()` L50: "MessageKey" - camelCase
 
-### 8. src\main\java\cc\baka9\catseedlogin\common\config\ConfigManager.java
+### 7. src\main\java\cc\baka9\catseedlogin\common\config\ConfigManager.java
 
 **糟糕指数: 6.91**
 
@@ -126,7 +115,7 @@
 
 - ❌ L59: 未处理的易出错调用
 
-### 9. src\main\java\cc\baka9\catseedlogin\bukkit\command\CommandResetPassword.java
+### 8. src\main\java\cc\baka9\catseedlogin\bukkit\command\CommandResetPassword.java
 
 **糟糕指数: 6.91**
 
@@ -135,14 +124,23 @@
 - 🏗️ L1: 循环依赖: 9
 - ❌ L121: 未处理的易出错调用
 
-### 10. src\main\java\cc\baka9\catseedlogin\bukkit\command\CommandChangePassword.java
+### 9. src\main\java\cc\baka9\catseedlogin\bukkit\database\SQLite.java
 
-**糟糕指数: 6.30**
+**糟糕指数: 6.26**
 
-**问题**: ⚠️ 其他问题: 1, 🏗️ 结构问题: 2, 📝 注释问题: 1
+**问题**: ❌ 错误处理问题: 1, 📝 注释问题: 1, 🏷️ 命名问题: 1
 
-- 🏗️ `changePasswordAsync()` L56: 中等嵌套: 3
-- 🏗️ L1: 循环依赖: 8
+- ❌ L50: 未处理的易出错调用
+- 🏷️ `SQLite()` L12: "SQLite" - camelCase
+
+### 10. src\main\java\cc\baka9\catseedlogin\common\communication\BaseCommunication.java
+
+**糟糕指数: 6.17**
+
+**问题**: 🏗️ 结构问题: 1, ❌ 错误处理问题: 1, 📝 注释问题: 1
+
+- 🏗️ L1: 循环依赖: 1
+- ❌ L64: 未处理的易出错调用
 
 ## 诊断结论 {#conclusion}
 
