@@ -45,22 +45,38 @@ public abstract class SQL {
         }
     }
 
-    public void add(LoginPlayer lp) throws SQLException {
-        flush(new BufferStatement("INSERT INTO accounts (name, password, lastAction, email, ips, location) VALUES (?, ?, ?, ?, ?, ?)",
-            lp.getName(), lp.getPassword(), new Date(), lp.getEmail(), lp.getIps(), lp.getLocation()));
+    public void add(LoginPlayer lp) {
+        try {
+            flush(new BufferStatement("INSERT INTO accounts (name, password, lastAction, email, ips, location) VALUES (?, ?, ?, ?, ?, ?)",
+                lp.getName(), lp.getPassword(), new Date(), lp.getEmail(), lp.getIps(), lp.getLocation()));
+        } catch (SQLException e) {
+            plugin.getLogger().severe("Failed to add player: " + lp.getName() + " - " + e.getMessage());
+        }
     }
 
-    public void del(String name) throws SQLException {
-        flush(new BufferStatement("DELETE FROM accounts WHERE name = ?", name));
+    public void del(String name) {
+        try {
+            flush(new BufferStatement("DELETE FROM accounts WHERE name = ?", name));
+        } catch (SQLException e) {
+            plugin.getLogger().severe("Failed to delete player: " + name + " - " + e.getMessage());
+        }
     }
 
-    public void edit(LoginPlayer lp) throws SQLException {
-        flush(new BufferStatement("UPDATE accounts SET password = ?, lastAction = ?, email = ?, ips = ?, location = ? WHERE name = ?",
-            lp.getPassword(), new Date(), lp.getEmail(), lp.getIps(), lp.getLocation(), lp.getName()));
+    public void edit(LoginPlayer lp) {
+        try {
+            flush(new BufferStatement("UPDATE accounts SET password = ?, lastAction = ?, email = ?, ips = ?, location = ? WHERE name = ?",
+                lp.getPassword(), new Date(), lp.getEmail(), lp.getIps(), lp.getLocation(), lp.getName()));
+        } catch (SQLException e) {
+            plugin.getLogger().severe("Failed to edit player: " + lp.getName() + " - " + e.getMessage());
+        }
     }
 
-    public void updateLocation(String name, String location) throws SQLException {
-        flush(new BufferStatement("UPDATE accounts SET location = ? WHERE name = ?", location, name));
+    public void updateLocation(String name, String location) {
+        try {
+            flush(new BufferStatement("UPDATE accounts SET location = ? WHERE name = ?", location, name));
+        } catch (SQLException e) {
+            plugin.getLogger().severe("Failed to update location for player: " + name + " - " + e.getMessage());
+        }
     }
 
     public String getLocation(String name) {
@@ -100,7 +116,7 @@ public abstract class SQL {
         return null;
     }
 
-    public List<LoginPlayer> getAll() throws SQLException {
+    public List<LoginPlayer> getAll() {
         try (PreparedStatement ps = new BufferStatement("SELECT * FROM accounts").prepareStatement(getConnection());
              ResultSet resultSet = ps.executeQuery()) {
             List<LoginPlayer> lps = new ArrayList<>();
@@ -108,10 +124,13 @@ public abstract class SQL {
                 lps.add(mapLoginPlayer(resultSet));
             }
             return lps;
+        } catch (SQLException e) {
+            plugin.getLogger().severe("Failed to get all players: " + e.getMessage());
+            return new ArrayList<>();
         }
     }
 
-    public List<LoginPlayer> getLikeByIp(String ip) throws SQLException {
+    public List<LoginPlayer> getLikeByIp(String ip) {
         String likePattern = "%" + ip + "%";
         try (PreparedStatement ps = new BufferStatement("SELECT * FROM accounts WHERE ips LIKE ?", likePattern).prepareStatement(getConnection());
              ResultSet resultSet = ps.executeQuery()) {
@@ -120,6 +139,9 @@ public abstract class SQL {
                 lps.add(mapLoginPlayer(resultSet));
             }
             return lps;
+        } catch (SQLException e) {
+            plugin.getLogger().severe("Failed to query players by IP: " + ip + " - " + e.getMessage());
+            return new ArrayList<>();
         }
     }
 

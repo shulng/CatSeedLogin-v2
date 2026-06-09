@@ -31,21 +31,29 @@ public class LoginPlayerHelper {
 
     public static List<LoginPlayer> getList() { return new ArrayList<>(set); }
     public static void add(LoginPlayer lp) {
-        if (lp != null) {
+        if (lp == null) return;
+        try {
             set.add(lp);
+        } catch (Exception e) {
+            CatSeedLogin.instance.getLogger().severe("Failed to add LoginPlayer to set: " + e.getMessage());
         }
     }
     public static void remove(LoginPlayer lp) {
-        if (lp != null) {
+        if (lp == null) return;
+        try {
             set.remove(lp);
+        } catch (Exception e) {
+            CatSeedLogin.instance.getLogger().severe("Failed to remove LoginPlayer from set: " + e.getMessage());
         }
     }
     
     public static void remove(String name) {
-        if (name == null) {
-            return;
+        if (name == null) return;
+        try {
+            set.removeIf(lp -> lp != null && name.equals(lp.getName()));
+        } catch (Exception e) {
+            CatSeedLogin.instance.getLogger().severe("Failed to remove LoginPlayer by name: " + name + " - " + e.getMessage());
         }
-        set.removeIf(lp -> lp != null && name.equals(lp.getName()));
     }
 
     public static boolean isLogin(String name) {
@@ -87,11 +95,13 @@ public class LoginPlayerHelper {
     }
 
     public static void recordPlayerExitTime(String playerName) {
-        if (playerName == null) {
-            return;
-        }
+        if (playerName == null) return;
         if (Config.Settings.IPTimeout != 0 && isLogin(playerName)) {
-            playerExitTimes.put(playerName, System.currentTimeMillis());
+            try {
+                playerExitTimes.put(playerName, System.currentTimeMillis());
+            } catch (Exception e) {
+                CatSeedLogin.instance.getLogger().severe("Failed to record player exit time: " + playerName + " - " + e.getMessage());
+            }
         }
     }
 
