@@ -15,21 +15,38 @@ public class TaskAutoKick extends Task {
     public void run() {
         if (!Cache.isLoaded || Config.Settings.AutoKick < 1) return;
 
-        long autoKickMs = Config.Settings.AutoKick * 1000L, now = System.currentTimeMillis();
+        long autoKickMs = Config.Settings.AutoKick * 1000L;
+        long now = System.currentTimeMillis();
+
         for (Player player : Bukkit.getOnlinePlayers()) {
-            String playerName = player.getName();
-            try {
-                if (!LoginPlayerHelper.isLogin(playerName)) {
-                    playerJoinTime.putIfAbsent(playerName, now);
-                    if (now - playerJoinTime.get(playerName) > autoKickMs) {
-                        player.kickPlayer(Config.Language.AUTO_KICK.replace("{time}", String.valueOf(Config.Settings.AutoKick)));
-                    }
-                } else {
-                    playerJoinTime.remove(playerName);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+            checkAndKickPlayer(player, now, autoKickMs);
+        }
+    }
+
+    private void checkAndKickPlayer(Player player, long now, long autoKickMs) {
+        String playerName = player.getName();
+        try {
+            // 已登录的玩家从计时中移除
+            if (LoginPlayerHelper.isLogin(playerName)) {
+                playerJoinTime.remove(playerName);
+                return;
             }
+
+            // 未登录玩家检查是否超时
+            playerJoinTime.putIfAbsent(playerName, now);
+            Long joinTime = playerJoinTime.get(playerName);
+            if (joinTime != null && now - joinTime > autoKickMs) {
+                if (!player.isOnline()) {
+                    playerJoinTime.remove(playerName);
+                    return;
+                }
+                String kickMessage = Config.Language.AUTO_KICK
+                        .replace("{time}", String.valueOf(Config.Settings.AutoKick));
+                player.kickPlayer(kickMessage);
+            }
+        } catch (Exception e) {
+            playerJoinTime.remove(playerName);
+            e.printStackTrace();
         }
     }
 }
