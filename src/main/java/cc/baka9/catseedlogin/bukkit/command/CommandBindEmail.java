@@ -141,17 +141,19 @@ public class CommandBindEmail implements CommandExecutor {
     }
 
     private void bindEmail(CommandSender sender, LoginPlayer lp, EmailCode bindEmail) {
-        CatScheduler.runTaskAsync(() -> {
-            try {
-                lp.setEmail(bindEmail.getEmail());
-                PluginContext.getSql().edit(lp);
-                Cache.refresh(lp.getName());
-                CatScheduler.runTask(() -> notifyBindSuccess(sender, bindEmail));
-            } catch (Exception e) {
-                e.printStackTrace();
-                sender.sendMessage("§c服务器内部错误!");
-            }
-        });
+        CatScheduler.runTaskAsync(() -> executeBindEmail(sender, lp, bindEmail));
+    }
+
+    private void executeBindEmail(CommandSender sender, LoginPlayer lp, EmailCode bindEmail) {
+        try {
+            lp.setEmail(bindEmail.getEmail());
+            PluginContext.getSql().edit(lp);
+            Cache.refresh(lp.getName());
+            notifyBindSuccess(sender, bindEmail);
+        } catch (Exception e) {
+            e.printStackTrace();
+            sender.sendMessage("§c服务器内部错误!");
+        }
     }
 
     private void notifyBindSuccess(CommandSender sender, EmailCode bindEmail) {

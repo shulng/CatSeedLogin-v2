@@ -140,13 +140,11 @@ public class CatSeedLogin extends JavaPlugin implements Listener {
             if (args.length == 1) {
                 return Arrays.asList("forget", "re 验证码 新密码");
             }
-            if (args[0].equals("re")) {
-                if (args.length == 2) {
-                    return Collections.singletonList("验证码 新密码");
-                }
-                if (args.length == 3) {
-                    return Collections.singletonList("新密码");
-                }
+            if (args.length == 2 && "re".equals(args[0])) {
+                return Collections.singletonList("验证码 新密码");
+            }
+            if (args.length == 3 && "re".equals(args[0])) {
+                return Collections.singletonList("新密码");
             }
             return Collections.emptyList();
         });

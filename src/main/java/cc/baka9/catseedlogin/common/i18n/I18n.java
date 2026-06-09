@@ -137,12 +137,15 @@ public class I18n {
     private void processValue(Map<String, String> result, String key, Object value) {
         if (value instanceof Map) {
             flattenMap(result, key, (Map<String, Object>) value);
-        } else if (value != null) {
-            try {
-                result.put(key, String.valueOf(value));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            return;
+        }
+        if (value == null) {
+            return;
+        }
+        try {
+            result.put(key, String.valueOf(value));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

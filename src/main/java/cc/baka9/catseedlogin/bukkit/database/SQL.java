@@ -126,6 +126,9 @@ public abstract class SQL {
     public void flush(BufferStatement bufferStatement) throws SQLException {
         try (PreparedStatement ps = bufferStatement.prepareStatement(getConnection())) {
             ps.executeUpdate();
+        } catch (SQLException e) {
+            plugin.getLogger().severe("Failed to execute flush: " + e.getMessage());
+            throw e;
         }
     }
 }

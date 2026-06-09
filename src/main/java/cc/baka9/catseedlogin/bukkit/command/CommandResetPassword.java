@@ -142,20 +142,24 @@ public class CommandResetPassword implements CommandExecutor {
         CommandSender sender = player;
         String name = lp.getName();
         CatScheduler.runTaskAsync(() -> {
-            try {
-                lp.setPassword(pwd);
-                lp.crypt();
-                PluginContext.getSql().edit(lp);
-                Cache.refresh(name);
-                LoginPlayerHelper.remove(lp);
-                EmailCode.removeByName(name, EmailCode.Type.ResetPassword);
-
-                CatScheduler.runTask(() -> notifyResetSuccess(name, player));
-            } catch (Exception e) {
-                CatScheduler.runTask(() -> sender.sendMessage("§c数据库异常!"));
-                e.printStackTrace();
-            }
+            executePasswordReset(name, lp, pwd, sender);
         });
+    }
+
+    private void executePasswordReset(String name, LoginPlayer lp, String pwd, CommandSender sender) {
+        try {
+            lp.setPassword(pwd);
+            lp.crypt();
+            PluginContext.getSql().edit(lp);
+            Cache.refresh(name);
+            LoginPlayerHelper.remove(lp);
+            EmailCode.removeByName(name, EmailCode.Type.ResetPassword);
+            Player player = Bukkit.getPlayer(name);
+            notifyResetSuccess(name, player);
+        } catch (Exception e) {
+            sender.sendMessage("§c数据库异常!");
+            e.printStackTrace();
+        }
     }
 
     private void notifyResetSuccess(String name, Player player) {

@@ -13,8 +13,8 @@
 
 | 指标摘要 | 评分 |
 |------|-------|
-| **糟糕指数** | **94.90/100** |
-| 屎山等级 | 🌸 偶有异味 |
+| **糟糕指数** | **95.05/100** |
+| 屎山等级 | 🌱 清新可人 |
 
 > 如沐春风，仿佛被天使亲吻过
 
@@ -24,22 +24,22 @@
 |--------|-------|
 | 总文件数 | 64 |
 | 已跳过 | 16 |
-| 耗时 | 258ms |
+| 耗时 | 216ms |
 
 ## 评分指标详情 {#metrics-details}
 
 | 指标摘要 | 评分 | 状态 |
 |:-----|------:|:------:|
-| 循环复杂度 | 0.78% | ✓✓ |
-| 认知复杂度 | 1.08% | ✓✓ |
+| 循环复杂度 | 0.84% | ✓✓ |
+| 认知复杂度 | 1.12% | ✓✓ |
 | 嵌套深度 | 0.00% | ✓✓ |
 | 函数长度 | 0.01% | ✓✓ |
 | 文件长度 | 0.04% | ✓✓ |
 | 参数数量 | 1.80% | ✓✓ |
 | 代码重复 | 0.72% | ✓✓ |
-| 结构分析 | 8.04% | ✓✓ |
-| 错误处理 | 21.15% | ✓ |
-| 注释比例 | 97.81% | ✗ |
+| 结构分析 | 7.99% | ✓✓ |
+| 错误处理 | 18.63% | ✓✓ |
+| 注释比例 | 97.84% | ✗ |
 | 命名规范 | 6.62% | ✓✓ |
 
 ## 最屎代码排行榜 {#problem-files}
@@ -53,20 +53,7 @@
 - 🏗️ L1: 循环依赖: 1
 - ❌ L65: 未处理的易出错调用
 
-### 2. src\main\java\cc\baka9\catseedlogin\common\i18n\I18n.java
-
-**糟糕指数: 7.98**
-
-**问题**: ❌ 错误处理问题: 6, 📝 注释问题: 1
-
-- ❌ L86: 未处理的易出错调用
-- ❌ L137: 未处理的易出错调用
-- ❌ L149: 未处理的易出错调用
-- ❌ L154: 未处理的易出错调用
-- ❌ L172: 未处理的易出错调用
-- 🔍 ...还有 1 个问题实在太屎，列不完了
-
-### 3. src\main\java\cc\baka9\catseedlogin\bungee\BungeeCommands.java
+### 2. src\main\java\cc\baka9\catseedlogin\bungee\BungeeCommands.java
 
 **糟糕指数: 7.95**
 
@@ -76,83 +63,94 @@
 - ❌ L18: 未处理的易出错调用
 - 🏷️ `BungeeCommands()` L12: "BungeeCommands" - camelCase
 
+### 3. src\main\java\cc\baka9\catseedlogin\common\i18n\I18n.java
+
+**糟糕指数: 7.77**
+
+**问题**: 🏗️ 结构问题: 1, ❌ 错误处理问题: 4, 📝 注释问题: 1
+
+- 🏗️ `processValue()` L136: 中等嵌套: 3
+- ❌ L157: 未处理的易出错调用
+- ❌ L162: 未处理的易出错调用
+- ❌ L181: 未处理的易出错调用
+- ❌ L186: 未处理的易出错调用
+
 ### 4. src\main\java\cc\baka9\catseedlogin\common\config\ConfigHelper.java
 
 **糟糕指数: 7.67**
 
 **问题**: ⚠️ 其他问题: 1, 📝 注释问题: 1, 🏷️ 命名问题: 2
 
-- 📏 `LocationData()` L53: 6 参数数量
-- 🏷️ `LocationData()` L49: "LocationData" - camelCase
-- 🏷️ `LocationData()` L53: "LocationData" - camelCase
+- 📏 `LocationData()` L54: 6 参数数量
+- 🏷️ `LocationData()` L50: "LocationData" - camelCase
+- 🏷️ `LocationData()` L54: "LocationData" - camelCase
 
-### 5. src\main\java\cc\baka9\catseedlogin\bukkit\Listeners.java
+### 5. src\main\java\cc\baka9\catseedlogin\bukkit\object\LoginPlayerHelper.java
 
-**糟糕指数: 7.61**
-
-**问题**: 🏗️ 结构问题: 2, ❌ 错误处理问题: 2, 📝 注释问题: 1
-
-- 🏗️ L1: 导入过多: 26
-- 🏗️ L1: 循环依赖: 4
-- ❌ L165: 未处理的易出错调用
-- ❌ L167: 未处理的易出错调用
-
-### 6. src\main\java\cc\baka9\catseedlogin\velocity\Listeners.java
-
-**糟糕指数: 7.55**
-
-**问题**: ⚠️ 其他问题: 1, 🏗️ 结构问题: 1, ❌ 错误处理问题: 1, 📝 注释问题: 1
-
-- 🏗️ L1: 循环依赖: 1
-- ❌ L129: 未处理的易出错调用
-
-### 7. src\main\java\cc\baka9\catseedlogin\util\EmailSender.java
-
-**糟糕指数: 7.35**
-
-**问题**: 🏗️ 结构问题: 1, ❌ 错误处理问题: 1, 📝 注释问题: 1, 🏷️ 命名问题: 1
-
-- 🏗️ L1: 循环依赖: 1
-- ❌ L22: 未处理的易出错调用
-- 🏷️ `EmailSender()` L9: "EmailSender" - camelCase
-
-### 8. src\main\java\cc\baka9\catseedlogin\bukkit\command\CommandResetPassword.java
-
-**糟糕指数: 7.30**
-
-**问题**: ⚠️ 其他问题: 1, 🏗️ 结构问题: 3, ❌ 错误处理问题: 1, 📝 注释问题: 1
-
-- 🏗️ `sendResetEmailAsync()` L77: 中等嵌套: 3
-- 🏗️ `processPasswordResetAsync()` L130: 中等嵌套: 3
-- 🏗️ L1: 循环依赖: 9
-- ❌ L110: 未处理的易出错调用
-
-### 9. src\main\java\cc\baka9\catseedlogin\bukkit\command\CommandBindEmail.java
-
-**糟糕指数: 7.06**
-
-**问题**: ⚠️ 其他问题: 1, 🏗️ 结构问题: 3, ❌ 错误处理问题: 1, 📝 注释问题: 1
-
-- 🏗️ `sendEmailCode()` L111: 中等嵌套: 3
-- 🏗️ `bindEmail()` L129: 中等嵌套: 3
-- 🏗️ L1: 循环依赖: 9
-- ❌ L76: 未处理的易出错调用
-
-### 10. src\main\java\cc\baka9\catseedlogin\bukkit\object\LoginPlayerHelper.java
-
-**糟糕指数: 7.02**
+**糟糕指数: 7.58**
 
 **问题**: 🏗️ 结构问题: 1, ❌ 错误处理问题: 4, 📝 注释问题: 1
 
 - 🏗️ L1: 循环依赖: 5
 - ❌ L34: 未处理的易出错调用
 - ❌ L36: 未处理的易出错调用
-- ❌ L74: 未处理的易出错调用
-- ❌ L113: 未处理的易出错调用
+- ❌ L83: 未处理的易出错调用
+- ❌ L129: 未处理的易出错调用
+
+### 6. src\main\java\cc\baka9\catseedlogin\util\EmailSender.java
+
+**糟糕指数: 7.35**
+
+**问题**: 🏗️ 结构问题: 1, ❌ 错误处理问题: 1, 📝 注释问题: 1, 🏷️ 命名问题: 1
+
+- 🏗️ L1: 循环依赖: 1
+- ❌ L29: 未处理的易出错调用
+- 🏷️ `EmailSender()` L9: "EmailSender" - camelCase
+
+### 7. src\main\java\cc\baka9\catseedlogin\bukkit\command\CommandResetPassword.java
+
+**糟糕指数: 7.09**
+
+**问题**: ⚠️ 其他问题: 1, 🏗️ 结构问题: 2, ❌ 错误处理问题: 1, 📝 注释问题: 1
+
+- 🏗️ `processPasswordResetAsync()` L141: 中等嵌套: 3
+- 🏗️ L1: 循环依赖: 9
+- ❌ L121: 未处理的易出错调用
+
+### 8. src\main\java\cc\baka9\catseedlogin\common\i18n\MessageKey.java
+
+**糟糕指数: 6.95**
+
+**问题**: ❌ 错误处理问题: 2, 📝 注释问题: 1, 🏷️ 命名问题: 1
+
+- ❌ L58: 未处理的易出错调用
+- ❌ L62: 未处理的易出错调用
+- 🏷️ `MessageKey()` L50: "MessageKey" - camelCase
+
+### 9. src\main\java\cc\baka9\catseedlogin\bukkit\command\CommandBindEmail.java
+
+**糟糕指数: 6.88**
+
+**问题**: ⚠️ 其他问题: 1, 🏗️ 结构问题: 2, ❌ 错误处理问题: 1, 📝 注释问题: 1
+
+- 🏗️ `bindEmail()` L143: 中等嵌套: 3
+- 🏗️ L1: 循环依赖: 9
+- ❌ L76: 未处理的易出错调用
+
+### 10. src\main\java\cc\baka9\catseedlogin\bukkit\CatSeedLogin.java
+
+**糟糕指数: 6.34**
+
+**问题**: 📋 重复问题: 1, 🏗️ 结构问题: 3, 📝 注释问题: 1
+
+- 📋 `registerBindEmailCommand()` L117: 重复模式: registerBindEmailCommand, registerResetPasswordCommand
+- 🏗️ `registerBindEmailCommand()` L117: 中等嵌套: 3
+- 🏗️ `registerResetPasswordCommand()` L136: 中等嵌套: 3
+- 🏗️ L1: 循环依赖: 8
 
 ## 诊断结论 {#conclusion}
 
-🌸 **偶有异味** - 基本没事，但是有伤风化
+🌸 **清新可人** - 代码洁净，令人赏心悦目
 
 👍 继续保持，你是编码界的一股清流，代码洁癖者的骄傲
 
