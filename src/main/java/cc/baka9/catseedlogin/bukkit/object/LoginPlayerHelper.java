@@ -20,9 +20,10 @@ import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
 
-import cc.baka9.catseedlogin.bukkit.CatSeedLogin;
+import cc.baka9.catseedlogin.bukkit.CatScheduler;
 import cc.baka9.catseedlogin.bukkit.Config;
 import cc.baka9.catseedlogin.bukkit.Cache;
+import cc.baka9.catseedlogin.bukkit.PluginContext;
 
 public class LoginPlayerHelper {
     private static final Set<LoginPlayer> set = ConcurrentHashMap.newKeySet();
@@ -34,7 +35,7 @@ public class LoginPlayerHelper {
         try {
             set.add(lp);
         } catch (Exception e) {
-            CatSeedLogin.instance.getLogger().severe("Failed to add LoginPlayer to set: " + e.getMessage());
+            PluginContext.getLogger().severe("Failed to add LoginPlayer to set: " + e.getMessage());
         }
     }
     public static void remove(LoginPlayer lp) {
@@ -42,7 +43,7 @@ public class LoginPlayerHelper {
         try {
             set.remove(lp);
         } catch (Exception e) {
-            CatSeedLogin.instance.getLogger().severe("Failed to remove LoginPlayer from set: " + e.getMessage());
+            PluginContext.getLogger().severe("Failed to remove LoginPlayer from set: " + e.getMessage());
         }
     }
     
@@ -51,7 +52,7 @@ public class LoginPlayerHelper {
         try {
             set.removeIf(lp -> lp != null && name.equals(lp.getName()));
         } catch (Exception e) {
-            CatSeedLogin.instance.getLogger().severe("Failed to remove LoginPlayer by name: " + name + " - " + e.getMessage());
+            PluginContext.getLogger().severe("Failed to remove LoginPlayer by name: " + name + " - " + e.getMessage());
         }
     }
 
@@ -99,7 +100,7 @@ public class LoginPlayerHelper {
             try {
                 playerExitTimes.put(playerName, System.currentTimeMillis());
             } catch (Exception e) {
-                CatSeedLogin.instance.getLogger().severe("Failed to record player exit time: " + playerName + " - " + e.getMessage());
+                PluginContext.getLogger().severe("Failed to record player exit time: " + playerName + " - " + e.getMessage());
             }
         }
     }
@@ -160,17 +161,17 @@ public class LoginPlayerHelper {
 
             savePlayerIPAsync(player, lp);
         } catch (Exception e) {
-            CatSeedLogin.instance.getLogger().warning("Failed to record IP for player: " + player.getName() + " - " + e.getMessage());
+            PluginContext.getLogger().warning("Failed to record IP for player: " + player.getName() + " - " + e.getMessage());
         }
     }
 
     private static void savePlayerIPAsync(Player player, LoginPlayer lp) {
-        CatSeedLogin.instance.runTaskAsync(() -> savePlayerIP(lp));
+        CatScheduler.runTaskAsync(() -> savePlayerIP(lp));
     }
 
     private static void savePlayerIP(LoginPlayer lp) {
         try {
-            CatSeedLogin.sql.edit(lp);
+            PluginContext.getSql().edit(lp);
             Cache.refresh(lp.getName());
         } catch (Exception e) {
             e.printStackTrace();

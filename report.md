@@ -13,7 +13,7 @@
 
 | 指标摘要 | 评分 |
 |------|-------|
-| **糟糕指数** | **95.42/100** |
+| **糟糕指数** | **95.45/100** |
 | 屎山等级 | 🌱 清新可人 |
 
 > 如沐春风，仿佛被天使亲吻过
@@ -24,7 +24,7 @@
 |--------|-------|
 | 总文件数 | 64 |
 | 已跳过 | 16 |
-| 耗时 | 289ms |
+| 耗时 | 268ms |
 
 ## 评分指标详情 {#metrics-details}
 
@@ -39,21 +39,12 @@
 | 代码重复 | 0.62% | ✓✓ |
 | 结构分析 | 7.78% | ✓✓ |
 | 错误处理 | 9.68% | ✓✓ |
-| 注释比例 | 97.75% | ✗ |
+| 注释比例 | 97.00% | ✗ |
 | 命名规范 | 6.63% | ✓✓ |
 
 ## 最屎代码排行榜 {#problem-files}
 
-### 1. src\main\java\cc\baka9\catseedlogin\bukkit\database\SQL.java
-
-**糟糕指数: 8.74**
-
-**问题**: 🏗️ 结构问题: 1, ❌ 错误处理问题: 1, 📝 注释问题: 1
-
-- 🏗️ L1: 循环依赖: 1
-- ❌ L91: 未处理的易出错调用
-
-### 2. src\main\java\cc\baka9\catseedlogin\bungee\BungeeCommands.java
+### 1. src\main\java\cc\baka9\catseedlogin\bungee\BungeeCommands.java
 
 **糟糕指数: 7.95**
 
@@ -63,7 +54,7 @@
 - ❌ L18: 未处理的易出错调用
 - 🏷️ `BungeeCommands()` L12: "BungeeCommands" - camelCase
 
-### 3. src\main\java\cc\baka9\catseedlogin\common\config\ConfigHelper.java
+### 2. src\main\java\cc\baka9\catseedlogin\common\config\ConfigHelper.java
 
 **糟糕指数: 7.67**
 
@@ -72,6 +63,15 @@
 - 📏 `LocationData()` L54: 6 参数数量
 - 🏷️ `LocationData()` L50: "LocationData" - camelCase
 - 🏷️ `LocationData()` L54: "LocationData" - camelCase
+
+### 3. src\main\java\cc\baka9\catseedlogin\bukkit\database\SQL.java
+
+**糟糕指数: 7.55**
+
+**问题**: 🏗️ 结构问题: 1, ❌ 错误处理问题: 1, 📝 注释问题: 1
+
+- 🏗️ L1: 循环依赖: 1
+- ❌ L131: 未处理的易出错调用
 
 ### 4. src\main\java\cc\baka9\catseedlogin\common\i18n\MessageKey.java
 
