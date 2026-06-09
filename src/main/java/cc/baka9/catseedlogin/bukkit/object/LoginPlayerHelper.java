@@ -98,7 +98,15 @@ public class LoginPlayerHelper {
     }
 
     public static void recordCurrentIP(Player player, LoginPlayer lp) {
-        String currentIp = player.getAddress().getAddress().getHostAddress();
+        String currentIp = Optional.ofNullable(player.getAddress())
+                .map(addr -> addr.getAddress())
+                .map(InetAddress::getHostAddress)
+                .orElse(null);
+        
+        if (currentIp == null) {
+            return;
+        }
+
         List<String> ipsList = new ArrayList<>(lp.getIpsList());
         ipsList = ipsList.stream().distinct().collect(Collectors.toList());
         if (!ipsList.isEmpty()) {
@@ -106,6 +114,7 @@ public class LoginPlayerHelper {
         }
         ipsList.add(currentIp);
         lp.setIps(String.join(";", ipsList));
+        
         CatSeedLogin.instance.runTaskAsync(() -> {
             try {
                 CatSeedLogin.sql.edit(lp);
@@ -119,20 +128,24 @@ public class LoginPlayerHelper {
     public static void sendBlankInventoryPacket(Player player) {
         if (!Config.Settings.EmptyBackpack) return;
 
-        ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
-        PacketContainer inventoryPacket = protocolManager.createPacket(PacketType.Play.Server.WINDOW_ITEMS);
-        inventoryPacket.getIntegers().write(0, 0);
-        ItemStack[] blankInventory = new ItemStack[45];
-        Arrays.fill(blankInventory, new ItemStack(Material.AIR));
-        
-        StructureModifier<ItemStack[]> itemArrayModifier = inventoryPacket.getItemArrayModifier();
-        if (itemArrayModifier.size() > 0) {
-            itemArrayModifier.write(0, blankInventory);
-        } else {
-            StructureModifier<List<ItemStack>> itemListModifier = inventoryPacket.getItemListModifier();
-            itemListModifier.write(0, Arrays.asList(blankInventory));
-        }
+        try {
+            ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
+            PacketContainer inventoryPacket = protocolManager.createPacket(PacketType.Play.Server.WINDOW_ITEMS);
+            inventoryPacket.getIntegers().write(0, 0);
+            ItemStack[] blankInventory = new ItemStack[45];
+            Arrays.fill(blankInventory, new ItemStack(Material.AIR));
+            
+            StructureModifier<ItemStack[]> itemArrayModifier = inventoryPacket.getItemArrayModifier();
+            if (itemArrayModifier.size() > 0) {
+                itemArrayModifier.write(0, blankInventory);
+            } else {
+                StructureModifier<List<ItemStack>> itemListModifier = inventoryPacket.getItemListModifier();
+                itemListModifier.write(0, Arrays.asList(blankInventory));
+            }
 
-        protocolManager.sendServerPacket(player, inventoryPacket, false);
+            protocolManager.sendServerPacket(player, inventoryPacket, false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

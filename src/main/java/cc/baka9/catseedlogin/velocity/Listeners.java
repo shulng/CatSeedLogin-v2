@@ -87,17 +87,19 @@ public class Listeners {
 
     private void checkLoginAsync(Player player, String playerName, String loginServerName,
                                   ServerPreConnectEvent event) {
-        PluginMain.runAsync(() -> {
-            try {
-                if (communication.sendConnectRequest(playerName) == 1) {
-                    loggedInPlayerList.add(playerName);
-                } else {
-                    redirectToLoginServer(loginServerName, event);
-                }
-            } catch (Exception e) {
-                logger.error("Error checking login status for player: " + playerName, e);
+        PluginMain.runAsync(() -> handleLoginCheck(playerName, loginServerName, event));
+    }
+
+    private void handleLoginCheck(String playerName, String loginServerName, ServerPreConnectEvent event) {
+        try {
+            if (communication.sendConnectRequest(playerName) == 1) {
+                loggedInPlayerList.add(playerName);
+            } else {
+                redirectToLoginServer(loginServerName, event);
             }
-        });
+        } catch (Exception e) {
+            logger.error("Error checking login status for player: " + playerName, e);
+        }
     }
 
     private void redirectToLoginServer(String loginServerName, ServerPreConnectEvent event) {

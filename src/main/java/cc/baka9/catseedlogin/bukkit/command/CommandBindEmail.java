@@ -13,7 +13,7 @@ import cc.baka9.catseedlogin.bukkit.database.Cache;
 import cc.baka9.catseedlogin.bukkit.object.EmailCode;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayer;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayerHelper;
-import cc.baka9.catseedlogin.util.Mail;
+import cc.baka9.catseedlogin.util.EmailSender;
 import cc.baka9.catseedlogin.util.Util;
 
 public class CommandBindEmail implements CommandExecutor {
@@ -111,7 +111,7 @@ public class CommandBindEmail implements CommandExecutor {
     private void sendEmailCode(CommandSender sender, String name, String mail, EmailCode bindEmail) {
         CatScheduler.runTaskAsync(() -> {
             try {
-                Mail.sendMail(mail, "邮箱绑定", "你的验证码是 <strong>" + bindEmail.getCode() + "</strong>" +
+                EmailSender.sendEmail(mail, "邮箱绑定", "你的验证码是 <strong>" + bindEmail.getCode() + "</strong>" +
                         "<br/>在服务器中使用帐号 " + name + " 输入指令<strong>/bindemail verify " + bindEmail.getCode() + "</strong> 来绑定邮箱" +
                         "<br/>绑定邮箱之后可用于忘记密码时重置自己的密码" +
                         "<br/>此验证码有效期为 " + (bindEmail.getDurability() / (1000 * 60)) + "分钟");

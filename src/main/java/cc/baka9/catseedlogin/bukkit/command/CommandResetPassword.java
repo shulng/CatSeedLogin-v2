@@ -13,7 +13,7 @@ import cc.baka9.catseedlogin.bukkit.database.Cache;
 import cc.baka9.catseedlogin.bukkit.object.EmailCode;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayer;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayerHelper;
-import cc.baka9.catseedlogin.util.Mail;
+import cc.baka9.catseedlogin.util.EmailSender;
 import cc.baka9.catseedlogin.util.Util;
 
 public class CommandResetPassword implements CommandExecutor {
@@ -81,7 +81,7 @@ public class CommandResetPassword implements CommandExecutor {
                         "<br/>在服务器中使用帐号 " + name + " 输入指令<strong>/resetpassword re " +
                         emailCode.getCode() + " 新密码</strong> 来重置新密码" +
                         "<br/>此验证码有效期为 " + (emailCode.getDurability() / (1000 * 60)) + "分钟";
-                Mail.sendMail(emailCode.getEmail(), "重置密码", content);
+                EmailSender.sendEmail(emailCode.getEmail(), "重置密码", content);
 
                 Bukkit.getScheduler().runTask(PluginContext.getPlugin(), () ->
                         sender.sendMessage(Config.Language.RESETPASSWORD_EMAIL_SENT_MESSAGE

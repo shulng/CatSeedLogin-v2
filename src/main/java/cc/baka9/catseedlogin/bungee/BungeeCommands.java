@@ -5,11 +5,11 @@ import cc.baka9.catseedlogin.common.i18n.MessageKey;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 
-public class Commands extends net.md_5.bungee.api.plugin.Command {
+public class BungeeCommands extends net.md_5.bungee.api.plugin.Command {
 
     private final BungeeConfigManager configManager;
 
-    public Commands(String name, String permission, BungeeConfigManager configManager, String... aliases) {
+    public BungeeCommands(String name, String permission, BungeeConfigManager configManager, String... aliases) {
         super(name, permission, aliases);
         this.configManager = configManager;
     }

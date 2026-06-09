@@ -88,10 +88,14 @@ public class I18n {
 
     private void loadYaml(Reader reader, Map<String, String> messages) {
         org.yaml.snakeyaml.Yaml yaml = new org.yaml.snakeyaml.Yaml();
-        @SuppressWarnings("unchecked")
-        Map<String, Object> data = yaml.load(reader);
-        if (data != null) {
-            flattenMap(messages, "", data);
+        try {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> data = yaml.load(reader);
+            if (data != null) {
+                flattenMap(messages, "", data);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -115,13 +119,22 @@ public class I18n {
     @SuppressWarnings("unchecked")
     private void flattenMap(Map<String, String> result, String prefix, Map<String, Object> map) {
         for (Map.Entry<String, Object> entry : map.entrySet()) {
-            String key = prefix.isEmpty() ? entry.getKey() : prefix + "." + entry.getKey();
+            String key = buildKey(prefix, entry.getKey());
             Object value = entry.getValue();
-            if (value instanceof Map) {
-                flattenMap(result, key, (Map<String, Object>) value);
-            } else if (value != null) {
-                result.put(key, String.valueOf(value));
-            }
+            processValue(result, key, value);
+        }
+    }
+
+    private String buildKey(String prefix, String key) {
+        return prefix.isEmpty() ? key : prefix + "." + key;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void processValue(Map<String, String> result, String key, Object value) {
+        if (value instanceof Map) {
+            flattenMap(result, key, (Map<String, Object>) value);
+        } else if (value != null) {
+            result.put(key, String.valueOf(value));
         }
     }
 

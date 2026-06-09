@@ -59,11 +59,7 @@ public abstract class SQL {
     }
 
     public String getLocation(String name) throws SQLException {
-        String sql = "SELECT location FROM accounts WHERE name = ?";
-        try (PreparedStatement ps = new BufferStatement(sql, name).prepareStatement(getConnection());
-             ResultSet resultSet = ps.executeQuery()) {
-            return resultSet.next() ? resultSet.getString("location") : null;
-        }
+        return queryForString("SELECT location FROM accounts WHERE name = ?", name);
     }
 
     public LoginPlayer get(String name) throws SQLException {
@@ -71,6 +67,13 @@ public abstract class SQL {
         try (PreparedStatement ps = new BufferStatement(sql, name).prepareStatement(getConnection());
              ResultSet resultSet = ps.executeQuery()) {
             return mapLoginPlayerOrNull(resultSet);
+        }
+    }
+
+    private String queryForString(String sql, Object... params) throws SQLException {
+        try (PreparedStatement ps = new BufferStatement(sql, params).prepareStatement(getConnection());
+             ResultSet resultSet = ps.executeQuery()) {
+            return resultSet.next() ? resultSet.getString(1) : null;
         }
     }
 

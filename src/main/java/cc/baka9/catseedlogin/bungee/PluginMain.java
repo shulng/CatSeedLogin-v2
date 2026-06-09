@@ -21,7 +21,7 @@ public class PluginMain extends Plugin {
         communication = new BungeeCommunication(configManager, getLogger());
         configManager.reload();
         getProxy().getPluginManager().registerListener(this, new Listeners(configManager, communication));
-        getProxy().getPluginManager().registerCommand(this, new Commands("CatSeedLoginBungee", "catseedlogin.admin", configManager, "cslb"));
+        getProxy().getPluginManager().registerCommand(this, new BungeeCommands("CatSeedLoginBungee", "catseedlogin.admin", configManager, "cslb"));
     }
 
     public static ScheduledTask runAsync(Runnable runnable) {
