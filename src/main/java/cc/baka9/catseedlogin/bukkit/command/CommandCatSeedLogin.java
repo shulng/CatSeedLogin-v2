@@ -13,9 +13,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import cc.baka9.catseedlogin.bukkit.CatScheduler;
-import cc.baka9.catseedlogin.bukkit.CatSeedLogin;
 import cc.baka9.catseedlogin.bukkit.Communication;
 import cc.baka9.catseedlogin.bukkit.Config;
+import cc.baka9.catseedlogin.bukkit.PluginContext;
 import cc.baka9.catseedlogin.bukkit.database.Cache;
 import cc.baka9.catseedlogin.bukkit.database.MySQL;
 import cc.baka9.catseedlogin.bukkit.database.SQLite;
@@ -246,12 +246,12 @@ public class CommandCatSeedLogin implements CommandExecutor {
     private boolean reload(CommandSender sender, String[] args) {
         if (args.length == 0 || !args[0].equalsIgnoreCase("reload")) return false;
         Config.reload();
-        CatSeedLogin.sql = Config.MySQL.Enable ? new MySQL(CatSeedLogin.instance) : new SQLite(CatSeedLogin.instance);
+        PluginContext.setSql(Config.MySQL.Enable ? new MySQL(PluginContext.getPlugin()) : new SQLite(PluginContext.getPlugin()));
         try {
-            CatSeedLogin.sql.init();
+            PluginContext.getSql().init();
             Cache.refreshAll();
         } catch (Exception e) {
-            CatSeedLogin.instance.getLogger().warning("§c加载数据库时出错");
+            PluginContext.getLogger().warning("§c加载数据库时出错");
             e.printStackTrace();
         }
         Communication.socketServerStopAsync();
@@ -277,9 +277,9 @@ public class CommandCatSeedLogin implements CommandExecutor {
     }
 
     private void delPlayerAsync(CommandSender sender, LoginPlayer lp) {
-        CatSeedLogin.instance.runTaskAsync(() -> {
+        CatScheduler.runTaskAsync(() -> {
             try {
-                CatSeedLogin.sql.del(lp.getName());
+                PluginContext.getSql().del(lp.getName());
                 Cache.refresh(lp.getName());
                 LoginPlayerHelper.remove(lp);
                 sender.sendMessage("§e已删除账户 §a" + lp.getName());
@@ -310,7 +310,7 @@ public class CommandCatSeedLogin implements CommandExecutor {
             return true;
         }
         sender.sendMessage("§e设置中..");
-        CatSeedLogin.instance.runTaskAsync(() -> setPwdLookup(sender, name, pwd));
+        CatScheduler.runTaskAsync(() -> setPwdLookup(sender, name, pwd));
         return true;
     }
 
@@ -327,7 +327,7 @@ public class CommandCatSeedLogin implements CommandExecutor {
         try {
             LoginPlayer lp = new LoginPlayer(name, pwd);
             lp.crypt();
-            CatSeedLogin.sql.add(lp);
+            PluginContext.getSql().add(lp);
             Cache.refresh(lp.getName());
             sender.sendMessage("§a指定账户不存在,现已注册..");
         } catch (Exception e) {
@@ -340,7 +340,7 @@ public class CommandCatSeedLogin implements CommandExecutor {
         try {
             lp.setPassword(pwd);
             lp.crypt();
-            CatSeedLogin.sql.edit(lp);
+            PluginContext.getSql().edit(lp);
             Cache.refresh(lp.getName());
             LoginPlayerHelper.remove(lp);
             sender.sendMessage(String.join(" ", "§a玩家", lp.getName(), "密码已设置"));
@@ -358,7 +358,7 @@ public class CommandCatSeedLogin implements CommandExecutor {
             p.sendMessage("§c密码已被管理员重新设置,请重新登录");
             if (!Config.Settings.CanTpSpawnLocation) return;
             p.teleport(Config.Settings.SpawnLocation);
-            if (CatSeedLogin.loadProtocolLib) {
+            if (PluginContext.isLoadProtocolLib()) {
                 LoginPlayerHelper.sendBlankInventoryPacket(p);
             }
         });

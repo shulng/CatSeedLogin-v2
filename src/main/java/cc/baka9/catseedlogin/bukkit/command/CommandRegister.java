@@ -7,8 +7,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import cc.baka9.catseedlogin.bukkit.CatScheduler;
-import cc.baka9.catseedlogin.bukkit.CatSeedLogin;
 import cc.baka9.catseedlogin.bukkit.Config;
+import cc.baka9.catseedlogin.bukkit.PluginContext;
 import cc.baka9.catseedlogin.bukkit.database.Cache;
 import cc.baka9.catseedlogin.bukkit.event.CatSeedPlayerRegisterEvent;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayer;
@@ -54,7 +54,7 @@ public class CommandRegister implements CommandExecutor {
     }
 
     private void registerPlayerAsync(Player player, String name, String password) {
-        CatSeedLogin.instance.runTaskAsync(() -> {
+        CatScheduler.runTaskAsync(() -> {
             try {
                 processRegistration(player, name, password);
             } catch (Exception e) {
@@ -66,7 +66,7 @@ public class CommandRegister implements CommandExecutor {
 
     private void processRegistration(Player player, String name, String password) throws Exception {
         String currentIp = player.getAddress().getAddress().getHostAddress();
-        List<LoginPlayer> loginPlayersByIp = CatSeedLogin.sql.getLikeByIp(currentIp);
+        List<LoginPlayer> loginPlayersByIp = PluginContext.getSql().getLikeByIp(currentIp);
 
         if (!player.getAddress().getAddress().isLoopbackAddress()
                 && loginPlayersByIp.size() >= Config.Settings.IpRegisterCountLimit) {
@@ -79,7 +79,7 @@ public class CommandRegister implements CommandExecutor {
 
         LoginPlayer lp = new LoginPlayer(name, password);
         lp.crypt();
-        CatSeedLogin.sql.add(lp);
+        PluginContext.getSql().add(lp);
         Cache.refresh(lp.getName());
         LoginPlayerHelper.add(lp);
         CatScheduler.runTask(() -> {

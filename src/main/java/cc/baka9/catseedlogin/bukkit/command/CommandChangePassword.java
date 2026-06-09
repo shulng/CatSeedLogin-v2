@@ -7,8 +7,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import cc.baka9.catseedlogin.bukkit.CatScheduler;
-import cc.baka9.catseedlogin.bukkit.CatSeedLogin;
 import cc.baka9.catseedlogin.bukkit.Config;
+import cc.baka9.catseedlogin.bukkit.PluginContext;
 import cc.baka9.catseedlogin.bukkit.database.Cache;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayer;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayerHelper;
@@ -54,11 +54,11 @@ public class CommandChangePassword implements CommandExecutor {
     }
 
     private void changePasswordAsync(CommandSender sender, Player player, LoginPlayer lp, String newPwd) {
-        CatSeedLogin.instance.runTaskAsync(() -> {
+        CatScheduler.runTaskAsync(() -> {
             try {
                 lp.setPassword(newPwd);
                 lp.crypt();
-                CatSeedLogin.sql.edit(lp);
+                PluginContext.getSql().edit(lp);
                 Cache.refresh(lp.getName());
                 LoginPlayerHelper.remove(lp);
                 CatScheduler.runTask(() -> notifyChangeSuccess(sender, player));
@@ -78,7 +78,7 @@ public class CommandChangePassword implements CommandExecutor {
         if (!Config.Settings.CanTpSpawnLocation) return;
 
         online.teleport(Config.Settings.SpawnLocation);
-        if (CatSeedLogin.loadProtocolLib) {
+        if (PluginContext.isLoadProtocolLib()) {
             LoginPlayerHelper.sendBlankInventoryPacket(online);
         }
     }

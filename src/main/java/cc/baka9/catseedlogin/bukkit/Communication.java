@@ -19,7 +19,7 @@ public class Communication extends BaseCommunication {
     private static ServerSocket serverSocket;
 
     public static void socketServerStopAsync() {
-        CatSeedLogin.instance.runTaskAsync(Communication::socketServerStop);
+        CatScheduler.runTaskAsync(Communication::socketServerStop);
     }
 
     public static void socketServerStop() {
@@ -33,12 +33,12 @@ public class Communication extends BaseCommunication {
     }
 
     public static void socketServerStartAsync() {
-        CatSeedLogin.instance.runTaskAsync(Communication::socketServerStart);
+        CatScheduler.runTaskAsync(Communication::socketServerStart);
     }
 
     public static void socketServerStart() {
         try {
-            serverSocket = new ServerSocket(CatSeedLogin.instance.getConfigManager().getProxyPort(), 50);
+            serverSocket = new ServerSocket(PluginContext.getConfigManager().getProxyPort(), 50);
             while (!serverSocket.isClosed()) {
                 Socket socket;
                 try {
@@ -49,7 +49,7 @@ public class Communication extends BaseCommunication {
                 }
             }
         } catch (IOException e) {
-            CatSeedLogin.instance.getLogger().warning("无法启动Socket服务器: " + e.getMessage());
+            PluginContext.getLogger().warning("无法启动Socket服务器: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -75,7 +75,7 @@ public class Communication extends BaseCommunication {
     }
 
     private static void handleKeepLoggedInRequest(String playerName, String time, String sign) {
-        if (sign.equals(cc.baka9.catseedlogin.util.CommunicationAuth.encryption(playerName, time, CatSeedLogin.instance.getConfigManager().getAuthKey()))) {
+        if (sign.equals(cc.baka9.catseedlogin.util.CommunicationAuth.encryption(playerName, time, PluginContext.getConfigManager().getAuthKey()))) {
             CatScheduler.runTask(() -> {
                 LoginPlayer lp = Cache.getIgnoreCase(playerName);
                 if (lp != null) {
@@ -103,27 +103,27 @@ public class Communication extends BaseCommunication {
 
     @Override
     protected String getProxyHost() {
-        return CatSeedLogin.instance.getConfigManager().getProxyHost();
+        return PluginContext.getConfigManager().getProxyHost();
     }
 
     @Override
     protected int getProxyPort() {
-        return CatSeedLogin.instance.getConfigManager().getProxyPort();
+        return PluginContext.getConfigManager().getProxyPort();
     }
 
     @Override
     protected String getAuthKey() {
-        return CatSeedLogin.instance.getConfigManager().getAuthKey();
+        return PluginContext.getConfigManager().getAuthKey();
     }
 
     @Override
     protected void logError(String message, Exception e) {
-        CatSeedLogin.instance.getLogger().severe(message);
+        PluginContext.getLogger().severe(message);
         e.printStackTrace();
     }
 
     @Override
     protected void logWarning(String message) {
-        CatSeedLogin.instance.getLogger().warning(message);
+        PluginContext.getLogger().warning(message);
     }
 }

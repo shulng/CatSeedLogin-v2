@@ -7,8 +7,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import cc.baka9.catseedlogin.bukkit.CatScheduler;
-import cc.baka9.catseedlogin.bukkit.CatSeedLogin;
 import cc.baka9.catseedlogin.bukkit.Config;
+import cc.baka9.catseedlogin.bukkit.PluginContext;
 import cc.baka9.catseedlogin.bukkit.database.Cache;
 import cc.baka9.catseedlogin.bukkit.object.EmailCode;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayer;
@@ -71,7 +71,7 @@ public class CommandResetPassword implements CommandExecutor {
     }
 
     private void sendResetEmailAsync(CommandSender sender, String name, EmailCode emailCode) {
-        CatSeedLogin.instance.runTaskAsync(() -> {
+        CatScheduler.runTaskAsync(() -> {
             try {
                 String content = "你的验证码是 <strong>" + emailCode.getCode() + "</strong>" +
                         "<br/>在服务器中使用帐号 " + name + " 输入指令<strong>/resetpassword re " +
@@ -79,11 +79,11 @@ public class CommandResetPassword implements CommandExecutor {
                         "<br/>此验证码有效期为 " + (emailCode.getDurability() / (1000 * 60)) + "分钟";
                 Mail.sendMail(emailCode.getEmail(), "重置密码", content);
 
-                Bukkit.getScheduler().runTask(CatSeedLogin.instance, () ->
+                Bukkit.getScheduler().runTask(PluginContext.getPlugin(), () ->
                         sender.sendMessage(Config.Language.RESETPASSWORD_EMAIL_SENT_MESSAGE
                                 .replace("{email}", emailCode.getEmail())));
             } catch (Exception e) {
-                Bukkit.getScheduler().runTask(CatSeedLogin.instance, () ->
+                Bukkit.getScheduler().runTask(PluginContext.getPlugin(), () ->
                         sender.sendMessage(Config.Language.RESETPASSWORD_EMAIL_WARN));
                 e.printStackTrace();
             }
@@ -116,11 +116,11 @@ public class CommandResetPassword implements CommandExecutor {
     }
 
     private void processPasswordResetAsync(CommandSender sender, Player player, String name, LoginPlayer lp, String pwd) {
-        CatSeedLogin.instance.runTaskAsync(() -> {
+        CatScheduler.runTaskAsync(() -> {
             try {
                 lp.setPassword(pwd);
                 lp.crypt();
-                CatSeedLogin.sql.edit(lp);
+                PluginContext.getSql().edit(lp);
                 Cache.refresh(lp.getName());
                 LoginPlayerHelper.remove(lp);
                 EmailCode.removeByName(name, EmailCode.Type.ResetPassword);
@@ -142,7 +142,7 @@ public class CommandResetPassword implements CommandExecutor {
         }
         p.sendMessage(Config.Language.RESETPASSWORD_SUCCESS);
 
-        if (CatSeedLogin.loadProtocolLib) {
+        if (PluginContext.isLoadProtocolLib()) {
             LoginPlayerHelper.sendBlankInventoryPacket(player);
         }
     }
