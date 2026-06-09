@@ -26,27 +26,30 @@ public class TaskAutoKick extends Task {
     private void checkAndKickPlayer(Player player, long now, long autoKickMs) {
         String playerName = player.getName();
         try {
-            // 已登录的玩家从计时中移除
             if (LoginPlayerHelper.isLogin(playerName)) {
                 playerJoinTime.remove(playerName);
                 return;
             }
-
-            // 未登录玩家检查是否超时
-            playerJoinTime.putIfAbsent(playerName, now);
-            Long joinTime = playerJoinTime.get(playerName);
-            if (joinTime != null && now - joinTime > autoKickMs) {
-                if (!player.isOnline()) {
-                    playerJoinTime.remove(playerName);
-                    return;
-                }
-                String kickMessage = Config.Language.AUTO_KICK
-                        .replace("{time}", String.valueOf(Config.Settings.AutoKick));
-                player.kickPlayer(kickMessage);
-            }
+            checkAndKickTimeoutPlayer(player, now, autoKickMs);
         } catch (Exception e) {
             playerJoinTime.remove(playerName);
             e.printStackTrace();
         }
+    }
+
+    private void checkAndKickTimeoutPlayer(Player player, long now, long autoKickMs) {
+        String playerName = player.getName();
+        playerJoinTime.putIfAbsent(playerName, now);
+        Long joinTime = playerJoinTime.get(playerName);
+        if (joinTime == null || now - joinTime <= autoKickMs) {
+            return;
+        }
+        if (!player.isOnline()) {
+            playerJoinTime.remove(playerName);
+            return;
+        }
+        String kickMessage = Config.Language.AUTO_KICK
+                .replace("{time}", String.valueOf(Config.Settings.AutoKick));
+        player.kickPlayer(kickMessage);
     }
 }

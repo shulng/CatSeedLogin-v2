@@ -66,7 +66,13 @@ public class Listeners implements Listener {
         }
         String hostAddress = event.getAddress().getHostAddress();
         long count = Bukkit.getOnlinePlayers().stream()
-                .filter(p -> p.getAddress().getAddress().getHostAddress().equals(hostAddress))
+                .filter(p -> {
+                    try {
+                        return p.getAddress() != null && p.getAddress().getAddress().getHostAddress().equals(hostAddress);
+                    } catch (Exception e) {
+                        return false;
+                    }
+                })
                 .count();
         if (!event.getAddress().isLoopbackAddress() && count >= Config.Settings.IpCountLimit) {
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "太多相同ip的账号同时在线!");
@@ -111,11 +117,10 @@ public class Listeners implements Listener {
     //登陆之前不会受到伤害
     @EventHandler
     public void onEntityDamage(EntityDamageEvent event) {
-        if (Config.Settings.BeforeLoginNoDamage) {
-            Entity entity = event.getEntity();
-            if (entity instanceof Player && !playerIsNotMinecraftPlayer((Player) entity) && !LoginPlayerHelper.isLogin(entity.getName())) {
-                event.setCancelled(true);
-            }
+        if (!Config.Settings.BeforeLoginNoDamage) return;
+        Entity entity = event.getEntity();
+        if (entity instanceof Player && !playerIsNotMinecraftPlayer((Player) entity) && !LoginPlayerHelper.isLogin(entity.getName())) {
+            event.setCancelled(true);
         }
     }
 
@@ -148,6 +153,10 @@ public class Listeners implements Listener {
         if (playerIsNotMinecraftPlayer(player) || LoginPlayerHelper.isLogin(player.getName())) return;
         Location from = event.getFrom();
         Location to = event.getTo();
+        if (to == null) {
+            event.setCancelled(true);
+            return;
+        }
         if (from.getBlockX() == to.getBlockX() && from.getBlockZ() == to.getBlockZ() && from.getY() - to.getY() >= 0.0D) {
             return;
         }

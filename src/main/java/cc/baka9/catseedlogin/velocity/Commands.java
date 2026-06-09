@@ -121,16 +121,20 @@ public class Commands implements SimpleCommand {
             source.sendMessage(Component.text("=== 已登录玩家列表 ===", NamedTextColor.GOLD));
             source.sendMessage(Component.text("已登录玩家数量: " + loggedInPlayers.size(), NamedTextColor.YELLOW));
             
-            if (loggedInPlayers.isEmpty()) {
-                source.sendMessage(Component.text("暂无已登录玩家", NamedTextColor.GRAY));
-            } else {
-                loggedInPlayers.forEach(playerName -> 
-                    source.sendMessage(Component.text("- " + playerName, NamedTextColor.WHITE))
-                );
-            }
+            displayPlayerList(source, loggedInPlayers);
         } catch (Exception e) {
             source.sendMessage(Component.text("获取玩家列表时发生错误", NamedTextColor.RED));
             logger.error("Error getting player list", e);
         }
+    }
+
+    private void displayPlayerList(CommandSource source, List<String> loggedInPlayers) {
+        if (loggedInPlayers.isEmpty()) {
+            source.sendMessage(Component.text("暂无已登录玩家", NamedTextColor.GRAY));
+            return;
+        }
+        loggedInPlayers.forEach(playerName ->
+            source.sendMessage(Component.text("- " + playerName, NamedTextColor.WHITE))
+        );
     }
 }
