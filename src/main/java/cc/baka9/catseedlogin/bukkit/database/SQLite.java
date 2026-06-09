@@ -47,7 +47,7 @@ public class SQLite extends SQL {
 
     private void ensureDataFolderExists() {
         if (!plugin.getDataFolder().exists()) {
-            plugin.getDataFolder().mkdir();
+            plugin.getDataFolder().mkdirs();
         }
     }
 

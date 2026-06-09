@@ -61,6 +61,7 @@ public abstract class BaseCommunication {
     }
 
     private void writeLine(BufferedWriter writer, String line) throws IOException {
+        if (writer == null || line == null) return;
         writer.write(line);
         writer.newLine();
     }

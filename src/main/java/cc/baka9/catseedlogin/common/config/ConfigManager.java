@@ -56,8 +56,12 @@ public abstract class ConfigManager {
 
     public void reloadConfig(String name) {
         if (name == null) return;
-        configs.remove(name);
-        getConfig(name);
+        try {
+            configs.remove(name);
+            getConfig(name);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void reloadAll() {

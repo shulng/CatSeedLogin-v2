@@ -163,21 +163,25 @@ public class I18n {
 
     public String get(String key) {
         if (key == null) return null;
-        String message = lookup(key);
-        return message != null ? message : key;
+        try {
+            String message = lookup(key);
+            return message != null ? message : key;
+        } catch (Exception e) {
+            return key;
+        }
     }
 
     public String get(String key, Object... args) {
         if (key == null) return null;
-        String message = get(key);
-        if (args != null && args.length > 0) {
-            try {
+        try {
+            String message = get(key);
+            if (args != null && args.length > 0) {
                 return MessageFormat.format(message, args);
-            } catch (IllegalArgumentException | NullPointerException e) {
-                return message;
             }
+            return message;
+        } catch (Exception e) {
+            return key;
         }
-        return message;
     }
 
     public String getOrDefault(String key, String defaultValue) {
@@ -186,13 +190,21 @@ public class I18n {
     }
 
     public void setPlaceholder(String key, Object value) {
-        if (key != null) {
+        if (key == null) return;
+        try {
             placeholders.put(key, value);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     public void removePlaceholder(String key) {
-        placeholders.remove(key);
+        if (key == null) return;
+        try {
+            placeholders.remove(key);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void clearPlaceholders() {

@@ -151,7 +151,7 @@ public class LoginPlayerHelper {
         List<String> ipsList = new ArrayList<>(lp.getIpsList());
         ipsList = ipsList.stream().distinct().collect(Collectors.toList());
         if (!ipsList.isEmpty()) {
-            ipsList.remove(0);
+            ipsList.remove(ipsList.size() - 1);
         }
         ipsList.add(currentIp);
         lp.setIps(String.join(";", ipsList));
