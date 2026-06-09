@@ -1,6 +1,8 @@
 package cc.baka9.catseedlogin.bukkit.command;
 
 import java.util.List;
+import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -23,7 +25,7 @@ import cc.baka9.catseedlogin.util.Util;
 
 public class CommandCatSeedLogin implements CommandExecutor {
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String lable, String[] args){
+    public boolean onCommand(CommandSender sender, Command command, String lable, String[] args) {
         return reload(sender, args)
                 || setPwd(sender, args)
                 || delPlayer(sender, args)
@@ -45,329 +47,320 @@ public class CommandCatSeedLogin implements CommandExecutor {
                 || deathStateQuitRecordLocation(sender, args);
     }
 
-    private boolean deathStateQuitRecordLocation(CommandSender sender, String[] args){
-        if (args.length > 0 && args[0].equalsIgnoreCase("deathStateQuitRecordLocation")) {
-            Config.Settings.DeathStateQuitRecordLocation = !Config.Settings.DeathStateQuitRecordLocation;
-            Config.Settings.save();
-            sender.sendMessage("§e死亡状态退出游戏记录退出位置" + (Config.Settings.DeathStateQuitRecordLocation ? "§a开启" : "§8关闭"));
-            return true;
-        }
-        return false;
+    // ---- Helper: Boolean Toggle ----
+
+    private boolean toggle(CommandSender sender, String[] args, String key, BooleanSupplier getter, Consumer<Boolean> setter, String label) {
+        if (args.length == 0 || !args[0].equalsIgnoreCase(key)) return false;
+        setter.accept(!getter.getAsBoolean());
+        Config.Settings.save();
+        sender.sendMessage("§e" + label + " " + (getter.getAsBoolean() ? "§a开启" : "§8关闭"));
+        return true;
     }
 
-    private boolean autoKick(CommandSender sender, String[] args){
-        if (args.length > 1 && args[0].equalsIgnoreCase("setAutoKick")) {
+    // ---- Toggle Settings ----
+
+    private boolean deathStateQuitRecordLocation(CommandSender sender, String[] args) {
+        return toggle(sender, args, "deathStateQuitRecordLocation",
+                () -> Config.Settings.DeathStateQuitRecordLocation,
+                v -> Config.Settings.DeathStateQuitRecordLocation = v,
+                "死亡状态退出游戏记录退出位置");
+    }
+
+    private boolean canTpSpawnLocation(CommandSender sender, String[] args) {
+        return toggle(sender, args, "canTpSpawnLocation",
+                () -> Config.Settings.CanTpSpawnLocation,
+                v -> Config.Settings.CanTpSpawnLocation = v,
+                "登录之前强制在登陆地点");
+    }
+
+    private boolean afterLoginBack(CommandSender sender, String[] args) {
+        return toggle(sender, args, "afterLoginBack",
+                () -> Config.Settings.AfterLoginBack,
+                v -> Config.Settings.AfterLoginBack = v,
+                "登陆之后返回下线地点");
+    }
+
+    private boolean beforeLoginNoDamage(CommandSender sender, String[] args) {
+        return toggle(sender, args, "beforeLoginNoDamage",
+                () -> Config.Settings.BeforeLoginNoDamage,
+                v -> Config.Settings.BeforeLoginNoDamage = v,
+                "登陆之前不受到伤害");
+    }
+
+    private boolean limitChineseID(CommandSender sender, String[] args) {
+        return toggle(sender, args, "limitChineseID",
+                () -> Config.Settings.LimitChineseID,
+                v -> Config.Settings.LimitChineseID = v,
+                "限制中文游戏名");
+    }
+
+    private boolean bedrockLoginBypass(CommandSender sender, String[] args) {
+        return toggle(sender, args, "bedrockLoginBypass",
+                () -> Config.Settings.BedrockLoginBypass,
+                v -> Config.Settings.BedrockLoginBypass = v,
+                "基岩版玩家登录跳过");
+    }
+
+    private boolean LoginwiththesameIP(CommandSender sender, String[] args) {
+        return toggle(sender, args, "LoginwiththesameIP",
+                () -> Config.Settings.LoginwiththesameIP,
+                v -> Config.Settings.LoginwiththesameIP = v,
+                "同IP玩家登录跳过");
+    }
+
+    // ---- Number Settings ----
+
+    private boolean autoKick(CommandSender sender, String[] args) {
+        if (args.length < 2 || !args[0].equalsIgnoreCase("setAutoKick")) return false;
+        try {
+            Config.Settings.AutoKick = Integer.parseInt(args[1]);
+            Config.Settings.save();
+            sender.sendMessage(Config.Settings.AutoKick > 0
+                    ? "§e已设置未登录自动踢出累计时间为 §a" + Config.Settings.AutoKick + "秒"
+                    : "§e已关闭未登录自动踢出");
+        } catch (NumberFormatException e) {
+            sender.sendMessage("§e秒数必须是一个数字");
+        }
+        return true;
+    }
+
+    private boolean setReenterInterval(CommandSender sender, String[] args) {
+        if (args.length < 2 || !args[0].equalsIgnoreCase("setReenterInterval")) return false;
+        try {
+            Config.Settings.ReenterInterval = Long.parseLong(args[1]);
+            Config.Settings.save();
+            sender.sendMessage("§e离开服务器重新进入的间隔限制 " + Config.Settings.ReenterInterval + "tick");
+        } catch (NumberFormatException e) {
+            sender.sendMessage("§c请输入一个数字");
+        }
+        return true;
+    }
+
+    private boolean setIdLength(CommandSender sender, String[] args) {
+        if (args.length < 3 || !args[0].equalsIgnoreCase("setIdLength")) return false;
+        try {
+            Config.Settings.MinLengthID = Integer.parseInt(args[1]);
+            Config.Settings.MaxLengthID = Integer.parseInt(args[2]);
+            Config.Settings.save();
+            sender.sendMessage("§e游戏名最小和最大长度为 " + Config.Settings.MinLengthID + " ~ " + Config.Settings.MaxLengthID);
+        } catch (NumberFormatException e) {
+            sender.sendMessage("§c请输入数字");
+        }
+        return true;
+    }
+
+    private boolean setIpCountLimit(CommandSender sender, String[] args) {
+        if (args.length < 2 || !args[0].equalsIgnoreCase("setIpCountLimit")) return false;
+        try {
+            Config.Settings.IpCountLimit = Integer.parseInt(args[1]);
+            Config.Settings.save();
+            sender.sendMessage("§e相同ip登录限制数量为 " + Config.Settings.IpCountLimit);
+        } catch (NumberFormatException e) {
+            sender.sendMessage("§c请输入数字");
+        }
+        return true;
+    }
+
+    private boolean setIpRegCountLimit(CommandSender sender, String[] args) {
+        if (args.length < 2 || !args[0].equalsIgnoreCase("setIpRegCountLimit")) return false;
+        try {
+            Config.Settings.IpRegisterCountLimit = Integer.parseInt(args[1]);
+            Config.Settings.save();
+            sender.sendMessage("§e相同ip注册限制数量为 " + Config.Settings.IpRegisterCountLimit);
+        } catch (NumberFormatException e) {
+            sender.sendMessage("§c请输入数字");
+        }
+        return true;
+    }
+
+    // ---- Command Whitelist ----
+
+    private boolean commandWhiteListInfo(CommandSender sender, String[] args) {
+        if (args.length == 0 || !args[0].equalsIgnoreCase("commandWhiteListInfo")) return false;
+        sender.sendMessage("§e登录前可执行指令: ");
+        Config.Settings.CommandWhiteList.forEach(cmdRegex -> sender.sendMessage(cmdRegex.toString()));
+        return true;
+    }
+
+    private boolean commandWhiteListAdd(CommandSender sender, String[] args) {
+        if (args.length < 2 || !args[0].equalsIgnoreCase("commandWhiteListAdd")) return false;
+        String regex = joinArgs(args, 1);
+        Pattern pattern = Pattern.compile(regex);
+        if (containsRegex(regex)) {
+            sender.sendMessage("§c已经存在 " + regex);
+        } else {
+            Config.Settings.CommandWhiteList.add(pattern);
+            Config.Settings.save();
+            sender.sendMessage("§e已添加登录前可执行指令 " + regex);
+        }
+        return true;
+    }
+
+    private boolean commandWhiteListDel(CommandSender sender, String[] args) {
+        if (args.length < 2 || !args[0].equalsIgnoreCase("commandWhiteListDel")) return false;
+        String regex = joinArgs(args, 1);
+        if (containsRegex(regex)) {
+            removeRegex(regex);
+            Config.Settings.save();
+            sender.sendMessage("§e已删除登录前可执行指令 " + regex);
+        } else {
+            sender.sendMessage("§c不存在 " + regex);
+        }
+        return true;
+    }
+
+    private static String joinArgs(String[] args, int from) {
+        String[] cmd = new String[args.length - from];
+        System.arraycopy(args, from, cmd, 0, cmd.length);
+        return String.join(" ", cmd);
+    }
+
+    private static boolean containsRegex(String regex) {
+        return Config.Settings.CommandWhiteList.stream()
+                .map(Pattern::toString).collect(Collectors.toList()).contains(regex);
+    }
+
+    private static void removeRegex(String regex) {
+        List<String> collect = Config.Settings.CommandWhiteList.stream()
+                .map(Pattern::toString).collect(Collectors.toList());
+        collect.remove(regex);
+        Config.Settings.CommandWhiteList = collect.stream().map(Pattern::compile).collect(Collectors.toList());
+    }
+
+    // ---- Spawn Location ----
+
+    private boolean setSpawnLocation(CommandSender sender, String[] args) {
+        if (args.length == 0 || !args[0].equalsIgnoreCase("setSpawnLocation")) return false;
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("§c不能在控制台使用这个指令");
+            return true;
+        }
+        Config.Settings.SpawnLocation = ((Player) sender).getLocation();
+        Config.Settings.save();
+        sender.sendMessage("§e已设置玩家登陆坐标为你站着的位置");
+        return true;
+    }
+
+    // ---- Reload ----
+
+    private boolean reload(CommandSender sender, String[] args) {
+        if (args.length == 0 || !args[0].equalsIgnoreCase("reload")) return false;
+        Config.reload();
+        CatSeedLogin.sql = Config.MySQL.Enable ? new MySQL(CatSeedLogin.instance) : new SQLite(CatSeedLogin.instance);
+        try {
+            CatSeedLogin.sql.init();
+            Cache.refreshAll();
+        } catch (Exception e) {
+            CatSeedLogin.instance.getLogger().warning("§c加载数据库时出错");
+            e.printStackTrace();
+        }
+        Communication.socketServerStopAsync();
+        if (Config.BungeeCord.Enable) {
+            Communication.socketServerStartAsync();
+        }
+        sender.sendMessage("配置已重载!");
+        return true;
+    }
+
+    // ---- Delete Player ----
+
+    private boolean delPlayer(CommandSender sender, String[] args) {
+        if (args.length < 2 || !args[0].equalsIgnoreCase("delplayer")) return false;
+        String name = args[1];
+        LoginPlayer lp = Cache.getIgnoreCase(name);
+        if (lp == null) {
+            sender.sendMessage(String.format("§c账户 §a%s §c不存在", name));
+            return true;
+        }
+        delPlayerAsync(sender, lp);
+        return true;
+    }
+
+    private void delPlayerAsync(CommandSender sender, LoginPlayer lp) {
+        CatSeedLogin.instance.runTaskAsync(() -> {
             try {
-
-                Config.Settings.AutoKick = Integer.parseInt(args[1]);
-                Config.Settings.save();
-                sender.sendMessage(Config.Settings.AutoKick > 0 ? "§e已设置未登录自动踢出累计时间为 §a" + Config.Settings.AutoKick + "秒" : "§e已关闭未登录自动踢出");
-            } catch (NumberFormatException e) {
-                sender.sendMessage("§e秒数必须是一个数字");
-            }
-            return true;
-        }
-        return false;
-    }
-
-    private boolean canTpSpawnLocation(CommandSender sender, String[] args){
-        if (args.length > 0 && args[0].equalsIgnoreCase("canTpSpawnLocation")) {
-            Config.Settings.CanTpSpawnLocation = !Config.Settings.CanTpSpawnLocation;
-            Config.Settings.save();
-            sender.sendMessage("§e登录之前强制在登陆地点 " + (Config.Settings.CanTpSpawnLocation ? "§a开启" : "§8关闭"));
-            return true;
-        }
-        return false;
-    }
-
-    private boolean commandWhiteListDel(CommandSender sender, String[] args){
-        if (args.length > 1 && args[0].equalsIgnoreCase("commandWhiteListDel")) {
-            String[] cmd = new String[args.length - 1];
-            System.arraycopy(args, 1, cmd, 0, cmd.length);
-            String regex = String.join(" ", cmd);
-            List<String> collect = Config.Settings.CommandWhiteList.stream().map(Pattern::toString).collect(Collectors.toList());
-            if (collect.contains(regex)) {
-                collect.remove(regex);
-                Config.Settings.CommandWhiteList = collect.stream().map(Pattern::compile).collect(Collectors.toList());
-                Config.Settings.save();
-                sender.sendMessage("§e已删除登录前可执行指令 " + regex);
-            } else {
-                sender.sendMessage("§c不存在 " + regex);
-            }
-            return true;
-        }
-        return false;
-    }
-
-    private boolean commandWhiteListAdd(CommandSender sender, String[] args){
-        if (args.length > 1 && args[0].equalsIgnoreCase("commandWhiteListAdd")) {
-            String[] cmd = new String[args.length - 1];
-            System.arraycopy(args, 1, cmd, 0, cmd.length);
-            String regex = String.join(" ", cmd);
-            Pattern pattern = Pattern.compile(regex);
-            List<String> collect = Config.Settings.CommandWhiteList.stream().map(Pattern::toString).collect(Collectors.toList());
-            if (collect.contains(regex)) {
-                sender.sendMessage("§c已经存在 " + regex);
-            } else {
-                Config.Settings.CommandWhiteList.add(pattern);
-                Config.Settings.save();
-                sender.sendMessage("§e已添加登录前可执行指令 " + regex);
-            }
-            return true;
-        }
-        return false;
-    }
-
-    private boolean commandWhiteListInfo(CommandSender sender, String[] args){
-        if (args.length > 0 && args[0].equalsIgnoreCase("commandWhiteListInfo")) {
-            sender.sendMessage("§e登录前可执行指令: ");
-            Config.Settings.CommandWhiteList.forEach(cmdRegex -> sender.sendMessage(cmdRegex.toString()));
-            return true;
-        }
-        return false;
-    }
-
-    private boolean setSpawnLocation(CommandSender sender, String[] args){
-        if (args.length > 0 && args[0].equalsIgnoreCase("setSpawnLocation")) {
-            if (sender instanceof Player) {
-                Config.Settings.SpawnLocation = ((Player) sender).getLocation();
-                Config.Settings.save();
-                sender.sendMessage("§e已设置玩家登陆坐标为你站着的位置");
-            } else {
-                sender.sendMessage("§c不能在控制台使用这个指令");
-            }
-            return true;
-        }
-        return false;
-    }
-
-    private boolean afterLoginBack(CommandSender sender, String[] args){
-        if (args.length > 0 && args[0].equalsIgnoreCase("afterLoginBack")) {
-            Config.Settings.AfterLoginBack = !Config.Settings.AfterLoginBack;
-            Config.Settings.save();
-            sender.sendMessage("§e登陆之后返回下线地点 " + (Config.Settings.AfterLoginBack ? "§a开启" : "§8关闭"));
-            return true;
-        }
-        return false;
-    }
-
-    private boolean setReenterInterval(CommandSender sender, String[] args){
-        if (args.length > 1 && args[0].equalsIgnoreCase("setReenterInterval")) {
-            try {
-                Config.Settings.ReenterInterval = Long.parseLong(args[1]);
-                Config.Settings.save();
-                sender.sendMessage("§e离开服务器重新进入的间隔限制 " + Config.Settings.ReenterInterval + "tick");
-
-            } catch (NumberFormatException e) {
-                sender.sendMessage("§c请输入一个数字");
-            }
-
-            return true;
-        }
-        return false;
-
-    }
-
-    private boolean beforeLoginNoDamage(CommandSender sender, String[] args){
-        if (args.length > 0 && args[0].equalsIgnoreCase("beforeLoginNoDamage")) {
-            Config.Settings.BeforeLoginNoDamage = !Config.Settings.BeforeLoginNoDamage;
-            Config.Settings.save();
-            sender.sendMessage("§e登陆之前不受到伤害 " + (Config.Settings.BeforeLoginNoDamage ? "§a开启" : "§8关闭"));
-            return true;
-        }
-        return false;
-
-    }
-
-    private boolean setIdLength(CommandSender sender, String[] args){
-        if (args.length > 2 && args[0].equalsIgnoreCase("setIdLength")) {
-
-            try {
-                Config.Settings.MinLengthID = Integer.parseInt(args[1]);
-                Config.Settings.MaxLengthID = Integer.parseInt(args[2]);
-                Config.Settings.save();
-                sender.sendMessage("§e游戏名最小和最大长度为 " + Config.Settings.MinLengthID + " ~ " + Config.Settings.MaxLengthID);
-            } catch (NumberFormatException e) {
-                sender.sendMessage("§c请输入数字");
-            }
-            return true;
-        }
-        return false;
-
-    }
-
-    private boolean limitChineseID(CommandSender sender, String[] args){
-        if (args.length > 0 && args[0].equalsIgnoreCase("limitChineseID")) {
-            Config.Settings.LimitChineseID = !Config.Settings.LimitChineseID;
-            Config.Settings.save();
-            sender.sendMessage("§e限制中文游戏名 " + (Config.Settings.LimitChineseID ? "§a开启" : "§8关闭"));
-            return true;
-        }
-        return false;
-    }
-
-    private boolean bedrockLoginBypass(CommandSender sender, String[] args){
-        if (args.length > 0 && args[0].equalsIgnoreCase("bedrockLoginBypass")) {
-            Config.Settings.BedrockLoginBypass = !Config.Settings.BedrockLoginBypass;
-            Config.Settings.save();
-            sender.sendMessage("§e基岩版玩家登录跳过 " + (Config.Settings.BedrockLoginBypass ? "§a开启" : "§8关闭"));
-            return true;
-        }
-        return false;
-    }
-
-    private boolean LoginwiththesameIP(CommandSender sender, String[] args){
-        if (args.length > 0 && args[0].equalsIgnoreCase("LoginwiththesameIP")) {
-            Config.Settings.LoginwiththesameIP = !Config.Settings.LoginwiththesameIP;
-            Config.Settings.save();
-            sender.sendMessage("§e同IP玩家登录跳过 " + (Config.Settings.LoginwiththesameIP ? "§a开启" : "§8关闭"));
-            return true;
-        }
-        return false;
-    }
-
-    private boolean setIpCountLimit(CommandSender sender, String[] args){
-        if (args.length > 1 && args[0].equalsIgnoreCase("setIpCountLimit")) {
-            try {
-                Config.Settings.IpCountLimit = Integer.parseInt(args[1]);
-                Config.Settings.save();
-                sender.sendMessage("§e相同ip登录限制数量为 " + Config.Settings.IpCountLimit);
-            } catch (NumberFormatException e) {
-                sender.sendMessage("§c请输入数字");
-            }
-            return true;
-        }
-        return false;
-    }
-
-    private boolean setIpRegCountLimit(CommandSender sender, String[] args){
-        if (args.length > 1 && args[0].equalsIgnoreCase("setIpRegCountLimit")) {
-            try {
-                Config.Settings.IpRegisterCountLimit = Integer.parseInt(args[1]);
-                Config.Settings.save();
-                sender.sendMessage("§e相同ip注册限制数量为 " + Config.Settings.IpRegisterCountLimit);
-            } catch (NumberFormatException e) {
-                sender.sendMessage("§c请输入数字");
-            }
-            return true;
-        }
-        return false;
-    }
-
-    private boolean delPlayer(CommandSender sender, String[] args){
-        if (args.length > 1 && args[0].equalsIgnoreCase("delplayer")) {
-
-            String name = args[1];
-            LoginPlayer lp = Cache.getIgnoreCase(name);
-            if (lp != null) {
-                CatSeedLogin.instance.runTaskAsync(() -> {
-                    try {
-                        CatSeedLogin.sql.del(lp.getName());
-                        Cache.refresh(lp.getName());
-                        LoginPlayerHelper.remove(lp);
-                        sender.sendMessage("§e已删除账户 §a" + lp.getName());
-                        CatScheduler.runTask(() -> {
-                            Player p = Bukkit.getPlayerExact(lp.getName());
-                            if (p != null && p.isOnline()) {
-                                p.kickPlayer("§c你的账户已被删除!");
-                            }
-
-                        });
-                    } catch (Exception e) {
-                        sender.sendMessage("§c数据库异常!");
-                        e.printStackTrace();
-                    }
-
-                });
-
-            } else {
-                sender.sendMessage(String.format("§c账户 §a%s §c不存在", name));
-            }
-
-            return true;
-        }
-        return false;
-    }
-
-    private boolean setPwd(CommandSender sender, String[] args){
-        if (args.length > 2 && args[0].equalsIgnoreCase("setpwd")) {
-
-            String name = args[1], pwd = args[2];
-            if (Util.passwordIsDifficulty(pwd)) {
-                sender.sendMessage("§c密码必须是6~16位之间的数字和字母组成");
-                return true;
-            }
-            sender.sendMessage("§e设置中..");
-            CatSeedLogin.instance.runTaskAsync(() -> {
-                LoginPlayer lp = Cache.getIgnoreCase(name);
-                if (lp == null) {
-                    lp = new LoginPlayer(name, pwd);
-                    lp.crypt();
-                    try {
-                        CatSeedLogin.sql.add(lp);
-                        Cache.refresh(lp.getName());
-                        sender.sendMessage("§a指定账户不存在,现已注册..");
-                    } catch (Exception e) {
-                        sender.sendMessage("§c数据库异常!");
-                        e.printStackTrace();
-                    }
-                } else {
-                    lp.setPassword(pwd);
-                    lp.crypt();
-                    try {
-                        CatSeedLogin.sql.edit(lp);
-                        Cache.refresh(lp.getName());
-                        LoginPlayerHelper.remove(lp);
-                        sender.sendMessage(String.join(" ", "§a玩家", lp.getName(), "密码已设置"));
-                        LoginPlayer finalLp = lp;
-                        CatScheduler.runTask(() -> {
-                            Player p = Bukkit.getPlayer(finalLp.getName());
-                            if (p != null && p.isOnline()) {
-                                p.sendMessage("§c密码已被管理员重新设置,请重新登录");
-                                if (Config.Settings.CanTpSpawnLocation) {
-                                    p.teleport(Config.Settings.SpawnLocation);
-                                    if (CatSeedLogin.loadProtocolLib) {
-                                        LoginPlayerHelper.sendBlankInventoryPacket(p);
-                                    }
-                                }
-                            }
-
-                        });
-                    } catch (Exception e) {
-                        sender.sendMessage("§c数据库异常!");
-                        e.printStackTrace();
-                    }
-                }
-
-
-            });
-
-            return true;
-        }
-        return false;
-    }
-
-    private boolean reload(CommandSender sender, String[] args){
-        if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
-            Config.reload();
-            CatSeedLogin.sql = Config.MySQL.Enable ? new MySQL(CatSeedLogin.instance) : new SQLite(CatSeedLogin.instance);
-            try {
-
-                CatSeedLogin.sql.init();
-
-                Cache.refreshAll();
+                CatSeedLogin.sql.del(lp.getName());
+                Cache.refresh(lp.getName());
+                LoginPlayerHelper.remove(lp);
+                sender.sendMessage("§e已删除账户 §a" + lp.getName());
+                kickPlayerIfOnline(lp.getName());
             } catch (Exception e) {
-                CatSeedLogin.instance.getLogger().warning("§c加载数据库时出错");
+                sender.sendMessage("§c数据库异常!");
                 e.printStackTrace();
             }
+        });
+    }
 
-            Communication.socketServerStopAsync();
-            if (Config.BungeeCord.Enable) {
-                Communication.socketServerStartAsync();
+    private static void kickPlayerIfOnline(String name) {
+        CatScheduler.runTask(() -> {
+            Player p = Bukkit.getPlayerExact(name);
+            if (p != null && p.isOnline()) {
+                p.kickPlayer("§c你的账户已被删除!");
             }
-            sender.sendMessage("配置已重载!");
+        });
+    }
+
+    // ---- Set Password ----
+
+    private boolean setPwd(CommandSender sender, String[] args) {
+        if (args.length < 3 || !args[0].equalsIgnoreCase("setpwd")) return false;
+        String name = args[1], pwd = args[2];
+        if (Util.passwordIsDifficulty(pwd)) {
+            sender.sendMessage("§c密码必须是6~16位之间的数字和字母组成");
             return true;
         }
-        return false;
+        sender.sendMessage("§e设置中..");
+        CatSeedLogin.instance.runTaskAsync(() -> setPwdLookup(sender, name, pwd));
+        return true;
+    }
+
+    private void setPwdLookup(CommandSender sender, String name, String pwd) {
+        LoginPlayer lp = Cache.getIgnoreCase(name);
+        if (lp == null) {
+            setPwdRegisterNew(sender, name, pwd);
+        } else {
+            setPwdUpdateExisting(sender, lp, pwd);
+        }
+    }
+
+    private void setPwdRegisterNew(CommandSender sender, String name, String pwd) {
+        try {
+            LoginPlayer lp = new LoginPlayer(name, pwd);
+            lp.crypt();
+            CatSeedLogin.sql.add(lp);
+            Cache.refresh(lp.getName());
+            sender.sendMessage("§a指定账户不存在,现已注册..");
+        } catch (Exception e) {
+            sender.sendMessage("§c数据库异常!");
+            e.printStackTrace();
+        }
+    }
+
+    private void setPwdUpdateExisting(CommandSender sender, LoginPlayer lp, String pwd) {
+        try {
+            lp.setPassword(pwd);
+            lp.crypt();
+            CatSeedLogin.sql.edit(lp);
+            Cache.refresh(lp.getName());
+            LoginPlayerHelper.remove(lp);
+            sender.sendMessage(String.join(" ", "§a玩家", lp.getName(), "密码已设置"));
+            notifyPlayerPasswordChanged(lp);
+        } catch (Exception e) {
+            sender.sendMessage("§c数据库异常!");
+            e.printStackTrace();
+        }
+    }
+
+    private void notifyPlayerPasswordChanged(LoginPlayer lp) {
+        CatScheduler.runTask(() -> {
+            Player p = Bukkit.getPlayer(lp.getName());
+            if (p == null || !p.isOnline()) return;
+            p.sendMessage("§c密码已被管理员重新设置,请重新登录");
+            if (!Config.Settings.CanTpSpawnLocation) return;
+            p.teleport(Config.Settings.SpawnLocation);
+            if (CatSeedLogin.loadProtocolLib) {
+                LoginPlayerHelper.sendBlankInventoryPacket(p);
+            }
+        });
     }
 }

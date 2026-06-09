@@ -17,12 +17,17 @@ import cc.baka9.catseedlogin.util.Mail;
 import cc.baka9.catseedlogin.util.Util;
 
 public class CommandResetPassword implements CommandExecutor {
+    private static final long EMAIL_CODE_DURATION = 1000 * 60 * 5;
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (args.length == 0 || !(sender instanceof Player)) return false;
+
         Player player = (Player) sender;
         String name = player.getName();
+
         if (Config.Settings.BedrockLoginBypass && LoginPlayerHelper.isFloodgatePlayer(player)) return true;
+
         LoginPlayer lp = Cache.getIgnoreCase(name);
         if (lp == null) {
             sender.sendMessage(Config.Language.RESETPASSWORD_NOREGISTER);
@@ -32,85 +37,113 @@ public class CommandResetPassword implements CommandExecutor {
             sender.sendMessage(Config.Language.RESETPASSWORD_EMAIL_DISABLE);
             return true;
         }
+
         if (args[0].equalsIgnoreCase("forget")) {
-            if (lp.getEmail() == null) {
-                sender.sendMessage(Config.Language.RESETPASSWORD_EMAIL_NO_SET);
-            } else {
-                Optional<EmailCode> optionalEmailCode = EmailCode.getByName(name, EmailCode.Type.ResetPassword);
-                if (optionalEmailCode.isPresent()) {
-                    sender.sendMessage(Config.Language.RESETPASSWORD_EMAIL_REPEAT_SEND_MESSAGE.replace("{email}", optionalEmailCode.get().getEmail()));
-                } else {
-                    EmailCode emailCode = EmailCode.create(name, lp.getEmail(), 1000 * 60 * 5, EmailCode.Type.ResetPassword);
-                    sender.sendMessage(Config.Language.RESETPASSWORD_EMAIL_SENDING_MESSAGE.replace("{email}", lp.getEmail()));
-                    CatSeedLogin.instance.runTaskAsync(() -> {
-                        try {
-                            if (emailCode != null) {
-                                Mail.sendMail(emailCode.getEmail(), "重置密码", "你的验证码是 <strong>" + emailCode.getCode() + "</strong>" +
-                                        "<br/>在服务器中使用帐号 " + name + " 输入指令<strong>/resetpassword re " + emailCode.getCode() + " 新密码</strong> 来重置新密码" +
-                                        "<br/>此验证码有效期为 " + (emailCode.getDurability() / (1000 * 60)) + "分钟");
-                            }
-                            Bukkit.getScheduler().runTask(CatSeedLogin.instance, () -> {
-                                if (emailCode != null) {
-                                    sender.sendMessage(Config.Language.RESETPASSWORD_EMAIL_SENT_MESSAGE.replace("{email}", emailCode.getEmail()));
-                                }
-                            });
-                        } catch (Exception e) {
-                            Bukkit.getScheduler().runTask(CatSeedLogin.instance, () -> sender.sendMessage(Config.Language.RESETPASSWORD_EMAIL_WARN));
-                            e.printStackTrace();
-                        }
-                    });
-                }
-            }
-            return true;
+            return handleForget(sender, name, lp);
         }
+
         if (args[0].equalsIgnoreCase("re") && args.length > 2) {
-            if (lp.getEmail() == null) {
-                sender.sendMessage(Config.Language.RESETPASSWORD_EMAIL_NO_SET);
-            } else {
-                Optional<EmailCode> optionalEmailCode = EmailCode.getByName(name, EmailCode.Type.ResetPassword);
-                if (optionalEmailCode.isPresent()) {
-                    EmailCode emailCode = optionalEmailCode.get();
-                    String code = args[1], pwd = args[2];
-                    if (emailCode.getCode().equals(code)) {
-                        if (Util.passwordIsDifficulty(pwd)) {
-                            sender.sendMessage(Config.Language.COMMON_PASSWORD_SO_SIMPLE);
-                            return true;
-                        }
-                        sender.sendMessage("§e密码重置中..");
-                        CatSeedLogin.instance.runTaskAsync(() -> {
-                            lp.setPassword(pwd);
-                            lp.crypt();
-                            try {
-                                CatSeedLogin.sql.edit(lp);
-                                Cache.refresh(lp.getName());
-                                LoginPlayerHelper.remove(lp);
-                                EmailCode.removeByName(name, EmailCode.Type.ResetPassword);
-                                CatScheduler.runTask(() -> {
-                                    Player p = Bukkit.getPlayer(lp.getName());
-                                    if (p != null && p.isOnline()) {
-                                        if (Config.Settings.CanTpSpawnLocation) {
-                                            CatScheduler.teleport(p, Config.Settings.SpawnLocation);
-                                        }
-                                        p.sendMessage(Config.Language.RESETPASSWORD_SUCCESS);
-                                        if (CatSeedLogin.loadProtocolLib) {
-                                            LoginPlayerHelper.sendBlankInventoryPacket(player);
-                                        }
-                                    }
-                                });
-                            } catch (Exception e) {
-                                CatScheduler.runTask(() -> sender.sendMessage("§c数据库异常!"));
-                                e.printStackTrace();
-                            }
-                        });
-                    } else {
-                        sender.sendMessage(Config.Language.RESETPASSWORD_EMAILCODE_INCORRECT);
-                    }
-                } else {
-                    sender.sendMessage(Config.Language.RESETPASSWORD_FAIL);
-                }
-            }
+            return handleReset(sender, player, name, lp, args[1], args[2]);
+        }
+
+        return true;
+    }
+
+    private boolean handleForget(CommandSender sender, String name, LoginPlayer lp) {
+        if (lp.getEmail() == null) {
+            sender.sendMessage(Config.Language.RESETPASSWORD_EMAIL_NO_SET);
             return true;
         }
+
+        Optional<EmailCode> optional = EmailCode.getByName(name, EmailCode.Type.ResetPassword);
+        if (optional.isPresent()) {
+            sender.sendMessage(Config.Language.RESETPASSWORD_EMAIL_REPEAT_SEND_MESSAGE
+                    .replace("{email}", optional.get().getEmail()));
+            return true;
+        }
+
+        EmailCode emailCode = EmailCode.create(name, lp.getEmail(), EMAIL_CODE_DURATION, EmailCode.Type.ResetPassword);
+        sender.sendMessage(Config.Language.RESETPASSWORD_EMAIL_SENDING_MESSAGE
+                .replace("{email}", lp.getEmail()));
+
+        sendResetEmailAsync(sender, name, emailCode);
         return true;
+    }
+
+    private void sendResetEmailAsync(CommandSender sender, String name, EmailCode emailCode) {
+        CatSeedLogin.instance.runTaskAsync(() -> {
+            try {
+                String content = "你的验证码是 <strong>" + emailCode.getCode() + "</strong>" +
+                        "<br/>在服务器中使用帐号 " + name + " 输入指令<strong>/resetpassword re " +
+                        emailCode.getCode() + " 新密码</strong> 来重置新密码" +
+                        "<br/>此验证码有效期为 " + (emailCode.getDurability() / (1000 * 60)) + "分钟";
+                Mail.sendMail(emailCode.getEmail(), "重置密码", content);
+
+                Bukkit.getScheduler().runTask(CatSeedLogin.instance, () ->
+                        sender.sendMessage(Config.Language.RESETPASSWORD_EMAIL_SENT_MESSAGE
+                                .replace("{email}", emailCode.getEmail())));
+            } catch (Exception e) {
+                Bukkit.getScheduler().runTask(CatSeedLogin.instance, () ->
+                        sender.sendMessage(Config.Language.RESETPASSWORD_EMAIL_WARN));
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private boolean handleReset(CommandSender sender, Player player, String name, LoginPlayer lp, String code, String pwd) {
+        if (lp.getEmail() == null) {
+            sender.sendMessage(Config.Language.RESETPASSWORD_EMAIL_NO_SET);
+            return true;
+        }
+
+        Optional<EmailCode> optional = EmailCode.getByName(name, EmailCode.Type.ResetPassword);
+        if (!optional.isPresent()) {
+            sender.sendMessage(Config.Language.RESETPASSWORD_FAIL);
+            return true;
+        }
+        if (!optional.get().getCode().equals(code)) {
+            sender.sendMessage(Config.Language.RESETPASSWORD_EMAILCODE_INCORRECT);
+            return true;
+        }
+        if (Util.passwordIsDifficulty(pwd)) {
+            sender.sendMessage(Config.Language.COMMON_PASSWORD_SO_SIMPLE);
+            return true;
+        }
+
+        sender.sendMessage("§e密码重置中..");
+        processPasswordResetAsync(sender, player, name, lp, pwd);
+        return true;
+    }
+
+    private void processPasswordResetAsync(CommandSender sender, Player player, String name, LoginPlayer lp, String pwd) {
+        CatSeedLogin.instance.runTaskAsync(() -> {
+            try {
+                lp.setPassword(pwd);
+                lp.crypt();
+                CatSeedLogin.sql.edit(lp);
+                Cache.refresh(lp.getName());
+                LoginPlayerHelper.remove(lp);
+                EmailCode.removeByName(name, EmailCode.Type.ResetPassword);
+
+                CatScheduler.runTask(() -> notifyResetSuccess(lp, player, sender));
+            } catch (Exception e) {
+                CatScheduler.runTask(() -> sender.sendMessage("§c数据库异常!"));
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private void notifyResetSuccess(LoginPlayer lp, Player player, CommandSender sender) {
+        Player p = Bukkit.getPlayer(lp.getName());
+        if (p == null || !p.isOnline()) return;
+
+        if (Config.Settings.CanTpSpawnLocation) {
+            CatScheduler.teleport(p, Config.Settings.SpawnLocation);
+        }
+        p.sendMessage(Config.Language.RESETPASSWORD_SUCCESS);
+
+        if (CatSeedLogin.loadProtocolLib) {
+            LoginPlayerHelper.sendBlankInventoryPacket(player);
+        }
     }
 }

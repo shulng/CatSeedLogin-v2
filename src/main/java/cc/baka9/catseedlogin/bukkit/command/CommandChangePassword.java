@@ -19,8 +19,12 @@ public class CommandChangePassword implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String lable, String[] args) {
         if (args.length != 3 || !(sender instanceof Player)) return false;
-        String name = sender.getName();
-        if (Config.Settings.BedrockLoginBypass && LoginPlayerHelper.isFloodgatePlayer((Player) sender)) return true;
+
+        Player player = (Player) sender;
+        String name = player.getName();
+
+        if (Config.Settings.BedrockLoginBypass && LoginPlayerHelper.isFloodgatePlayer(player)) return true;
+
         LoginPlayer lp = Cache.getIgnoreCase(name);
         if (lp == null) {
             sender.sendMessage(Config.Language.CHANGEPASSWORD_NOREGISTER);
@@ -43,32 +47,39 @@ public class CommandChangePassword implements CommandExecutor {
             return true;
         }
         if (!Cache.isLoaded) return true;
+
         sender.sendMessage("§e修改中..");
+        changePasswordAsync(sender, player, lp, args[1]);
+        return true;
+    }
+
+    private void changePasswordAsync(CommandSender sender, Player player, LoginPlayer lp, String newPwd) {
         CatSeedLogin.instance.runTaskAsync(() -> {
             try {
-                lp.setPassword(args[1]);
+                lp.setPassword(newPwd);
                 lp.crypt();
                 CatSeedLogin.sql.edit(lp);
                 Cache.refresh(lp.getName());
                 LoginPlayerHelper.remove(lp);
-                CatScheduler.runTask(() -> {
-                    Player player = Bukkit.getPlayer(((Player) sender).getUniqueId());
-                    if (player != null && player.isOnline()) {
-                        player.sendMessage(Config.Language.CHANGEPASSWORD_SUCCESS);
-                        Config.setOfflineLocation(player);
-                        if (Config.Settings.CanTpSpawnLocation) {
-                            player.teleport(Config.Settings.SpawnLocation);
-                            if (CatSeedLogin.loadProtocolLib) {
-                                LoginPlayerHelper.sendBlankInventoryPacket(player);
-                            }
-                        }
-                    }
-                });
+                CatScheduler.runTask(() -> notifyChangeSuccess(sender, player));
             } catch (Exception e) {
                 e.printStackTrace();
                 sender.sendMessage("§c服务器内部错误!");
             }
         });
-        return true;
+    }
+
+    private void notifyChangeSuccess(CommandSender sender, Player player) {
+        Player online = Bukkit.getPlayer(player.getUniqueId());
+        if (online == null || !online.isOnline()) return;
+
+        online.sendMessage(Config.Language.CHANGEPASSWORD_SUCCESS);
+        Config.setOfflineLocation(online);
+        if (!Config.Settings.CanTpSpawnLocation) return;
+
+        online.teleport(Config.Settings.SpawnLocation);
+        if (CatSeedLogin.loadProtocolLib) {
+            LoginPlayerHelper.sendBlankInventoryPacket(online);
+        }
     }
 }
