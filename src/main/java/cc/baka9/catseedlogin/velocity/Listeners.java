@@ -70,36 +70,40 @@ public class Listeners {
     public void onServerPreConnect(ServerPreConnectEvent event) {
         Player player = event.getPlayer();
         RegisteredServer target = event.getResult().getServer().orElse(null);
-        
-        if (target == null) {
-            return;
-        }
-        
-        String targetName = target.getServerInfo().getName();
+
+        if (target == null) return;
+
         String playerName = player.getUsername();
         String loginServerName = configManager.getLoginServerName();
 
-        if (!loggedInPlayerList.contains(playerName)) {
-            if (!targetName.equals(loginServerName)) {
-                PluginMain.runAsync(() -> {
-                    try {
-                        if (communication.sendConnectRequest(playerName) == 1) {
-                            loggedInPlayerList.add(playerName);
-                        } else {
-                            proxyServer
-                                .getServer(loginServerName)
-                                .ifPresent(loginServer -> {
-                                    event.setResult(ServerPreConnectEvent.ServerResult.allowed(loginServer));
-                                });
-                        }
-                    } catch (Exception e) {
-                        logger.error("Error checking login status for player: " + playerName, e);
-                    }
-                });
-            } else {
-                handleLogin(player, null);
-            }
+        if (loggedInPlayerList.contains(playerName)) return;
+
+        String targetName = target.getServerInfo().getName();
+        if (targetName.equals(loginServerName)) {
+            handleLogin(player, null);
+            return;
         }
+
+        checkLoginAsync(player, playerName, loginServerName, event);
+    }
+
+    private void checkLoginAsync(Player player, String playerName, String loginServerName,
+                                  ServerPreConnectEvent event) {
+        PluginMain.runAsync(() -> {
+            try {
+                if (communication.sendConnectRequest(playerName) == 1) {
+                    loggedInPlayerList.add(playerName);
+                } else {
+                    proxyServer
+                        .getServer(loginServerName)
+                        .ifPresent(loginServer -> {
+                            event.setResult(ServerPreConnectEvent.ServerResult.allowed(loginServer));
+                        });
+                }
+            } catch (Exception e) {
+                logger.error("Error checking login status for player: " + playerName, e);
+            }
+        });
     }
 
     @Subscribe
@@ -140,22 +144,25 @@ public class Listeners {
 
     private void handleLogin(Player player, String message) {
         String playerName = player.getUsername();
-        
-        PluginMain.runAsync(() -> {
-            try {
-                if (communication.sendConnectRequest(playerName) == 1) {
-                    loggedInPlayerList.add(playerName);
-                    
-                    if (message != null && !message.isEmpty() && message.startsWith("/")) {
-                        proxyServer
-                            .getCommandManager()
-                            .executeAsync(player, message.substring(1));
-                    }
-                }
-            } catch (Exception e) {
-                logger.error("Error handling login for player: " + playerName, e);
-            }
-        });
+        PluginMain.runAsync(() -> handleLoginAsync(player, playerName, message));
+    }
+
+    private void handleLoginAsync(Player player, String playerName, String message) {
+        try {
+            if (communication.sendConnectRequest(playerName) != 1) return;
+
+            loggedInPlayerList.add(playerName);
+            executeQueuedCommand(player, message);
+        } catch (Exception e) {
+            logger.error("Error handling login for player: " + playerName, e);
+        }
+    }
+
+    private void executeQueuedCommand(Player player, String message) {
+        if (message == null || !message.startsWith("/")) return;
+        proxyServer
+            .getCommandManager()
+            .executeAsync(player, message.substring(1));
     }
     
     public List<String> getLoggedInPlayers() {
