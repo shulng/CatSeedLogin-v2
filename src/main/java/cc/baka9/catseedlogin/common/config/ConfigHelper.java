@@ -10,7 +10,7 @@ import java.util.function.Function;
 
 public class ConfigHelper {
 
-    public static String parseLocationString(LocationData location) {
+    public final static String parseLocationString(LocationData location) {
         return String.format("%s:%.2f:%.2f:%.2f:%.2f:%.2f",
                 location.world,
                 location.x,
