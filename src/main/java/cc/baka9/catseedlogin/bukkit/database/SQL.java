@@ -50,15 +50,27 @@ public abstract class SQL {
     }
 
     private boolean columnExists(String tableName, String columnName) {
-        try (PreparedStatement ps = getConnection().prepareStatement(
-                "SELECT COUNT(*) FROM information_schema.columns WHERE table_name = ? AND column_name = ?")) {
-            ps.setString(1, tableName);
-            ps.setString(2, columnName);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() && rs.getInt(1) > 0;
+        // SQLite: 使用 PRAGMA table_info 检查列是否存在
+        try (java.sql.Statement stmt = getConnection().createStatement();
+             ResultSet rs = stmt.executeQuery("PRAGMA table_info(" + tableName + ")")) {
+            while (rs.next()) {
+                if (columnName.equalsIgnoreCase(rs.getString("name"))) {
+                    return true;
+                }
             }
-        } catch (SQLException e) {
             return false;
+        } catch (SQLException e) {
+            // MySQL/其他数据库：回退到 information_schema
+            try (PreparedStatement ps = getConnection().prepareStatement(
+                    "SELECT COUNT(*) FROM information_schema.columns WHERE table_name = ? AND column_name = ?")) {
+                ps.setString(1, tableName);
+                ps.setString(2, columnName);
+                try (ResultSet rs = ps.executeQuery()) {
+                    return rs.next() && rs.getInt(1) > 0;
+                }
+            } catch (SQLException ex) {
+                return false;
+            }
         }
     }
 
