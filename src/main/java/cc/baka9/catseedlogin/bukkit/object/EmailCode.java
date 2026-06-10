@@ -43,31 +43,31 @@ public class EmailCode {
     }
 
     public static Optional<EmailCode> getByName(String name, Type type) {
+        if (name == null || type == null) {
+            return Optional.empty();
+        }
         try {
             clear();
-            if (type == Type.Bind && bindMap.containsKey(name)) {
-                return Optional.ofNullable(bindMap.get(name));
-            }
-            if (type == Type.ResetPassword && resetPasswordMap.containsKey(name)) {
-                return Optional.ofNullable(resetPasswordMap.get(name));
-            }
-            return Optional.empty();
+            return Optional.ofNullable(getMap(type).get(name));
         } catch (Exception e) {
             return Optional.empty();
         }
     }
 
     public static void removeByName(String name, Type type) {
+        if (name == null || type == null) {
+            return;
+        }
         try {
             clear();
-            if (type == Type.Bind) {
-                bindMap.remove(name);
-            } else if (type == Type.ResetPassword) {
-                resetPasswordMap.remove(name);
-            }
+            getMap(type).remove(name);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private static Map<String, EmailCode> getMap(Type type) {
+        return type == Type.Bind ? bindMap : resetPasswordMap;
     }
 
     private static void clear() {
