@@ -48,16 +48,12 @@ public class ConfigHelper {
         public float pitch;
 
         public LocationData(String world, double x, double y, double z) {
-            this(world, x, y, z, 0.0f, 0.0f);
-        }
-
-        private LocationData(String world, double x, double y, double z, float yaw, float pitch) {
             this.world = world;
             this.x = x;
             this.y = y;
             this.z = z;
-            this.yaw = yaw;
-            this.pitch = pitch;
+            this.yaw = 0.0f;
+            this.pitch = 0.0f;
         }
 
         public static LocationDataBuilder builder() {
@@ -65,45 +61,40 @@ public class ConfigHelper {
         }
 
         public static class LocationDataBuilder {
-            private String world;
-            private double x;
-            private double y;
-            private double z;
-            private float yaw;
-            private float pitch;
+            private final LocationData data = new LocationData("", 0, 0, 0);
 
             public LocationDataBuilder world(String world) {
-                this.world = world;
+                data.world = world;
                 return this;
             }
 
             public LocationDataBuilder x(double x) {
-                this.x = x;
+                data.x = x;
                 return this;
             }
 
             public LocationDataBuilder y(double y) {
-                this.y = y;
+                data.y = y;
                 return this;
             }
 
             public LocationDataBuilder z(double z) {
-                this.z = z;
+                data.z = z;
                 return this;
             }
 
             public LocationDataBuilder yaw(float yaw) {
-                this.yaw = yaw;
+                data.yaw = yaw;
                 return this;
             }
 
             public LocationDataBuilder pitch(float pitch) {
-                this.pitch = pitch;
+                data.pitch = pitch;
                 return this;
             }
 
             public LocationData build() {
-                return new LocationData(world, x, y, z, yaw, pitch);
+                return data;
             }
         }
     }

@@ -44,24 +44,20 @@ public class ValidationUtil {
     }
 
     public static boolean isLoopbackAddress(String ip) {
-        if (ip == null) {
-            return false;
-        }
-        try {
-            InetAddress address = InetAddress.getByName(ip);
-            return address.isLoopbackAddress();
-        } catch (UnknownHostException e) {
-            return false;
-        }
+        return withInetAddress(ip, InetAddress::isLoopbackAddress);
     }
 
     public static boolean isPrivateAddress(String ip) {
+        return withInetAddress(ip, addr -> addr.isSiteLocalAddress() || addr.isLinkLocalAddress());
+    }
+
+    private static boolean withInetAddress(String ip, java.util.function.Predicate<InetAddress> predicate) {
         if (ip == null) {
             return false;
         }
         try {
             InetAddress address = InetAddress.getByName(ip);
-            return address.isSiteLocalAddress() || address.isLinkLocalAddress();
+            return predicate.test(address);
         } catch (UnknownHostException e) {
             return false;
         }

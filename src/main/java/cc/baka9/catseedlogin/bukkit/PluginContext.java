@@ -22,6 +22,9 @@ public class PluginContext {
     }
 
     public static PluginContext get() {
+        if (instance == null) {
+            throw new IllegalStateException("PluginContext has not been initialized");
+        }
         return instance;
     }
 
