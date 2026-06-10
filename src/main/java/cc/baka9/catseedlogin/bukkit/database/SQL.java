@@ -33,22 +33,32 @@ public abstract class SQL {
             throw e;
         }
 
-        try {
-            flush(new BufferStatement("ALTER TABLE accounts ADD email CHAR(255)"));
-        } catch (SQLException e) {
-            if (!e.getMessage().toLowerCase().contains("duplicate column name")) throw e;
-        }
+        addColumnIfMissing("email");
+        addColumnIfMissing("ips");
+        addColumnIfMissing("location");
+    }
 
-        try {
-            flush(new BufferStatement("ALTER TABLE accounts ADD ips CHAR(255)"));
-        } catch (SQLException e) {
-            if (!e.getMessage().toLowerCase().contains("duplicate column name")) throw e;
+    private void addColumnIfMissing(String columnName) {
+        if (columnExists("accounts", columnName)) {
+            return;
         }
-
         try {
-            flush(new BufferStatement("ALTER TABLE accounts ADD location CHAR(255)"));
+            flush(new BufferStatement("ALTER TABLE accounts ADD " + columnName + " CHAR(255)"));
         } catch (SQLException e) {
-            if (!e.getMessage().toLowerCase().contains("duplicate column name")) throw e;
+            logger.warning("Failed to add column " + columnName + ": " + e.getMessage());
+        }
+    }
+
+    private boolean columnExists(String tableName, String columnName) {
+        try (PreparedStatement ps = getConnection().prepareStatement(
+                "SELECT COUNT(*) FROM information_schema.columns WHERE table_name = ? AND column_name = ?")) {
+            ps.setString(1, tableName);
+            ps.setString(2, columnName);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() && rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            return false;
         }
     }
 

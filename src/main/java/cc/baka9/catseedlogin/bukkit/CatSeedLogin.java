@@ -73,6 +73,8 @@ public class CatSeedLogin extends JavaPlugin implements Listener {
             }
         }
 
+        PluginContext.init(this, sql, loadProtocolLib);
+
         if (configManager.isEnable()) {
             Communication.socketServerStartAsync();
         }
@@ -81,7 +83,6 @@ public class CatSeedLogin extends JavaPlugin implements Listener {
             getLogger().info("检测到floodgate，基岩版兼容已装载");
         }
 
-        PluginContext.init(this, sql, loadProtocolLib);
         registerCommands();
 
         Task.runAll();
