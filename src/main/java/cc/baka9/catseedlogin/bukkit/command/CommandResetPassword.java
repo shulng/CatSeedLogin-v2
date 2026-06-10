@@ -13,8 +13,8 @@ import cc.baka9.catseedlogin.bukkit.Cache;
 import cc.baka9.catseedlogin.bukkit.object.EmailCode;
 import cc.baka9.catseedlogin.common.model.LoginPlayer;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayerHelper;
-import cc.baka9.catseedlogin.util.EmailSender;
-import cc.baka9.catseedlogin.util.Util;
+import cc.baka9.catseedlogin.bukkit.util.EmailSender;
+import cc.baka9.catseedlogin.common.util.ValidationUtil;
 
 public class CommandResetPassword implements CommandExecutor {
     private static final long EMAIL_CODE_DURATION = 1000 * 60 * 5;
@@ -128,7 +128,7 @@ public class CommandResetPassword implements CommandExecutor {
             return true;
         }
 
-        if (Util.passwordIsDifficulty(pwd)) {
+        if (ValidationUtil.isPasswordTooSimple(pwd)) {
             sender.sendMessage(Config.Language.COMMON_PASSWORD_SO_SIMPLE);
             return true;
         }

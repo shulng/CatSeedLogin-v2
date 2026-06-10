@@ -12,8 +12,8 @@ import cc.baka9.catseedlogin.bukkit.PluginContext;
 import cc.baka9.catseedlogin.bukkit.Cache;
 import cc.baka9.catseedlogin.common.model.LoginPlayer;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayerHelper;
-import cc.baka9.catseedlogin.util.Crypt;
-import cc.baka9.catseedlogin.util.Util;
+import cc.baka9.catseedlogin.common.util.Crypt;
+import cc.baka9.catseedlogin.common.util.ValidationUtil;
 
 public class CommandChangePassword implements CommandExecutor {
     @Override
@@ -42,7 +42,7 @@ public class CommandChangePassword implements CommandExecutor {
             sender.sendMessage(Config.Language.CHANGEPASSWORD_PASSWORD_CONFIRM_FAIL);
             return true;
         }
-        if (Util.passwordIsDifficulty(args[1])) {
+        if (ValidationUtil.isPasswordTooSimple(args[1])) {
             sender.sendMessage(Config.Language.COMMON_PASSWORD_SO_SIMPLE);
             return true;
         }

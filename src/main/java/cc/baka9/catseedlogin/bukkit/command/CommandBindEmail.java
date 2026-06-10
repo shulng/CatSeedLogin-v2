@@ -13,8 +13,8 @@ import cc.baka9.catseedlogin.bukkit.Cache;
 import cc.baka9.catseedlogin.bukkit.object.EmailCode;
 import cc.baka9.catseedlogin.common.model.LoginPlayer;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayerHelper;
-import cc.baka9.catseedlogin.util.EmailSender;
-import cc.baka9.catseedlogin.util.Util;
+import cc.baka9.catseedlogin.bukkit.util.EmailSender;
+import cc.baka9.catseedlogin.common.util.ValidationUtil;
 
 public class CommandBindEmail implements CommandExecutor {
 
@@ -62,13 +62,13 @@ public class CommandBindEmail implements CommandExecutor {
 
         LoginPlayer lp = Cache.getIgnoreCase(name);
         if (lp == null) return;
-        if (lp.getEmail() != null && Util.checkMail(lp.getEmail())) {
+        if (lp.getEmail() != null && ValidationUtil.isValidEmail(lp.getEmail())) {
             sender.sendMessage("§c你已经绑定过邮箱了!");
             return;
         }
 
         String mail = args[1];
-        if (!Util.checkMail(mail)) {
+        if (!ValidationUtil.isValidEmail(mail)) {
             sender.sendMessage("§c邮箱格式不正确!");
             return;
         }
@@ -92,7 +92,7 @@ public class CommandBindEmail implements CommandExecutor {
         if (args.length <= 1) return;
 
         LoginPlayer lp = Cache.getIgnoreCase(name);
-        if (lp.getEmail() != null && Util.checkMail(lp.getEmail())) {
+        if (lp.getEmail() != null && ValidationUtil.isValidEmail(lp.getEmail())) {
             sender.sendMessage("§c你已经绑定过邮箱了!");
             return;
         }

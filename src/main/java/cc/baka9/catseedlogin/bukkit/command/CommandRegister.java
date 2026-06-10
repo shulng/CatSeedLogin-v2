@@ -13,7 +13,7 @@ import cc.baka9.catseedlogin.bukkit.Cache;
 import cc.baka9.catseedlogin.bukkit.event.CatSeedPlayerRegisterEvent;
 import cc.baka9.catseedlogin.common.model.LoginPlayer;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayerHelper;
-import cc.baka9.catseedlogin.util.Util;
+import cc.baka9.catseedlogin.common.util.ValidationUtil;
 
 public class CommandRegister implements CommandExecutor {
     @Override
@@ -29,7 +29,7 @@ public class CommandRegister implements CommandExecutor {
             sender.sendMessage(Config.Language.REGISTER_PASSWORD_CONFIRM_FAIL);
             return true;
         }
-        if (Util.passwordIsDifficulty(args[0])) {
+        if (ValidationUtil.isPasswordTooSimple(args[0])) {
             sender.sendMessage(Config.Language.COMMON_PASSWORD_SO_SIMPLE);
             return true;
         }

@@ -1,6 +1,6 @@
 package cc.baka9.catseedlogin.common.communication;
 
-import cc.baka9.catseedlogin.util.CommunicationAuth;
+import cc.baka9.catseedlogin.common.util.CommunicationAuth;
 
 import java.io.BufferedWriter;
 import java.io.IOException;

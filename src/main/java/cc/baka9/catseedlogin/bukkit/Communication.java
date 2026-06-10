@@ -1,5 +1,6 @@
 package cc.baka9.catseedlogin.bukkit;
 
+import cc.baka9.catseedlogin.common.util.CommunicationAuth;
 import cc.baka9.catseedlogin.common.communication.BaseCommunication;
 import cc.baka9.catseedlogin.bukkit.Cache;
 import cc.baka9.catseedlogin.common.model.LoginPlayer;
@@ -79,7 +80,7 @@ public class Communication extends BaseCommunication {
     }
 
     private static void handleKeepLoggedInRequest(String playerName, String time, String sign) {
-        String expectedSign = cc.baka9.catseedlogin.util.CommunicationAuth.encryption(
+        String expectedSign = CommunicationAuth.encryption(
                 playerName, time, PluginContext.getConfigManager().getAuthKey());
         if (!sign.equals(expectedSign)) return;
 

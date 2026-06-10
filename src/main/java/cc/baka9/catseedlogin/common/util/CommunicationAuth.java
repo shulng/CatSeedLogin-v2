@@ -1,4 +1,4 @@
-package cc.baka9.catseedlogin.util;
+package cc.baka9.catseedlogin.common.util;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

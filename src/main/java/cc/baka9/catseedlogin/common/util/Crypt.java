@@ -1,4 +1,4 @@
-package cc.baka9.catseedlogin.util;
+package cc.baka9.catseedlogin.common.util;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;

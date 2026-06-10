@@ -200,17 +200,6 @@ public class Listeners implements Listener {
         }
     }
 
-    private void safeRemovePlayerFromTask(String playerName) {
-        try {
-            TaskAutoKick task = Task.getTaskAutoKick();
-            if (task != null && task.playerJoinTime != null) {
-                task.playerJoinTime.remove(playerName);
-            }
-        } catch (Exception e) {
-            Bukkit.getLogger().warning("Failed to remove player from auto-kick list: " + playerName);
-        }
-    }
-
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();

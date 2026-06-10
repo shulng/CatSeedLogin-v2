@@ -12,7 +12,7 @@ import cc.baka9.catseedlogin.bukkit.Cache;
 import cc.baka9.catseedlogin.bukkit.event.CatSeedPlayerLoginEvent;
 import cc.baka9.catseedlogin.common.model.LoginPlayer;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayerHelper;
-import cc.baka9.catseedlogin.util.Crypt;
+import cc.baka9.catseedlogin.common.util.Crypt;
 
 public class CommandLogin implements CommandExecutor {
     @Override
