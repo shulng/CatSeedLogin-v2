@@ -1,7 +1,7 @@
 package cc.baka9.catseedlogin.bungee.config;
 
-import cc.baka9.catseedlogin.bungee.PluginMain;
 import cc.baka9.catseedlogin.common.config.BaseConfigManager;
+import cc.baka9.catseedlogin.common.config.PluginContext;
 import cc.baka9.catseedlogin.common.config.YamlConfiguration;
 
 import java.io.File;
@@ -9,9 +9,9 @@ import java.io.InputStream;
 
 public class BungeeConfigManager extends BaseConfigManager {
 
-    private final PluginMain plugin;
+    private final PluginContext plugin;
 
-    public BungeeConfigManager(PluginMain plugin) {
+    public BungeeConfigManager(PluginContext plugin) {
         super();
         this.plugin = plugin;
         initConfig(plugin.getDataFolder(), "config.yml");

@@ -3,11 +3,12 @@ package cc.baka9.catseedlogin.bungee;
 import cc.baka9.catseedlogin.bungee.config.BungeeConfigManager;
 import cc.baka9.catseedlogin.bungee.config.BungeePlatformAdapter;
 import cc.baka9.catseedlogin.common.api.PlatformAdapter;
+import cc.baka9.catseedlogin.common.config.PluginContext;
 import cc.baka9.catseedlogin.common.i18n.I18n;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
 
-public class PluginMain extends Plugin {
+public class PluginMain extends Plugin implements PluginContext {
     public static PluginMain instance;
     private BungeeConfigManager configManager;
     private BungeePlatformAdapter platformAdapter;
