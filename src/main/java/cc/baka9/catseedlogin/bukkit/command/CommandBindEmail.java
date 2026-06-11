@@ -118,7 +118,7 @@ public class CommandBindEmail implements CommandExecutor {
         CatScheduler.runTaskAsync(() -> {
             try {
                 String content = buildBindEmailContent(name, bindEmail);
-                EmailSender.sendEmail(mail, "邮箱绑定", content);
+                EmailSender.sendEmail(mail, MessageKey.EMAIL_SUBJECT_BIND_EMAIL.get(), content);
                 notifyBindEmailSent(sender, mail);
             } catch (Exception e) {
                 notifyBindEmailFailed(sender);
@@ -155,7 +155,7 @@ public class CommandBindEmail implements CommandExecutor {
             notifyBindSuccess(sender, bindEmail);
         } catch (Exception e) {
             e.printStackTrace();
-            sender.sendMessage("§c服务器内部错误!");
+            sender.sendMessage(MessageKey.INTERNAL_ERROR.get());
         }
     }
 

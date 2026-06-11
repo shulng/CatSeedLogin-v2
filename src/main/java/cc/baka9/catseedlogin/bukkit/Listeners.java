@@ -128,8 +128,9 @@ public class Listeners implements Listener {
     @EventHandler
     public void onPlayerTeleport(PlayerTeleportEvent event) {
         Player player = event.getPlayer();
-        if ((Config.Settings.CanTpSpawnLocation && event.getTo().equals(Config.Settings.SpawnLocation)) ||
-            playerIsNotMinecraftPlayer(player) || LoginPlayerHelper.isLogin(player.getName())) return;
+        if (playerIsNotMinecraftPlayer(player) || LoginPlayerHelper.isLogin(player.getName())) return;
+        if (event.getTo() == null) return;
+        if (Config.Settings.CanTpSpawnLocation && event.getTo().equals(Config.Settings.SpawnLocation)) return;
         event.setCancelled(true);
     }
 

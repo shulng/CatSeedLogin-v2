@@ -60,8 +60,9 @@ public class Communication extends BaseCommunication {
     }
 
     private static void handleRequest(Socket socket) throws IOException {
-        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-             OutputStream outputStream = socket.getOutputStream()) {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        OutputStream outputStream = socket.getOutputStream();
+        try {
             String requestType = bufferedReader.readLine();
             String playerName = bufferedReader.readLine();
             switch (requestType) {
@@ -76,6 +77,10 @@ public class Communication extends BaseCommunication {
                 default:
                     break;
             }
+        } finally {
+            bufferedReader.close();
+            outputStream.close();
+            socket.close();
         }
     }
 
@@ -96,15 +101,13 @@ public class Communication extends BaseCommunication {
     }
 
     private static void handleConnectRequest(OutputStream outputStream, String playerName) {
-        CatScheduler.runTask(() -> {
-            boolean result = LoginPlayerHelper.isLogin(playerName);
-            try {
-                outputStream.write(result ? 1 : 0);
-                outputStream.flush();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
+        boolean result = LoginPlayerHelper.isLogin(playerName);
+        try {
+            outputStream.write(result ? 1 : 0);
+            outputStream.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

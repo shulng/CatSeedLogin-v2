@@ -170,7 +170,7 @@ public class CommandResetPassword implements CommandExecutor {
         p.sendMessage(Config.Language.RESETPASSWORD_SUCCESS);
 
         if (PluginContext.isLoadProtocolLib()) {
-            LoginPlayerHelper.sendBlankInventoryPacket(player);
+            LoginPlayerHelper.sendBlankInventoryPacket(p);
         }
     }
 }
