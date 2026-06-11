@@ -5,7 +5,7 @@ import cc.baka9.catseedlogin.bukkit.config.BukkitConfigManager;
 import cc.baka9.catseedlogin.bukkit.database.SQL;
 
 public class PluginContext {
-    private static PluginContext instance;
+    private static volatile PluginContext instance;
 
     private final CatSeedLogin plugin;
     private SQL sql;

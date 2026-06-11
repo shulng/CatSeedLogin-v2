@@ -21,12 +21,12 @@ public class Config {
     private static CatSeedLogin plugin;
 
     public static class MySQL {
-        public static boolean Enable;
-        public static String Host;
-        public static String Port;
-        public static String Database;
-        public static String User;
-        public static String Password;
+        public static volatile boolean Enable;
+        public static volatile String Host;
+        public static volatile String Port;
+        public static volatile String Database;
+        public static volatile String User;
+        public static volatile String Password;
 
         public static void load(){
             BukkitConfigManager cm = plugin.getConfigManager();
@@ -40,10 +40,10 @@ public class Config {
     }
 
     public static class BungeeCord {
-        public static boolean Enable;
-        public static String Host;
-        public static String Port;
-        public static String AuthKey;
+        public static volatile boolean Enable;
+        public static volatile String Host;
+        public static volatile String Port;
+        public static volatile String AuthKey;
 
         public static void load(){
             BukkitConfigManager cm = plugin.getConfigManager();
@@ -55,25 +55,25 @@ public class Config {
     }
 
     public static class Settings {
-        public static int IpRegisterCountLimit;
-        public static int IpCountLimit;
-        public static Location SpawnLocation;
-        public static boolean LimitChineseID;
-        public static boolean BedrockLoginBypass;
-        public static boolean LoginwiththesameIP;
-        public static boolean EmptyBackpack;
-        public static int IPTimeout;
-        public static int MaxLengthID;
-        public static int MinLengthID;
-        public static boolean BeforeLoginNoDamage;
-        public static long ReenterInterval;
-        public static boolean AfterLoginBack;
-        public static boolean CanTpSpawnLocation;
-        public static List<Pattern> CommandWhiteList = new java.util.ArrayList<>();
-        public static int AutoKick;
-        public static String NamePattern;
-        public static boolean DeathStateQuitRecordLocation;
-        public static boolean FloodgatePrefixProtect;
+        public static volatile int IpRegisterCountLimit;
+        public static volatile int IpCountLimit;
+        public static volatile Location SpawnLocation;
+        public static volatile boolean LimitChineseID;
+        public static volatile boolean BedrockLoginBypass;
+        public static volatile boolean LoginwiththesameIP;
+        public static volatile boolean EmptyBackpack;
+        public static volatile int IPTimeout;
+        public static volatile int MaxLengthID;
+        public static volatile int MinLengthID;
+        public static volatile boolean BeforeLoginNoDamage;
+        public static volatile long ReenterInterval;
+        public static volatile boolean AfterLoginBack;
+        public static volatile boolean CanTpSpawnLocation;
+        public static volatile List<Pattern> CommandWhiteList = new java.util.ArrayList<>();
+        public static volatile int AutoKick;
+        public static volatile String NamePattern;
+        public static volatile boolean DeathStateQuitRecordLocation;
+        public static volatile boolean FloodgatePrefixProtect;
 
         public static void load(){
             BukkitConfigManager cm = plugin.getConfigManager();
@@ -198,13 +198,13 @@ public class Config {
     }
 
     public static class EmailVerify {
-        public static boolean Enable;
-        public static String EmailAccount;
-        public static String EmailPassword;
-        public static String EmailSmtpHost;
-        public static String EmailSmtpPort;
-        public static boolean SSLAuthVerify;
-        public static String FromPersonal;
+        public static volatile boolean Enable;
+        public static volatile String EmailAccount;
+        public static volatile String EmailPassword;
+        public static volatile String EmailSmtpHost;
+        public static volatile String EmailSmtpPort;
+        public static volatile boolean SSLAuthVerify;
+        public static volatile String FromPersonal;
 
         public static void load(){
             BukkitConfigManager cm = plugin.getConfigManager();
@@ -274,23 +274,32 @@ public class Config {
     }
 
     private static Location str2Location(String str){
-        Location loc;
         try {
             String[] locStrs = str.split(":");
+            if (locStrs.length < 6) {
+                return getDefaultSpawnLocation();
+            }
             World world = Bukkit.getWorld(locStrs[0]);
             if (world == null) {
                 world = getDefaultWorld();
+            }
+            if (world == null) {
+                return getDefaultSpawnLocation();
             }
             double x = Double.parseDouble(locStrs[1]);
             double y = Double.parseDouble(locStrs[2]);
             double z = Double.parseDouble(locStrs[3]);
             float yaw = Float.parseFloat(locStrs[4]);
             float pitch = Float.parseFloat(locStrs[5]);
-            loc = new Location(world, x, y, z, yaw, pitch);
-        } catch (Exception ignored) {
-            loc = getDefaultWorld().getSpawnLocation();
+            return new Location(world, x, y, z, yaw, pitch);
+        } catch (NumberFormatException ignored) {
+            return getDefaultSpawnLocation();
         }
-        return loc;
+    }
+
+    private static Location getDefaultSpawnLocation() {
+        World world = getDefaultWorld();
+        return world != null ? world.getSpawnLocation() : Bukkit.getWorlds().get(0).getSpawnLocation();
     }
 
     private static String loc2String(Location loc) {

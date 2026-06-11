@@ -9,7 +9,7 @@ import cc.baka9.catseedlogin.bukkit.Cache;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayerHelper;
 
 public class TaskAutoKick extends Task {
-    public Map<String, Long> playerJoinTime = new ConcurrentHashMap<>();
+    private final Map<String, Long> playerJoinTime = new ConcurrentHashMap<>();
 
     @Override
     public void run() {
@@ -21,6 +21,10 @@ public class TaskAutoKick extends Task {
         for (Player player : Bukkit.getOnlinePlayers()) {
             checkAndKickPlayer(player, now, autoKickMs);
         }
+    }
+
+    public void removePlayer(String playerName) {
+        playerJoinTime.remove(playerName);
     }
 
     private void checkAndKickPlayer(Player player, long now, long autoKickMs) {

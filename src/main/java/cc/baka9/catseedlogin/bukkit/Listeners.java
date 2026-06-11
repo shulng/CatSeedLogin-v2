@@ -184,8 +184,8 @@ public class Listeners implements Listener {
         }
         try {
             TaskAutoKick task = Task.getTaskAutoKick();
-            if (task != null && task.playerJoinTime != null) {
-                task.playerJoinTime.remove(player.getName());
+            if (task != null) {
+                task.removePlayer(player.getName());
             }
         } catch (Exception e) {
             player.getServer().getLogger().warning("Failed to remove player from auto-kick list: " + player.getName());

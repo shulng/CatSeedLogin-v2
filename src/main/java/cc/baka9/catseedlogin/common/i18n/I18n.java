@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class I18n {
 
-    private static I18n instance;
+    private static volatile I18n instance;
     private static final String LANGUAGES_FOLDER = "languages";
 
     private final File dataFolder;

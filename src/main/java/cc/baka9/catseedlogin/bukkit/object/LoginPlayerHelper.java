@@ -26,32 +26,32 @@ import cc.baka9.catseedlogin.bukkit.Cache;
 import cc.baka9.catseedlogin.bukkit.PluginContext;
 
 public class LoginPlayerHelper {
-    private static final Set<LoginPlayer> set = ConcurrentHashMap.newKeySet();
+    private static final Map<String, LoginPlayer> loginPlayers = new ConcurrentHashMap<>();
     private static final Map<String, Long> playerExitTimes = new ConcurrentHashMap<>();
     private static final int MAX_STORED_IPS = 10;
 
-    public static List<LoginPlayer> getList() { return new ArrayList<>(set); }
+    public static List<LoginPlayer> getList() { return new ArrayList<>(loginPlayers.values()); }
     public static void add(LoginPlayer lp) {
         if (lp == null) return;
         try {
-            set.add(lp);
+            loginPlayers.put(lp.getName(), lp);
         } catch (Exception e) {
-            PluginContext.getLogger().severe("Failed to add LoginPlayer to set: " + e.getMessage());
+            PluginContext.getLogger().severe("Failed to add LoginPlayer: " + e.getMessage());
         }
     }
     public static void remove(LoginPlayer lp) {
         if (lp == null) return;
         try {
-            set.remove(lp);
+            loginPlayers.remove(lp.getName());
         } catch (Exception e) {
-            PluginContext.getLogger().severe("Failed to remove LoginPlayer from set: " + e.getMessage());
+            PluginContext.getLogger().severe("Failed to remove LoginPlayer: " + e.getMessage());
         }
     }
     
     public static void remove(String name) {
         if (name == null) return;
         try {
-            set.removeIf(lp -> lp != null && name.equals(lp.getName()));
+            loginPlayers.remove(name);
         } catch (Exception e) {
             PluginContext.getLogger().severe("Failed to remove LoginPlayer by name: " + name + " - " + e.getMessage());
         }
@@ -60,7 +60,7 @@ public class LoginPlayerHelper {
     public static boolean isLogin(String name) {
         return (Config.Settings.BedrockLoginBypass && isFloodgatePlayer(name)) ||
                 (Config.Settings.LoginwiththesameIP && recordCurrentIP(name)) ||
-                set.stream().anyMatch(lp -> lp.getName().equals(name));
+                loginPlayers.containsKey(name);
     }
 
     public static boolean isRegister(String name) {
@@ -73,13 +73,7 @@ public class LoginPlayerHelper {
     }
 
     public static boolean recordCurrentIP(Player player) {
-        if (player == null) {
-            return false;
-        }
-        String currentIP = Optional.ofNullable(player.getAddress())
-                .map(addr -> addr.getAddress())
-                .map(InetAddress::getHostAddress)
-                .orElse(null);
+        String currentIP = getPlayerIP(player);
         if (currentIP == null) return false;
 
         LoginPlayer storedPlayer = Cache.getIgnoreCase(player.getName());
@@ -93,6 +87,14 @@ public class LoginPlayerHelper {
         }
 
         return false;
+    }
+
+    private static String getPlayerIP(Player player) {
+        if (player == null) return null;
+        return Optional.ofNullable(player.getAddress())
+                .map(addr -> addr.getAddress())
+                .map(InetAddress::getHostAddress)
+                .orElse(null);
     }
 
     public static void recordPlayerExitTime(String playerName) {
@@ -141,10 +143,7 @@ public class LoginPlayerHelper {
 
     public static void recordCurrentIP(Player player, LoginPlayer lp) {
         try {
-            String currentIp = Optional.ofNullable(player.getAddress())
-                    .map(addr -> addr.getAddress())
-                    .map(InetAddress::getHostAddress)
-                    .orElse(null);
+            String currentIp = getPlayerIP(player);
             
             if (currentIp == null) {
                 return;

@@ -71,7 +71,6 @@ public class EmailCode {
     }
 
     private static void clear() {
-        long now = System.currentTimeMillis();
         bindMap.entrySet().removeIf(next -> DateUtil.isExpired(next.getValue().getCreateTime(), next.getValue().getDurability()));
         resetPasswordMap.entrySet().removeIf(next -> DateUtil.isExpired(next.getValue().getCreateTime(), next.getValue().getDurability()));
     }

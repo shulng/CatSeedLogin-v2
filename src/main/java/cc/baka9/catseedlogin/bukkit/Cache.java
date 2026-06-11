@@ -55,13 +55,11 @@ public class Cache {
             try {
                 LoginPlayer newLp = CatSeedLogin.sql.get(name);
                 String key = name.toLowerCase();
-                ConcurrentHashMap<String, LoginPlayer> newMap = new ConcurrentHashMap<>(PLAYER_HASHTABLE);
                 if (newLp != null) {
-                    newMap.put(key, newLp);
+                    PLAYER_HASHTABLE.put(key, newLp);
                 } else {
-                    newMap.remove(key);
+                    PLAYER_HASHTABLE.remove(key);
                 }
-                PLAYER_HASHTABLE = newMap;
                 CatSeedLogin.instance.getLogger().info("缓存加载 " + PLAYER_HASHTABLE.size() + " 个数据");
             } catch (Exception e) {
                 CatSeedLogin.instance.getLogger().warning("数据库错误,无法更新缓存!");

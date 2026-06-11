@@ -1,7 +1,6 @@
 package cc.baka9.catseedlogin.common.config;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface Configuration {
 

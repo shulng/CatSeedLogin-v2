@@ -24,10 +24,10 @@ import space.arim.morepaperlib.MorePaperLib;
 
 public class CatSeedLogin extends JavaPlugin implements Listener {
 
-    public static CatSeedLogin instance;
-    public static SQL sql;
-    public static boolean loadProtocolLib = false;
-    public static MorePaperLib morePaperLib;
+    public static volatile CatSeedLogin instance;
+    public static volatile SQL sql;
+    public static volatile boolean loadProtocolLib = false;
+    public static volatile MorePaperLib morePaperLib;
     
     private BukkitConfigManager configManager;
     private BukkitPlatformAdapter platformAdapter;
@@ -99,25 +99,32 @@ public class CatSeedLogin extends JavaPlugin implements Listener {
     }
 
     private void registerLoginCommand() {
-        getServer().getPluginCommand("login").setExecutor(new CommandLogin());
-        getServer().getPluginCommand("login").setTabCompleter((commandSender, command, s, args)
+        PluginCommand cmd = getServer().getPluginCommand("login");
+        if (cmd == null) return;
+        cmd.setExecutor(new CommandLogin());
+        cmd.setTabCompleter((commandSender, command, s, args)
                 -> args.length == 1 ? Collections.singletonList("密码") : new ArrayList<>(0));
     }
 
     private void registerRegisterCommand() {
-        getServer().getPluginCommand("register").setExecutor(new CommandRegister());
-        getServer().getPluginCommand("register").setTabCompleter((commandSender, command, s, args)
+        PluginCommand cmd = getServer().getPluginCommand("register");
+        if (cmd == null) return;
+        cmd.setExecutor(new CommandRegister());
+        cmd.setTabCompleter((commandSender, command, s, args)
                 -> args.length == 1 ? Collections.singletonList("密码 重复密码") : new ArrayList<>(0));
     }
 
     private void registerChangePasswordCommand() {
-        getServer().getPluginCommand("changepassword").setExecutor(new CommandChangePassword());
-        getServer().getPluginCommand("changepassword").setTabCompleter((commandSender, command, s, args)
+        PluginCommand cmd = getServer().getPluginCommand("changepassword");
+        if (cmd == null) return;
+        cmd.setExecutor(new CommandChangePassword());
+        cmd.setTabCompleter((commandSender, command, s, args)
                 -> args.length == 1 ? Collections.singletonList("旧密码 新密码 重复新密码") : new ArrayList<>(0));
     }
 
     private void registerBindEmailCommand() {
         PluginCommand bindemail = getServer().getPluginCommand("bindemail");
+        if (bindemail == null) return;
         bindemail.setExecutor(new CommandBindEmail());
         bindemail.setTabCompleter((commandSender, command, s, args) -> {
             if (args.length == 1) {
@@ -137,6 +144,7 @@ public class CatSeedLogin extends JavaPlugin implements Listener {
 
     private void registerResetPasswordCommand() {
         PluginCommand resetpassword = getServer().getPluginCommand("resetpassword");
+        if (resetpassword == null) return;
         resetpassword.setExecutor(new CommandResetPassword());
         resetpassword.setTabCompleter((commandSender, command, s, args) -> {
             if (args.length == 1) {
@@ -153,7 +161,9 @@ public class CatSeedLogin extends JavaPlugin implements Listener {
     }
 
     private void registerCatSeedLoginCommand() {
-        getServer().getPluginCommand("catseedlogin").setExecutor(new CommandCatSeedLogin());
+        PluginCommand cmd = getServer().getPluginCommand("catseedlogin");
+        if (cmd == null) return;
+        cmd.setExecutor(new CommandCatSeedLogin());
     }
 
     @EventHandler
