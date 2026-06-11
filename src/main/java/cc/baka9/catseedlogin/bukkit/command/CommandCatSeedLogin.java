@@ -271,7 +271,7 @@ public class CommandCatSeedLogin implements CommandExecutor {
         PluginContext.setSql(Config.MySQL.Enable ? new MySQL(PluginContext.getPlugin()) : new SQLite(PluginContext.getPlugin()));
         try {
             PluginContext.getSql().init();
-            Cache.refreshAll();
+            Cache.refreshAllSync();
         } catch (Exception e) {
             PluginContext.getLogger().warning("§c加载数据库时出错");
             e.printStackTrace();
@@ -370,10 +370,11 @@ public class CommandCatSeedLogin implements CommandExecutor {
 
     private void setPwdUpdateExisting(CommandSender sender, LoginPlayer lp, String pwd) {
         try {
-            lp.setPassword(pwd);
-            lp.crypt();
-            PluginContext.getSql().edit(lp);
-            Cache.refresh(lp.getName());
+            LoginPlayer copy = lp.copy();
+            copy.setPassword(pwd);
+            copy.crypt();
+            PluginContext.getSql().edit(copy);
+            Cache.refresh(copy.getName());
             LoginPlayerHelper.remove(lp);
             sender.sendMessage(MessageKey.PASSWORD_SET_MSG.get(lp.getName()));
             notifyPlayerPasswordChanged(lp);

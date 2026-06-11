@@ -61,13 +61,9 @@ public abstract class BaseCommunication {
         return new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
     }
 
-    private void writeLine(BufferedWriter writer, String line) {
-        try {
-            if (writer == null || line == null) return;
-            writer.write(line);
-            writer.newLine();
-        } catch (IOException e) {
-            logError("Failed to write line", e);
-        }
+    private void writeLine(BufferedWriter writer, String line) throws IOException {
+        if (writer == null || line == null) return;
+        writer.write(line);
+        writer.newLine();
     }
 }

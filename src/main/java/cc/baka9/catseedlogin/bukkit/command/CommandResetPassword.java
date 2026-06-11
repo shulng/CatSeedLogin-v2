@@ -67,7 +67,14 @@ public class CommandResetPassword implements CommandExecutor {
             e.printStackTrace();
         }
 
-        EmailCode emailCode = EmailCode.create(name, lp.getEmail(), EMAIL_CODE_DURATION, EmailCode.Type.ResetPassword);
+        EmailCode emailCode;
+        try {
+            emailCode = EmailCode.create(name, lp.getEmail(), EMAIL_CODE_DURATION, EmailCode.Type.ResetPassword);
+        } catch (Exception e) {
+            sender.sendMessage(MessageKey.INTERNAL_ERROR.get());
+            e.printStackTrace();
+            return true;
+        }
         sender.sendMessage(Config.Language.RESETPASSWORD_EMAIL_SENDING_MESSAGE
                 .replace("{email}", lp.getEmail()));
 
@@ -146,9 +153,10 @@ public class CommandResetPassword implements CommandExecutor {
 
     private void executePasswordReset(String name, LoginPlayer lp, String pwd, CommandSender sender) {
         try {
-            lp.setPassword(pwd);
-            lp.crypt();
-            PluginContext.getSql().edit(lp);
+            LoginPlayer copy = lp.copy();
+            copy.setPassword(pwd);
+            copy.crypt();
+            PluginContext.getSql().edit(copy);
             Cache.refresh(name);
             LoginPlayerHelper.remove(lp);
             EmailCode.removeByName(name, EmailCode.Type.ResetPassword);

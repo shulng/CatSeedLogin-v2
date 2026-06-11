@@ -55,9 +55,15 @@ public class CommandRegister implements CommandExecutor {
     }
 
     private void registerPlayerAsync(Player player, String name, String password) {
+        if (player.getAddress() == null || player.getAddress().getAddress() == null) {
+            player.sendMessage(MessageKey.INTERNAL_ERROR.get());
+            return;
+        }
+        String currentIp = player.getAddress().getAddress().getHostAddress();
+        boolean isLoopback = player.getAddress().getAddress().isLoopbackAddress();
         CatScheduler.runTaskAsync(() -> {
             try {
-                processRegistration(player, name, password);
+                processRegistration(player, name, password, currentIp, isLoopback);
             } catch (Exception e) {
                 e.printStackTrace();
                 player.sendMessage(MessageKey.INTERNAL_ERROR.get());
@@ -65,11 +71,10 @@ public class CommandRegister implements CommandExecutor {
         });
     }
 
-    private void processRegistration(Player player, String name, String password) throws Exception {
-        String currentIp = player.getAddress().getAddress().getHostAddress();
+    private void processRegistration(Player player, String name, String password, String currentIp, boolean isLoopback) throws Exception {
         List<LoginPlayer> loginPlayersByIp = PluginContext.getSql().getLikeByIp(currentIp);
 
-        if (!player.getAddress().getAddress().isLoopbackAddress()
+        if (!isLoopback
                 && loginPlayersByIp.size() >= Config.Settings.IpRegisterCountLimit) {
             player.sendMessage(Config.Language.REGISTER_MORE
                     .replace("{count}", String.valueOf(loginPlayersByIp.size()))

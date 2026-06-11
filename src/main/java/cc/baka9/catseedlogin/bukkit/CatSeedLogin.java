@@ -166,7 +166,7 @@ public class CatSeedLogin extends JavaPlugin implements Listener {
         Task.cancelAll();
         Bukkit.getOnlinePlayers().forEach(p -> {
             if (LoginPlayerHelper.isLogin(p.getName()) && (!p.isDead() || configManager.isDeathStateQuitRecordLocation())) {
-                Config.setOfflineLocation(p);
+                Config.setOfflineLocationSync(p);
             }
         });
 

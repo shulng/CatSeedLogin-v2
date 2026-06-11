@@ -56,11 +56,6 @@ public class Listeners implements Listener {
         if (loggedInPlayerList.contains(playerName)) {
             return;
         }
-        PluginMain.runAsync(() -> checkLoginAndRedirect(player, playerName, event, loginServerName));
-    }
-
-    private void checkLoginAndRedirect(ProxiedPlayer player, String playerName, ServerConnectEvent event,
-            String loginServerName) {
         try {
             if (communication.sendConnectRequest(playerName) == 1) {
                 loggedInPlayerList.add(playerName);

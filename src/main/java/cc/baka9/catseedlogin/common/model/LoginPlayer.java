@@ -39,4 +39,13 @@ public class LoginPlayer {
     public void crypt() {
         password = Crypt.encrypt(name, password);
     }
+
+    public LoginPlayer copy() {
+        LoginPlayer copy = new LoginPlayer(name, password);
+        copy.email = this.email;
+        copy.ips = this.ips;
+        copy.lastAction = this.lastAction;
+        copy.location = this.location;
+        return copy;
+    }
 }

@@ -83,21 +83,16 @@ public class Listeners {
             return;
         }
 
-        checkLoginAsync(player, playerName, loginServerName, event);
+        checkLoginSync(player, playerName, loginServerName, event);
     }
 
-    private void checkLoginAsync(Player player, String playerName, String loginServerName,
+    private void checkLoginSync(Player player, String playerName, String loginServerName,
                                   ServerPreConnectEvent event) {
-        PluginMain.runAsync(() -> handleLoginCheck(playerName, loginServerName, event));
-    }
-
-    private void handleLoginCheck(String playerName, String loginServerName, ServerPreConnectEvent event) {
         try {
             if (communication.sendConnectRequest(playerName) == 1) {
                 loggedInPlayerList.add(playerName);
             } else {
-                proxyServer.getScheduler().buildTask(this, () -> redirectToLoginServer(loginServerName, event))
-                    .schedule();
+                redirectToLoginServer(loginServerName, event);
             }
         } catch (Exception e) {
             logger.error("Error checking login status for player: " + playerName, e);

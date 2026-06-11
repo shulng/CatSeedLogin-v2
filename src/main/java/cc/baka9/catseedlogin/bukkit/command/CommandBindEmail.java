@@ -84,7 +84,14 @@ public class CommandBindEmail implements CommandExecutor {
             e.printStackTrace();
         }
 
-        EmailCode bindEmail = EmailCode.create(name, mail, 1000 * 60 * 5, EmailCode.Type.Bind);
+        EmailCode bindEmail;
+        try {
+            bindEmail = EmailCode.create(name, mail, 1000 * 60 * 5, EmailCode.Type.Bind);
+        } catch (Exception e) {
+            sender.sendMessage(MessageKey.INTERNAL_ERROR.get());
+            e.printStackTrace();
+            return;
+        }
         sender.sendMessage(MessageKey.SENDING_EMAIL_CODE.get());
         sendEmailCode(sender, name, mail, bindEmail);
     }

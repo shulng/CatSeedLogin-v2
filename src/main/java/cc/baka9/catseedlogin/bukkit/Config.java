@@ -263,6 +263,16 @@ public class Config {
         });
     }
 
+    public static void setOfflineLocationSync(Player player) {
+        String locStr = loc2String(player.getLocation());
+        try {
+            CatSeedLogin.sql.updateLocation(player.getName(), locStr);
+        } catch (Exception e) {
+            plugin.getLogger().warning("保存玩家离线位置失败: " + player.getName());
+            e.printStackTrace();
+        }
+    }
+
     private static Location str2Location(String str){
         Location loc;
         try {
@@ -306,6 +316,10 @@ public class Config {
     }
 
     private static World getDefaultWorld() {
+        if (Bukkit.getWorlds().isEmpty()) {
+            return null;
+        }
+
         File serverPropertiesFile = new File("server.properties");
         if (!serverPropertiesFile.exists()) {
             return Bukkit.getWorlds().get(0);

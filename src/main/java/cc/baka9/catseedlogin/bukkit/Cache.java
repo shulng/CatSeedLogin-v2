@@ -36,6 +36,20 @@ public class Cache {
         });
     }
 
+    public static void refreshAllSync() {
+        try {
+            List<LoginPlayer> newCache = CatSeedLogin.sql.getAll();
+            ConcurrentHashMap<String, LoginPlayer> newMap = new ConcurrentHashMap<>();
+            newCache.forEach(p -> newMap.put(p.getName().toLowerCase(), p));
+            PLAYER_HASHTABLE = newMap;
+            CatSeedLogin.instance.getLogger().info("缓存加载 " + PLAYER_HASHTABLE.size() + " 个数据");
+            isLoaded = true;
+        } catch (Exception e) {
+            CatSeedLogin.instance.getLogger().warning("数据库错误,无法更新缓存!");
+            e.printStackTrace();
+        }
+    }
+
     public static void refresh(String name) {
         CatSeedLogin.instance.runTaskAsync(() -> {
             try {

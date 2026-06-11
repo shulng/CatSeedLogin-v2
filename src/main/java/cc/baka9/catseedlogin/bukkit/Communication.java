@@ -81,6 +81,7 @@ public class Communication extends BaseCommunication {
     }
 
     private static void handleKeepLoggedInRequest(String playerName, String time, String sign) {
+        if (playerName == null || time == null || sign == null) return;
         String expectedSign = CommunicationAuth.encryption(
                 playerName, time, PluginContext.getConfigManager().getAuthKey());
         if (!sign.equals(expectedSign)) return;

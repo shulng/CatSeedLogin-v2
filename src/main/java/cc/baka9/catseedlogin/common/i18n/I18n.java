@@ -51,10 +51,6 @@ public class I18n {
     }
 
     public void loadMessages(Locale locale) {
-        if (messages.containsKey(locale)) {
-            return;
-        }
-
         Map<String, String> localeMessages = new HashMap<>();
         String fileName = locale.toLanguageTag() + ".yml";
         File languagesFolder = new File(dataFolder, LANGUAGES_FOLDER);

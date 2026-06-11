@@ -60,10 +60,11 @@ public class CommandChangePassword implements CommandExecutor {
 
     private void executePasswordChange(CommandSender sender, Player player, LoginPlayer lp, String newPwd) {
         try {
-            lp.setPassword(newPwd);
-            lp.crypt();
-            PluginContext.getSql().edit(lp);
-            Cache.refresh(lp.getName());
+            LoginPlayer copy = lp.copy();
+            copy.setPassword(newPwd);
+            copy.crypt();
+            PluginContext.getSql().edit(copy);
+            Cache.refresh(copy.getName());
             LoginPlayerHelper.remove(lp);
             CatScheduler.runTask(() -> notifyChangeSuccess(sender, player));
         } catch (Exception e) {
