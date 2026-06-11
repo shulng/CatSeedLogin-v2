@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Config {
-    private static final CatSeedLogin plugin = CatSeedLogin.instance;
+    private static CatSeedLogin plugin;
 
     public static class MySQL {
         public static boolean Enable;
@@ -219,6 +219,7 @@ public class Config {
     }
 
     public static void load(){
+        plugin = CatSeedLogin.instance;
         BukkitConfigManager cm = plugin.getConfigManager();
         cm.createDefaultConfig("config.yml");
         MySQL.load();
@@ -267,6 +268,9 @@ public class Config {
         try {
             String[] locStrs = str.split(":");
             World world = Bukkit.getWorld(locStrs[0]);
+            if (world == null) {
+                world = getDefaultWorld();
+            }
             double x = Double.parseDouble(locStrs[1]);
             double y = Double.parseDouble(locStrs[2]);
             double z = Double.parseDouble(locStrs[3]);

@@ -60,10 +60,10 @@ public class Communication extends BaseCommunication {
     }
 
     private static void handleRequest(Socket socket) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        OutputStream outputStream = socket.getOutputStream();
-        try {
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+             OutputStream outputStream = socket.getOutputStream()) {
             String requestType = bufferedReader.readLine();
+            if (requestType == null) return;
             String playerName = bufferedReader.readLine();
             switch (requestType) {
                 case "Connect":
@@ -77,10 +77,6 @@ public class Communication extends BaseCommunication {
                 default:
                     break;
             }
-        } finally {
-            bufferedReader.close();
-            outputStream.close();
-            socket.close();
         }
     }
 

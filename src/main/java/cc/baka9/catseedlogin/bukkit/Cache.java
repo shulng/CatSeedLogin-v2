@@ -8,13 +8,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Cache {
-    private static final Map<String, LoginPlayer> PLAYER_HASHTABLE = new ConcurrentHashMap<>();
+    private static volatile Map<String, LoginPlayer> PLAYER_HASHTABLE = new ConcurrentHashMap<>();
     public static volatile boolean isLoaded = false;
 
     public static List<LoginPlayer> getAllLoginPlayer() {
-        synchronized (PLAYER_HASHTABLE) {
-            return new ArrayList<>(PLAYER_HASHTABLE.values());
-        }
+        return new ArrayList<>(PLAYER_HASHTABLE.values());
     }
 
     public static LoginPlayer getIgnoreCase(String name) {
@@ -26,10 +24,9 @@ public class Cache {
         CatSeedLogin.instance.runTaskAsync(() -> {
             try {
                 List<LoginPlayer> newCache = CatSeedLogin.sql.getAll();
-                synchronized (PLAYER_HASHTABLE) {
-                    PLAYER_HASHTABLE.clear();
-                    newCache.forEach(p -> PLAYER_HASHTABLE.put(p.getName().toLowerCase(), p));
-                }
+                ConcurrentHashMap<String, LoginPlayer> newMap = new ConcurrentHashMap<>();
+                newCache.forEach(p -> newMap.put(p.getName().toLowerCase(), p));
+                PLAYER_HASHTABLE = newMap;
                 CatSeedLogin.instance.getLogger().info("缓存加载 " + PLAYER_HASHTABLE.size() + " 个数据");
                 isLoaded = true;
             } catch (Exception e) {
@@ -44,13 +41,13 @@ public class Cache {
             try {
                 LoginPlayer newLp = CatSeedLogin.sql.get(name);
                 String key = name.toLowerCase();
-                synchronized (PLAYER_HASHTABLE) {
-                    if (newLp != null) {
-                        PLAYER_HASHTABLE.put(key, newLp);
-                    } else {
-                        PLAYER_HASHTABLE.remove(key);
-                    }
+                ConcurrentHashMap<String, LoginPlayer> newMap = new ConcurrentHashMap<>(PLAYER_HASHTABLE);
+                if (newLp != null) {
+                    newMap.put(key, newLp);
+                } else {
+                    newMap.remove(key);
                 }
+                PLAYER_HASHTABLE = newMap;
                 CatSeedLogin.instance.getLogger().info("缓存加载 " + PLAYER_HASHTABLE.size() + " 个数据");
             } catch (Exception e) {
                 CatSeedLogin.instance.getLogger().warning("数据库错误,无法更新缓存!");

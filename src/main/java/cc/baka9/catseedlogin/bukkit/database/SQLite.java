@@ -54,7 +54,7 @@ public class SQLite extends SQL {
     }
 
     @Override
-    public void closeConnection() {
+    public synchronized void closeConnection() {
         try {
             if (connection != null && !connection.isClosed()) {
                 connection.close();

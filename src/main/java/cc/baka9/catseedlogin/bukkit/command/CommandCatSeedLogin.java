@@ -262,6 +262,12 @@ public class CommandCatSeedLogin implements CommandExecutor {
     private boolean reload(CommandSender sender, String[] args) {
         if (args.length == 0 || !args[0].equalsIgnoreCase("reload")) return false;
         Config.reload();
+        try {
+            PluginContext.getSql().closeConnection();
+        } catch (Exception e) {
+            PluginContext.getLogger().warning("§c关闭旧数据库连接时出错");
+            e.printStackTrace();
+        }
         PluginContext.setSql(Config.MySQL.Enable ? new MySQL(PluginContext.getPlugin()) : new SQLite(PluginContext.getPlugin()));
         try {
             PluginContext.getSql().init();

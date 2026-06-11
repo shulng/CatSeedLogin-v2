@@ -50,27 +50,10 @@ public abstract class SQL {
     }
 
     private boolean columnExists(String tableName, String columnName) {
-        // SQLite: 使用 PRAGMA table_info 检查列是否存在
-        try (java.sql.Statement stmt = getConnection().createStatement();
-             ResultSet rs = stmt.executeQuery("PRAGMA table_info(" + tableName + ")")) {
-            while (rs.next()) {
-                if (columnName.equalsIgnoreCase(rs.getString("name"))) {
-                    return true;
-                }
-            }
-            return false;
+        try (ResultSet rs = getConnection().getMetaData().getColumns(null, null, tableName, columnName)) {
+            return rs.next();
         } catch (SQLException e) {
-            // MySQL/其他数据库：回退到 information_schema
-            try (PreparedStatement ps = getConnection().prepareStatement(
-                    "SELECT COUNT(*) FROM information_schema.columns WHERE table_name = ? AND column_name = ?")) {
-                ps.setString(1, tableName);
-                ps.setString(2, columnName);
-                try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next() && rs.getInt(1) > 0;
-                }
-            } catch (SQLException ex) {
-                return false;
-            }
+            return false;
         }
     }
 
@@ -85,6 +68,7 @@ public abstract class SQL {
                 lp.getName(), lp.getPassword(), new Date(), lp.getEmail(), lp.getIps(), lp.getLocation()));
         } catch (SQLException e) {
             logger.severe("Failed to add player: " + lp.getName() + " - " + e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 
@@ -98,6 +82,7 @@ public abstract class SQL {
             flush(new BufferStatement("DELETE FROM accounts WHERE name = ?", name));
         } catch (SQLException e) {
             logger.severe("Failed to delete player: " + name + " - " + e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 
@@ -112,6 +97,7 @@ public abstract class SQL {
                 lp.getPassword(), new Date(), lp.getEmail(), lp.getIps(), lp.getLocation(), lp.getName()));
         } catch (SQLException e) {
             logger.severe("Failed to edit player: " + lp.getName() + " - " + e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 
@@ -126,6 +112,7 @@ public abstract class SQL {
             flush(new BufferStatement("UPDATE accounts SET location = ? WHERE name = ?", location, name));
         } catch (SQLException e) {
             logger.severe("Failed to update location for player: " + name + " - " + e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 
@@ -227,7 +214,8 @@ public abstract class SQL {
 
     private LoginPlayer mapLoginPlayer(ResultSet resultSet) throws SQLException {
         LoginPlayer lp = new LoginPlayer(resultSet.getString("name"), resultSet.getString("password"));
-        lp.setLastAction(resultSet.getTimestamp("lastAction").getTime());
+        java.sql.Timestamp ts = resultSet.getTimestamp("lastAction");
+        lp.setLastAction(ts != null ? ts.getTime() : 0L);
         lp.setEmail(resultSet.getString("email"));
         lp.setIps(resultSet.getString("ips"));
         lp.setLocation(resultSet.getString("location"));

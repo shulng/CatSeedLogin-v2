@@ -28,6 +28,7 @@ import cc.baka9.catseedlogin.bukkit.PluginContext;
 public class LoginPlayerHelper {
     private static final Set<LoginPlayer> set = ConcurrentHashMap.newKeySet();
     private static final Map<String, Long> playerExitTimes = new ConcurrentHashMap<>();
+    private static final int MAX_STORED_IPS = 10;
 
     public static List<LoginPlayer> getList() { return new ArrayList<>(set); }
     public static void add(LoginPlayer lp) {
@@ -153,10 +154,11 @@ public class LoginPlayerHelper {
                     ? new ArrayList<>(lp.getIpsList())
                     : new ArrayList<>();
             ipsList = ipsList.stream().distinct().collect(Collectors.toList());
-            if (!ipsList.isEmpty()) {
-                ipsList.remove(ipsList.size() - 1);
-            }
+            ipsList.remove(currentIp);
             ipsList.add(currentIp);
+            while (ipsList.size() > MAX_STORED_IPS) {
+                ipsList.remove(0);
+            }
             lp.setIps(String.join(";", ipsList));
 
             savePlayerIPAsync(player, lp);

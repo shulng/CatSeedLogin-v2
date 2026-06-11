@@ -15,7 +15,7 @@ public class Crypt {
             md.update(textBytes, 0, textBytes.length);
             return byteArrayToHexString(md.digest());
         } catch (final NoSuchAlgorithmException e) {
-            return null;
+            throw new RuntimeException(e);
         }
     }
 

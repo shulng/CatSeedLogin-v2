@@ -22,6 +22,7 @@ public class CommunicationAuth {
         for (byte value : arrayOfByte) {
             stringBuilder.append(String.format("%02x", value & 0xff));
         }
+        MESSAGE_DIGEST.remove();
         return stringBuilder.toString();
     }
 }

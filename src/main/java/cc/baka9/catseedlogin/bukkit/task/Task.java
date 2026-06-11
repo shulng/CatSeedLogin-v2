@@ -1,13 +1,13 @@
 package cc.baka9.catseedlogin.bukkit.task;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import cc.baka9.catseedlogin.bukkit.CatScheduler;
 import cc.baka9.catseedlogin.bukkit.CatSeedLogin;
 import space.arim.morepaperlib.scheduling.ScheduledTask;
 
 public abstract class Task implements Runnable {
-    private static final List<ScheduledTask> scheduledTasks = new ArrayList<>();
+    private static final List<ScheduledTask> scheduledTasks = new CopyOnWriteArrayList<>();
     private static final CatSeedLogin plugin = CatSeedLogin.instance;
     private static TaskAutoKick taskAutoKick;
     private static TaskSendLoginMessage taskSendLoginMessage;

@@ -28,6 +28,7 @@ public class BukkitConfigManager extends BaseConfigManager {
     }
 
     public void setSpawnLocation(Location location) {
+        if (location.getWorld() == null) return;
         String locStr = String.format("%s:%.2f:%.2f:%.2f:%.2f:%.2f",
                 location.getWorld().getName(),
                 location.getX(),

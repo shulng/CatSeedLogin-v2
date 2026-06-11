@@ -19,7 +19,7 @@ import cc.baka9.catseedlogin.common.util.ValidationUtil;
 public class CommandRegister implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String lable, String[] args) {
-        if (args.length != 2) return false;
+        if (args.length != 2 || !(sender instanceof Player)) return false;
         Player player = (Player) sender;
         String name = sender.getName();
 

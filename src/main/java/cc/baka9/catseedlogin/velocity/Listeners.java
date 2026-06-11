@@ -96,7 +96,8 @@ public class Listeners {
             if (communication.sendConnectRequest(playerName) == 1) {
                 loggedInPlayerList.add(playerName);
             } else {
-                redirectToLoginServer(loginServerName, event);
+                proxyServer.getScheduler().buildTask(this, () -> redirectToLoginServer(loginServerName, event))
+                    .schedule();
             }
         } catch (Exception e) {
             logger.error("Error checking login status for player: " + playerName, e);

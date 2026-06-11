@@ -38,7 +38,7 @@ public class EmailCode {
             return emailCode;
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
+            throw new RuntimeException("Failed to create email code for " + name, e);
         }
     }
 

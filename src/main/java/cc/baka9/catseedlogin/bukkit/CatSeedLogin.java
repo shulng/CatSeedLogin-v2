@@ -8,7 +8,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -59,6 +58,8 @@ public class CatSeedLogin extends JavaPlugin implements Listener {
         } catch (Exception e) {
             getLogger().warning("§c加载数据库时出错");
             e.printStackTrace();
+            getServer().getPluginManager().disablePlugin(this);
+            return;
         }
 
         getServer().getPluginManager().registerEvents(new Listeners(), this);
@@ -158,15 +159,6 @@ public class CatSeedLogin extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         LoginPlayerHelper.onPlayerQuit(event.getPlayer().getName());
-    }
-
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
-        CatScheduler.runTaskTimer(
-            () -> LoginPlayerHelper.recordPlayerExitTime(event.getPlayer().getName()),
-            1L,
-            20L
-        );
     }
 
     @Override
