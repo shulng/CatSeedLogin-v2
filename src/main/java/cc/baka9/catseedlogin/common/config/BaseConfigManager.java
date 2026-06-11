@@ -31,22 +31,62 @@ public abstract class BaseConfigManager implements CoreConfig, DatabaseConfig, B
 
     public abstract InputStream getResource(String name);
 
-    public abstract YamlConfiguration getConfig(String name);
+    public YamlConfiguration getConfig(String name) {
+        String fileName = name.endsWith(".yml") ? name : name + ".yml";
+        File file = new File(dataFolder, fileName);
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
 
-    public abstract void createDefaultConfig(String name);
+        try (InputStream defaultStream = getResource(fileName)) {
+            if (defaultStream != null) {
+                YamlConfiguration defaultConfig = new YamlConfiguration(null);
+                defaultConfig.loadFromResource(defaultStream);
+                mergeDefaults(config, defaultConfig);
+            }
+        } catch (Exception e) {
+            // ignore
+        }
 
-    public abstract void saveConfig(String name);
+        return config;
+    }
+
+    public void createDefaultConfig(String name) {
+        String fileName = name.endsWith(".yml") ? name : name + ".yml";
+        File file = new File(dataFolder, fileName);
+        if (!file.exists()) {
+            try (InputStream in = getResource(fileName)) {
+                if (in != null) {
+                    java.nio.file.Files.copy(in, file.toPath());
+                }
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+    }
+
+    public void saveConfig(String name) {
+        YamlConfiguration config = getConfig(name);
+        if (config != null) {
+            try {
+                config.save();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+    }
+
+    private void mergeDefaults(YamlConfiguration config, YamlConfiguration defaults) {
+        for (java.util.Map.Entry<String, Object> entry : defaults.getDataMap().entrySet()) {
+            if (!config.contains(entry.getKey())) {
+                config.set(entry.getKey(), entry.getValue());
+            }
+        }
+    }
 
     public void reload() {
-        reloadAll();
         mainConfig = getConfig("config.yml");
         String language = mainConfig.getString(ConfigConstants.Path.LANGUAGE, ConfigConstants.DEFAULT_LANGUAGE);
         i18n.setLocale(language.replace("_", "-"));
         i18n.reload();
-    }
-
-    public void reloadAll() {
-        mainConfig = getConfig("config.yml");
     }
 
     public I18n getI18n() {

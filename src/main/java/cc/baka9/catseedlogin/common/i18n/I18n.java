@@ -74,7 +74,7 @@ public class I18n {
         }
 
         if (localeMessages.isEmpty()) {
-            try (InputStream fallbackStream = resourceProvider.getResource("language.yml")) {
+            try (InputStream fallbackStream = resourceProvider.getResource("languages/zh-CN.yml")) {
                 if (fallbackStream != null) {
                     loadFromStream(fallbackStream, localeMessages);
                 }

@@ -1,5 +1,6 @@
 package cc.baka9.catseedlogin.common.communication;
 
+import cc.baka9.catseedlogin.common.i18n.MessageKey;
 import cc.baka9.catseedlogin.common.util.CommunicationAuth;
 
 import java.io.BufferedWriter;
@@ -51,7 +52,7 @@ public abstract class BaseCommunication {
         try {
             return new Socket(getProxyHost(), getProxyPort());
         } catch (IOException e) {
-            logWarning("请检查装载登录插件的子服是否在配置文件中开启了代理功能，以及Host和Port是否与代理端的配置相同");
+            logWarning(MessageKey.CHECK_PROXY_CONFIG.get());
             throw new IOException(e);
         }
     }

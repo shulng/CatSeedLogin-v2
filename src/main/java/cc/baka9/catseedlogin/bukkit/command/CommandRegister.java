@@ -11,6 +11,7 @@ import cc.baka9.catseedlogin.bukkit.Config;
 import cc.baka9.catseedlogin.bukkit.PluginContext;
 import cc.baka9.catseedlogin.bukkit.Cache;
 import cc.baka9.catseedlogin.bukkit.event.CatSeedPlayerRegisterEvent;
+import cc.baka9.catseedlogin.common.i18n.MessageKey;
 import cc.baka9.catseedlogin.common.model.LoginPlayer;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayerHelper;
 import cc.baka9.catseedlogin.common.util.ValidationUtil;
@@ -35,7 +36,7 @@ public class CommandRegister implements CommandExecutor {
         }
         if (!Cache.isLoaded) return true;
 
-        sender.sendMessage("§e注册中..");
+        sender.sendMessage(MessageKey.REGISTERING.get());
         registerPlayerAsync(player, name, args[0]);
         return true;
     }
@@ -59,7 +60,7 @@ public class CommandRegister implements CommandExecutor {
                 processRegistration(player, name, password);
             } catch (Exception e) {
                 e.printStackTrace();
-                player.sendMessage("§c服务器内部错误!");
+                player.sendMessage(MessageKey.INTERNAL_ERROR.get());
             }
         });
     }

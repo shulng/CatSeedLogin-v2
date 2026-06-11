@@ -11,6 +11,7 @@ import cc.baka9.catseedlogin.bukkit.Config;
 import cc.baka9.catseedlogin.bukkit.PluginContext;
 import cc.baka9.catseedlogin.bukkit.Cache;
 import cc.baka9.catseedlogin.bukkit.object.EmailCode;
+import cc.baka9.catseedlogin.common.i18n.MessageKey;
 import cc.baka9.catseedlogin.common.model.LoginPlayer;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayerHelper;
 import cc.baka9.catseedlogin.bukkit.util.EmailSender;
@@ -43,15 +44,15 @@ public class CommandBindEmail implements CommandExecutor {
 
         LoginPlayer lp = Cache.getIgnoreCase(name);
         if (lp == null) {
-            sender.sendMessage("§c你还未注册!");
+            sender.sendMessage(MessageKey.NOT_REGISTERED.get());
             return false;
         }
         if (!LoginPlayerHelper.isLogin(name)) {
-            sender.sendMessage("§c你还未登陆!");
+            sender.sendMessage(MessageKey.NOT_LOGGED_IN.get());
             return false;
         }
         if (!Config.EmailVerify.Enable) {
-            sender.sendMessage("§c服务器没有开启邮箱功能");
+            sender.sendMessage(MessageKey.RESETPASSWORD_EMAIL_DISABLE.get());
             return false;
         }
         return true;
@@ -63,20 +64,20 @@ public class CommandBindEmail implements CommandExecutor {
         LoginPlayer lp = Cache.getIgnoreCase(name);
         if (lp == null) return;
         if (lp.getEmail() != null && ValidationUtil.isValidEmail(lp.getEmail())) {
-            sender.sendMessage("§c你已经绑定过邮箱了!");
+            sender.sendMessage(MessageKey.EMAIL_ALREADY_BOUND.get());
             return;
         }
 
         String mail = args[1];
         if (!ValidationUtil.isValidEmail(mail)) {
-            sender.sendMessage("§c邮箱格式不正确!");
+            sender.sendMessage(MessageKey.EMAIL_FORMAT_INVALID.get());
             return;
         }
 
         try {
             Optional<EmailCode> existingCode = EmailCode.getByName(name, EmailCode.Type.Bind);
             if (existingCode.isPresent() && existingCode.get().getEmail().equals(mail)) {
-                sender.sendMessage("§c已经向 " + mail + " 邮箱中发送验证码，请不要重复此操作");
+                sender.sendMessage(MessageKey.EMAIL_CODE_ALREADY_SENT.get(mail));
                 return;
             }
         } catch (Exception e) {
@@ -84,7 +85,7 @@ public class CommandBindEmail implements CommandExecutor {
         }
 
         EmailCode bindEmail = EmailCode.create(name, mail, 1000 * 60 * 5, EmailCode.Type.Bind);
-        sender.sendMessage("§6向邮箱发送验证码中...");
+        sender.sendMessage(MessageKey.SENDING_EMAIL_CODE.get());
         sendEmailCode(sender, name, mail, bindEmail);
     }
 
@@ -93,23 +94,23 @@ public class CommandBindEmail implements CommandExecutor {
 
         LoginPlayer lp = Cache.getIgnoreCase(name);
         if (lp.getEmail() != null && ValidationUtil.isValidEmail(lp.getEmail())) {
-            sender.sendMessage("§c你已经绑定过邮箱了!");
+            sender.sendMessage(MessageKey.EMAIL_ALREADY_BOUND.get());
             return;
         }
 
         Optional<EmailCode> emailOptional = EmailCode.getByName(name, EmailCode.Type.Bind);
         if (!emailOptional.isPresent()) {
-            sender.sendMessage("§c你没有待绑定的邮箱，或者验证码已过期");
+            sender.sendMessage(MessageKey.NO_PENDING_EMAIL_CODE.get());
             return;
         }
 
         EmailCode bindEmail = emailOptional.get();
         if (!bindEmail.getCode().equals(args[1])) {
-            sender.sendMessage("§c验证码错误!");
+            sender.sendMessage(MessageKey.VERIFICATION_CODE_INCORRECT.get());
             return;
         }
 
-        sender.sendMessage("§e绑定邮箱中..");
+        sender.sendMessage(MessageKey.BINDING_EMAIL.get());
         bindEmail(sender, lp, bindEmail);
     }
 
@@ -128,21 +129,18 @@ public class CommandBindEmail implements CommandExecutor {
 
     private String buildBindEmailContent(String name, EmailCode bindEmail) {
         long minutes = bindEmail.getDurability() / (1000 * 60);
-        return "你的验证码是 <strong>" + bindEmail.getCode() + "</strong>" +
-                "<br/>在服务器中使用帐号 " + name + " 输入指令<strong>/bindemail verify " + bindEmail.getCode() + "</strong> 来绑定邮箱" +
-                "<br/>绑定邮箱之后可用于忘记密码时重置自己的密码" +
-                "<br/>此验证码有效期为 " + minutes + "分钟";
+        return MessageKey.EMAIL_BIND_EMAIL_CONTENT.get(bindEmail.getCode(), name, minutes);
     }
 
     private void notifyBindEmailSent(CommandSender sender, String mail) {
         CatScheduler.runTask(() -> {
-            sender.sendMessage("§6已经向邮箱 " + mail + " 发送了一串绑定验证码，请检查你的邮箱的收件箱");
-            sender.sendMessage("§c如果未收到，请检查邮箱的垃圾箱!");
+            sender.sendMessage(MessageKey.EMAIL_SENT_CHECK_INBOX.get(mail));
+            sender.sendMessage(MessageKey.CHECK_SPAM_FOLDER.get());
         });
     }
 
     private void notifyBindEmailFailed(CommandSender sender) {
-        CatScheduler.runTask(() -> sender.sendMessage("§c发送邮件失败,服务器内部错误!"));
+        CatScheduler.runTask(() -> sender.sendMessage(MessageKey.EMAIL_SEND_FAILED.get()));
     }
 
     private void bindEmail(CommandSender sender, LoginPlayer lp, EmailCode bindEmail) {
@@ -165,7 +163,7 @@ public class CommandBindEmail implements CommandExecutor {
         Player syncPlayer = Bukkit.getPlayer(((Player) sender).getUniqueId());
         if (syncPlayer == null || !syncPlayer.isOnline()) return;
 
-        syncPlayer.sendMessage("§a邮箱已绑定 " + bindEmail.getEmail() + " 忘记密码时可以用邮箱重置自己的密码");
+        syncPlayer.sendMessage(MessageKey.EMAIL_BOUND_SUCCESS.get(bindEmail.getEmail()));
         EmailCode.removeByName(syncPlayer.getName(), EmailCode.Type.Bind);
     }
 }

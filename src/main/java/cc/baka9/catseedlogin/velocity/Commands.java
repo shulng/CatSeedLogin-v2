@@ -57,7 +57,7 @@ public class Commands implements SimpleCommand {
                     break;
             }
         } catch (Exception e) {
-            source.sendMessage(Component.text("执行命令时发生错误", NamedTextColor.RED));
+            source.sendMessage(Component.text(MessageKey.INTERNAL_ERROR.get(), NamedTextColor.RED));
             logger.error("Error executing command", e);
         }
     }
@@ -74,10 +74,10 @@ public class Commands implements SimpleCommand {
     }
     
     private void sendHelp(CommandSource source) {
-        source.sendMessage(Component.text("=== CatSeedLogin-Velocity 命令帮助 ===", NamedTextColor.GOLD));
-        source.sendMessage(Component.text("/cslv reload - 重载配置文件", NamedTextColor.YELLOW));
-        source.sendMessage(Component.text("/cslv status - 查看插件状态", NamedTextColor.YELLOW));
-        source.sendMessage(Component.text("/cslv list - 查看已登录玩家列表", NamedTextColor.YELLOW));
+        source.sendMessage(Component.text("=== CatSeedLogin-Velocity ===", NamedTextColor.GOLD));
+        source.sendMessage(Component.text("/cslv reload", NamedTextColor.YELLOW));
+        source.sendMessage(Component.text("/cslv status", NamedTextColor.YELLOW));
+        source.sendMessage(Component.text("/cslv list", NamedTextColor.YELLOW));
     }
     
     private void handleReload(CommandSource source) {
@@ -85,30 +85,30 @@ public class Commands implements SimpleCommand {
             configManager.reload();
             source.sendMessage(Component.text(MessageKey.CONFIG_RELOADED.get()));
         } catch (Exception e) {
-            source.sendMessage(Component.text("重载配置文件时出错: " + e.getMessage(), NamedTextColor.RED));
+            source.sendMessage(Component.text(MessageKey.INTERNAL_ERROR.get(), NamedTextColor.RED));
             logger.error("Failed to reload config", e);
         }
     }
     
     private void handleStatus(CommandSource source) {
         try {
-            source.sendMessage(Component.text("=== CatSeedLogin-Velocity 状态 ===", NamedTextColor.GOLD));
+            source.sendMessage(Component.text("=== CatSeedLogin-Velocity ===", NamedTextColor.GOLD));
             
             String host = configManager.getProxyHost();
             int port = configManager.getProxyPort();
             String loginServerName = configManager.getLoginServerName();
             
-            source.sendMessage(Component.text("监听地址: " + host + ":" + port, NamedTextColor.YELLOW));
-            source.sendMessage(Component.text("登录服务器: " + loginServerName, NamedTextColor.YELLOW));
+            source.sendMessage(Component.text(host + ":" + port, NamedTextColor.YELLOW));
+            source.sendMessage(Component.text(loginServerName, NamedTextColor.YELLOW));
             
             boolean loginServerOnline = proxyServer
                 .getServer(loginServerName)
                 .isPresent();
             
-            source.sendMessage(Component.text("登录服务器状态: " + (loginServerOnline ? "在线" : "离线"), 
+            source.sendMessage(Component.text(loginServerOnline ? "Online" : "Offline", 
                 loginServerOnline ? NamedTextColor.GREEN : NamedTextColor.RED));
         } catch (Exception e) {
-            source.sendMessage(Component.text("获取状态时发生错误", NamedTextColor.RED));
+            source.sendMessage(Component.text(MessageKey.INTERNAL_ERROR.get(), NamedTextColor.RED));
             logger.error("Error getting status", e);
         }
     }
@@ -118,19 +118,18 @@ public class Commands implements SimpleCommand {
             Listeners listeners = PluginMain.getInstance().getListeners();
             List<String> loggedInPlayers = listeners.getLoggedInPlayers();
             
-            source.sendMessage(Component.text("=== 已登录玩家列表 ===", NamedTextColor.GOLD));
-            source.sendMessage(Component.text("已登录玩家数量: " + loggedInPlayers.size(), NamedTextColor.YELLOW));
+            source.sendMessage(Component.text("=== " + loggedInPlayers.size() + " ===", NamedTextColor.GOLD));
             
             displayPlayerList(source, loggedInPlayers);
         } catch (Exception e) {
-            source.sendMessage(Component.text("获取玩家列表时发生错误", NamedTextColor.RED));
+            source.sendMessage(Component.text(MessageKey.INTERNAL_ERROR.get(), NamedTextColor.RED));
             logger.error("Error getting player list", e);
         }
     }
 
     private void displayPlayerList(CommandSource source, List<String> loggedInPlayers) {
         if (loggedInPlayers.isEmpty()) {
-            source.sendMessage(Component.text("暂无已登录玩家", NamedTextColor.GRAY));
+            source.sendMessage(Component.text("None", NamedTextColor.GRAY));
             return;
         }
         loggedInPlayers.forEach(playerName ->

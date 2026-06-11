@@ -10,6 +10,7 @@ import cc.baka9.catseedlogin.bukkit.CatScheduler;
 import cc.baka9.catseedlogin.bukkit.Config;
 import cc.baka9.catseedlogin.bukkit.PluginContext;
 import cc.baka9.catseedlogin.bukkit.Cache;
+import cc.baka9.catseedlogin.common.i18n.MessageKey;
 import cc.baka9.catseedlogin.common.model.LoginPlayer;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayerHelper;
 import cc.baka9.catseedlogin.common.util.Crypt;
@@ -48,7 +49,7 @@ public class CommandChangePassword implements CommandExecutor {
         }
         if (!Cache.isLoaded) return true;
 
-        sender.sendMessage("§e修改中..");
+        sender.sendMessage(MessageKey.CHANGING_PASSWORD.get());
         changePasswordAsync(sender, player, lp, args[1]);
         return true;
     }
@@ -67,7 +68,7 @@ public class CommandChangePassword implements CommandExecutor {
             CatScheduler.runTask(() -> notifyChangeSuccess(sender, player));
         } catch (Exception e) {
             e.printStackTrace();
-            sender.sendMessage("§c服务器内部错误!");
+            sender.sendMessage(MessageKey.INTERNAL_ERROR.get());
         }
     }
 

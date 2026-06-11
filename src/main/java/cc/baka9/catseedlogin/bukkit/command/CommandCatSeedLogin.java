@@ -19,6 +19,7 @@ import cc.baka9.catseedlogin.bukkit.PluginContext;
 import cc.baka9.catseedlogin.bukkit.Cache;
 import cc.baka9.catseedlogin.bukkit.database.MySQL;
 import cc.baka9.catseedlogin.bukkit.database.SQLite;
+import cc.baka9.catseedlogin.common.i18n.MessageKey;
 import cc.baka9.catseedlogin.common.model.LoginPlayer;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayerHelper;
 import cc.baka9.catseedlogin.common.util.ValidationUtil;
@@ -66,9 +67,11 @@ public class CommandCatSeedLogin implements CommandExecutor {
         try {
             setting.setter.accept(!setting.getter.getAsBoolean());
             Config.Settings.save();
-            sender.sendMessage("§e" + setting.label + " " + (setting.getter.getAsBoolean() ? "§a开启" : "§8关闭"));
+            sender.sendMessage(setting.getter.getAsBoolean()
+                    ? MessageKey.ADMIN_TOGGLE_ON.get(setting.label)
+                    : MessageKey.ADMIN_TOGGLE_OFF.get(setting.label));
         } catch (Exception e) {
-            sender.sendMessage("§c设置失败: " + e.getMessage());
+            sender.sendMessage(MessageKey.ADMIN_SET_FAILED.get(e.getMessage()));
         }
         return true;
     }
@@ -132,10 +135,10 @@ public class CommandCatSeedLogin implements CommandExecutor {
             Config.Settings.AutoKick = Integer.parseInt(args[1]);
             Config.Settings.save();
             sender.sendMessage(Config.Settings.AutoKick > 0
-                    ? "§e已设置未登录自动踢出累计时间为 §a" + Config.Settings.AutoKick + "秒"
-                    : "§e已关闭未登录自动踢出");
+                    ? MessageKey.ADMIN_AUTO_KICK_SET.get(Config.Settings.AutoKick)
+                    : MessageKey.ADMIN_AUTO_KICK_DISABLED.get());
         } catch (NumberFormatException e) {
-            sender.sendMessage("§e秒数必须是一个数字");
+            sender.sendMessage(MessageKey.ADMIN_ENTER_NUMBER.get());
         }
         return true;
     }
@@ -145,9 +148,9 @@ public class CommandCatSeedLogin implements CommandExecutor {
         try {
             Config.Settings.ReenterInterval = Long.parseLong(args[1]);
             Config.Settings.save();
-            sender.sendMessage("§e离开服务器重新进入的间隔限制 " + Config.Settings.ReenterInterval + "tick");
+            sender.sendMessage(MessageKey.ADMIN_REENTER_INTERVAL_SET.get(Config.Settings.ReenterInterval));
         } catch (NumberFormatException e) {
-            sender.sendMessage("§c请输入一个数字");
+            sender.sendMessage(MessageKey.ADMIN_ENTER_NUMBER.get());
         }
         return true;
     }
@@ -158,9 +161,9 @@ public class CommandCatSeedLogin implements CommandExecutor {
             Config.Settings.MinLengthID = Integer.parseInt(args[1]);
             Config.Settings.MaxLengthID = Integer.parseInt(args[2]);
             Config.Settings.save();
-            sender.sendMessage("§e游戏名最小和最大长度为 " + Config.Settings.MinLengthID + " ~ " + Config.Settings.MaxLengthID);
+            sender.sendMessage(MessageKey.ADMIN_ID_LENGTH_SET.get(Config.Settings.MinLengthID, Config.Settings.MaxLengthID));
         } catch (NumberFormatException e) {
-            sender.sendMessage("§c请输入数字");
+            sender.sendMessage(MessageKey.ADMIN_ENTER_NUMBER.get());
         }
         return true;
     }
@@ -170,9 +173,9 @@ public class CommandCatSeedLogin implements CommandExecutor {
         try {
             Config.Settings.IpCountLimit = Integer.parseInt(args[1]);
             Config.Settings.save();
-            sender.sendMessage("§e相同ip登录限制数量为 " + Config.Settings.IpCountLimit);
+            sender.sendMessage(MessageKey.ADMIN_IP_LOGIN_LIMIT_SET.get(Config.Settings.IpCountLimit));
         } catch (NumberFormatException e) {
-            sender.sendMessage("§c请输入数字");
+            sender.sendMessage(MessageKey.ADMIN_ENTER_NUMBER.get());
         }
         return true;
     }
@@ -182,9 +185,9 @@ public class CommandCatSeedLogin implements CommandExecutor {
         try {
             Config.Settings.IpRegisterCountLimit = Integer.parseInt(args[1]);
             Config.Settings.save();
-            sender.sendMessage("§e相同ip注册限制数量为 " + Config.Settings.IpRegisterCountLimit);
+            sender.sendMessage(MessageKey.ADMIN_IP_REG_LIMIT_SET.get(Config.Settings.IpRegisterCountLimit));
         } catch (NumberFormatException e) {
-            sender.sendMessage("§c请输入数字");
+            sender.sendMessage(MessageKey.ADMIN_ENTER_NUMBER.get());
         }
         return true;
     }
@@ -193,7 +196,7 @@ public class CommandCatSeedLogin implements CommandExecutor {
 
     private boolean commandWhiteListInfo(CommandSender sender, String[] args) {
         if (args.length == 0 || !args[0].equalsIgnoreCase("commandWhiteListInfo")) return false;
-        sender.sendMessage("§e登录前可执行指令: ");
+        sender.sendMessage(MessageKey.ADMIN_COMMAND_WHITELIST_INFO.get());
         Config.Settings.CommandWhiteList.forEach(cmdRegex -> sender.sendMessage(cmdRegex.toString()));
         return true;
     }
@@ -203,11 +206,11 @@ public class CommandCatSeedLogin implements CommandExecutor {
         String regex = joinArgs(args, 1);
         Pattern pattern = Pattern.compile(regex);
         if (containsRegex(regex)) {
-            sender.sendMessage("§c已经存在 " + regex);
+            sender.sendMessage(MessageKey.ADMIN_COMMAND_WHITELIST_ALREADY_EXISTS.get(regex));
         } else {
             Config.Settings.CommandWhiteList.add(pattern);
             Config.Settings.save();
-            sender.sendMessage("§e已添加登录前可执行指令 " + regex);
+            sender.sendMessage(MessageKey.ADMIN_COMMAND_WHITELIST_ADDED.get(regex));
         }
         return true;
     }
@@ -218,9 +221,9 @@ public class CommandCatSeedLogin implements CommandExecutor {
         if (containsRegex(regex)) {
             removeRegex(regex);
             Config.Settings.save();
-            sender.sendMessage("§e已删除登录前可执行指令 " + regex);
+            sender.sendMessage(MessageKey.ADMIN_COMMAND_WHITELIST_REMOVED.get(regex));
         } else {
-            sender.sendMessage("§c不存在 " + regex);
+            sender.sendMessage(MessageKey.ADMIN_COMMAND_WHITELIST_NOT_EXISTS.get(regex));
         }
         return true;
     }
@@ -245,12 +248,12 @@ public class CommandCatSeedLogin implements CommandExecutor {
     private boolean setSpawnLocation(CommandSender sender, String[] args) {
         if (args.length == 0 || !args[0].equalsIgnoreCase("setSpawnLocation")) return false;
         if (!(sender instanceof Player)) {
-            sender.sendMessage("§c不能在控制台使用这个指令");
+            sender.sendMessage(MessageKey.CANNOT_USE_FROM_CONSOLE.get());
             return true;
         }
         Config.Settings.SpawnLocation = ((Player) sender).getLocation();
         Config.Settings.save();
-        sender.sendMessage("§e已设置玩家登陆坐标为你站着的位置");
+        sender.sendMessage(MessageKey.SPAWN_LOCATION_SET_MSG.get());
         return true;
     }
 
@@ -281,7 +284,7 @@ public class CommandCatSeedLogin implements CommandExecutor {
                 e.printStackTrace();
             }
         }
-        sender.sendMessage("配置已重载!");
+        sender.sendMessage(MessageKey.CONFIG_RELOADED_MSG.get());
         return true;
     }
 
@@ -292,7 +295,7 @@ public class CommandCatSeedLogin implements CommandExecutor {
         String name = args[1];
         LoginPlayer lp = Cache.getIgnoreCase(name);
         if (lp == null) {
-            sender.sendMessage(String.format("§c账户 §a%s §c不存在", name));
+            sender.sendMessage(MessageKey.ACCOUNT_NOT_EXISTS.get(name));
             return true;
         }
         delPlayerAsync(sender, lp);
@@ -305,10 +308,10 @@ public class CommandCatSeedLogin implements CommandExecutor {
                 PluginContext.getSql().del(lp.getName());
                 Cache.refresh(lp.getName());
                 LoginPlayerHelper.remove(lp);
-                sender.sendMessage("§e已删除账户 §a" + lp.getName());
+                sender.sendMessage(MessageKey.ACCOUNT_DELETED.get(lp.getName()));
                 kickPlayerIfOnline(lp.getName());
             } catch (Exception e) {
-                sender.sendMessage("§c数据库异常!");
+                sender.sendMessage(MessageKey.DATABASE_ERROR.get());
                 e.printStackTrace();
             }
         });
@@ -318,7 +321,7 @@ public class CommandCatSeedLogin implements CommandExecutor {
         CatScheduler.runTask(() -> {
             Player p = Bukkit.getPlayerExact(name);
             if (p != null && p.isOnline()) {
-                p.kickPlayer("§c你的账户已被删除!");
+                p.kickPlayer(MessageKey.ACCOUNT_DELETED_KICK.get());
             }
         });
     }
@@ -329,10 +332,10 @@ public class CommandCatSeedLogin implements CommandExecutor {
         if (args.length < 3 || !args[0].equalsIgnoreCase("setpwd")) return false;
         String name = args[1], pwd = args[2];
         if (ValidationUtil.isPasswordTooSimple(pwd)) {
-            sender.sendMessage("§c密码必须是6~16位之间的数字和字母组成");
+            sender.sendMessage(MessageKey.PASSWORD_TOO_SIMPLE_MSG.get());
             return true;
         }
-        sender.sendMessage("§e设置中..");
+        sender.sendMessage(MessageKey.SETTING_PASSWORD.get());
         CatScheduler.runTaskAsync(() -> setPwdLookup(sender, name, pwd));
         return true;
     }
@@ -352,9 +355,9 @@ public class CommandCatSeedLogin implements CommandExecutor {
             lp.crypt();
             PluginContext.getSql().add(lp);
             Cache.refresh(lp.getName());
-            sender.sendMessage("§a指定账户不存在,现已注册..");
+            sender.sendMessage(MessageKey.ACCOUNT_NOT_EXISTS_REGISTERED.get());
         } catch (Exception e) {
-            sender.sendMessage("§c数据库异常!");
+            sender.sendMessage(MessageKey.DATABASE_ERROR.get());
             e.printStackTrace();
         }
     }
@@ -366,10 +369,10 @@ public class CommandCatSeedLogin implements CommandExecutor {
             PluginContext.getSql().edit(lp);
             Cache.refresh(lp.getName());
             LoginPlayerHelper.remove(lp);
-            sender.sendMessage(String.join(" ", "§a玩家", lp.getName(), "密码已设置"));
+            sender.sendMessage(MessageKey.PASSWORD_SET_MSG.get(lp.getName()));
             notifyPlayerPasswordChanged(lp);
         } catch (Exception e) {
-            sender.sendMessage("§c数据库异常!");
+            sender.sendMessage(MessageKey.DATABASE_ERROR.get());
             e.printStackTrace();
         }
     }
@@ -378,7 +381,7 @@ public class CommandCatSeedLogin implements CommandExecutor {
         CatScheduler.runTask(() -> {
             Player p = Bukkit.getPlayer(lp.getName());
             if (p == null || !p.isOnline()) return;
-            p.sendMessage("§c密码已被管理员重新设置,请重新登录");
+            p.sendMessage(MessageKey.PASSWORD_RESET_BY_ADMIN.get());
             if (!Config.Settings.CanTpSpawnLocation) return;
             p.teleport(Config.Settings.SpawnLocation);
             if (PluginContext.isLoadProtocolLib()) {

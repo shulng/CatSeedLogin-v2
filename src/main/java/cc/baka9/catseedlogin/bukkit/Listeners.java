@@ -27,6 +27,7 @@ import org.geysermc.floodgate.api.FloodgateApi;
 import cc.baka9.catseedlogin.bukkit.task.Task;
 import cc.baka9.catseedlogin.bukkit.task.TaskAutoKick;
 import cc.baka9.catseedlogin.bukkit.Cache;
+import cc.baka9.catseedlogin.common.i18n.MessageKey;
 import cc.baka9.catseedlogin.common.model.LoginPlayer;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayerHelper;
 
@@ -50,18 +51,18 @@ public class Listeners implements Listener {
     @EventHandler
     public void onPlayerLogin(AsyncPlayerPreLoginEvent event) {
         if (!Cache.isLoaded) {
-            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "服务器还在初始化..");
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, MessageKey.CACHE_NOT_INITIALIZED.get());
             return;
         }
         String name = event.getName();
         LoginPlayer lp = Cache.getIgnoreCase(name);
         if (lp == null) return;
         if (!lp.getName().equals(name)) {
-            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "游戏名字母大小写不匹配,请使用游戏名" + lp.getName() + "重新尝试登录");
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, MessageKey.NAME_CASE_MISMATCH.get(lp.getName()));
             return;
         }
         if (LoginPlayerHelper.isLogin(name)) {
-            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "玩家 " + lp.getName() + " 已经在线了!");
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, MessageKey.PLAYER_ALREADY_ONLINE_ONLINE.get(lp.getName()));
             return;
         }
         String hostAddress = event.getAddress().getHostAddress();
@@ -75,7 +76,7 @@ public class Listeners implements Listener {
                 })
                 .count();
         if (!event.getAddress().isLoopbackAddress() && count >= Config.Settings.IpCountLimit) {
-            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "太多相同ip的账号同时在线!");
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, MessageKey.TOO_MANY_SAME_IP.get());
         }
     }
 
@@ -230,14 +231,14 @@ public class Listeners implements Listener {
     public void onPlayerPreLogin(AsyncPlayerPreLoginEvent event) {
         String name = event.getName();
         if (Config.Settings.LimitChineseID && !name.matches(Config.Settings.NamePattern)) {
-            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "请使用由数字,字母和下划线组成的游戏名,才能进入游戏");
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, MessageKey.INVALID_NAME_PATTERN.get());
             return;
         }
         if (checkFloodgatePrefixProtect(event, name)) return;
         if (name.length() < Config.Settings.MinLengthID) {
-            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "你的游戏名太短了,至少需要 " + Config.Settings.MinLengthID + " 个字符的长度");
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, MessageKey.NAME_TOO_SHORT.get(Config.Settings.MinLengthID));
         } else if (name.length() > Config.Settings.MaxLengthID) {
-            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "你的游戏名太长了,最长只能到达 " + Config.Settings.MaxLengthID + " 个字符的长度");
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, MessageKey.NAME_TOO_LONG.get(Config.Settings.MaxLengthID));
         }
     }
 
@@ -248,7 +249,7 @@ public class Listeners implements Listener {
         try {
             String prefix = FloodgateApi.getInstance().getPlayerPrefix();
             if (name.toLowerCase().startsWith(prefix.toLowerCase()) && !FloodgateApi.getInstance().isFloodgatePlayer(event.getUniqueId())) {
-                event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "非法的基岩版玩家名称,请非基岩版玩家的名称不要以" + prefix + "开头");
+                event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, MessageKey.ILLEGAL_BEDROCK_NAME.get(prefix));
                 return true;
             }
         } catch (Exception e) {

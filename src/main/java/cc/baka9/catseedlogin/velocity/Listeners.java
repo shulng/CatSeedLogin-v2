@@ -1,6 +1,7 @@
 package cc.baka9.catseedlogin.velocity;
 
 import cc.baka9.catseedlogin.velocity.config.VelocityConfigManager;
+import cc.baka9.catseedlogin.common.i18n.MessageKey;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.PreLoginEvent;
@@ -141,12 +142,12 @@ public class Listeners {
         try {
             if (loggedInPlayerList.contains(playerName) && (communication.sendConnectRequest(playerName) == 1)) {
                 event.setResult(PreLoginEvent.PreLoginComponentResult.denied(
-                    Component.text("您已经登录，请勿重复登录。")
+                    Component.text(MessageKey.ALREADY_LOGGED_IN_PROXY.get())
                 ));
             }
         } catch (Exception e) {
             event.setResult(PreLoginEvent.PreLoginComponentResult.denied(
-                Component.text("发生错误，请稍后再试。")
+                Component.text(MessageKey.ERROR_PLEASE_RETRY.get())
             ));
         }
     }

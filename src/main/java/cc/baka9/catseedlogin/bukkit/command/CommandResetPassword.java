@@ -11,6 +11,7 @@ import cc.baka9.catseedlogin.bukkit.Config;
 import cc.baka9.catseedlogin.bukkit.PluginContext;
 import cc.baka9.catseedlogin.bukkit.Cache;
 import cc.baka9.catseedlogin.bukkit.object.EmailCode;
+import cc.baka9.catseedlogin.common.i18n.MessageKey;
 import cc.baka9.catseedlogin.common.model.LoginPlayer;
 import cc.baka9.catseedlogin.bukkit.object.LoginPlayerHelper;
 import cc.baka9.catseedlogin.bukkit.util.EmailSender;
@@ -78,7 +79,7 @@ public class CommandResetPassword implements CommandExecutor {
         CatScheduler.runTaskAsync(() -> {
             try {
                 String content = buildResetEmailContent(name, emailCode);
-                EmailSender.sendEmail(emailCode.getEmail(), "重置密码", content);
+                EmailSender.sendEmail(emailCode.getEmail(), MessageKey.EMAIL_SUBJECT_RESET_PASSWORD.get(), content);
                 notifyEmailSent(sender, emailCode.getEmail());
             } catch (Exception e) {
                 notifyEmailFailed(sender);
@@ -89,10 +90,7 @@ public class CommandResetPassword implements CommandExecutor {
 
     private String buildResetEmailContent(String name, EmailCode emailCode) {
         long minutes = emailCode.getDurability() / (1000 * 60);
-        return "你的验证码是 <strong>" + emailCode.getCode() + "</strong>" +
-                "<br/>在服务器中使用帐号 " + name + " 输入指令<strong>/resetpassword re " +
-                emailCode.getCode() + " 新密码</strong> 来重置新密码" +
-                "<br/>此验证码有效期为 " + minutes + "分钟";
+        return MessageKey.EMAIL_RESET_PASSWORD_CONTENT.get(emailCode.getCode(), name, minutes);
     }
 
     private void notifyEmailSent(CommandSender sender, String email) {
@@ -133,7 +131,7 @@ public class CommandResetPassword implements CommandExecutor {
             return true;
         }
 
-        sender.sendMessage("§e密码重置中..");
+        sender.sendMessage(MessageKey.RESETTING_PASSWORD.get());
         processPasswordResetAsync(player, lp, pwd);
         return true;
     }
@@ -157,7 +155,7 @@ public class CommandResetPassword implements CommandExecutor {
             Player player = Bukkit.getPlayer(name);
             notifyResetSuccess(name, player);
         } catch (Exception e) {
-            sender.sendMessage("§c数据库异常!");
+            sender.sendMessage(MessageKey.DATABASE_ERROR.get());
             e.printStackTrace();
         }
     }
