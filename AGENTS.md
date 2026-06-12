@@ -3,7 +3,7 @@
 ## Build & Verify
 
 ```bash
-# Build (produces shaded JAR at target/CatSeedLogin-2.0.0.jar)
+# Build all modules (produces shaded JARs in each module's target/)
 mvn -B clean package --no-transfer-progress
 
 # Build with verbose output
@@ -14,13 +14,44 @@ No lint/typecheck/test commands exist. The repo has no test source (`src/test/` 
 
 ## Architecture
 
-Single-module Maven project. Three platform entry points share a `common/` layer:
+Multi-module Maven project (4 modules under a parent POM). Three platform entry points share a `common` module:
 
 ```
-common/        → Shared API interfaces, config, i18n, database abstractions
-bukkit/        → Bukkit/Spigot/Paper/Folia server plugin (main plugin)
-bungee/        → BungeeCord proxy plugin
-velocity/      → Velocity proxy plugin
+CatSeedLogin-v2/
+├── pom.xml                  (parent POM, packaging=pom)
+├── common/                  (CatSeedLogin-common)
+│   └── src/main/java/cc/baka9/catseedlogin/common/
+│       ├── api/             → PlatformAdapter, CoreConfig, DatabaseConfig, EmailConfig, BungeeCordConfig
+│       ├── communication/   → BaseCommunication
+│       ├── config/          → BaseConfigManager, YamlConfiguration, ConfigConstants, ConfigHelper
+│       ├── database/        → BaseDatabaseConnection
+│       ├── i18n/            → I18n, MessageKey
+│       ├── model/           → LoginPlayer
+│       └── util/            → Crypt, ValidationUtil, CommunicationAuth, DateUtil
+├── bukkit/                  (CatSeedLogin-bukkit) — shades common + FoliaLib + MorePaperLib
+│   └── src/main/java/cc/baka9/catseedlogin/bukkit/
+│       ├── CatSeedLogin.java       → Bukkit plugin main class (JavaPlugin)
+│       ├── command/                → CommandLogin, CommandRegister, CommandChangePassword, etc.
+│       ├── config/                 → BukkitConfigManager, BukkitPlatformAdapter
+│       ├── database/               → SQL, SQLite, MySQL, BufferStatement
+│       ├── event/                  → CatSeedPlayerLoginEvent, CatSeedPlayerRegisterEvent
+│       ├── object/                 → LoginPlayerHelper, EmailCode
+│       ├── task/                   → Task, TaskAutoKick, TaskSendLoginMessage
+│       └── util/                   → EmailSender
+├── bungeecord/              (CatSeedLogin-bungeecord) — shades common
+│   └── src/main/java/cc/baka9/catseedlogin/bungee/
+│       ├── PluginMain.java         → BungeeCord plugin main class
+│       ├── config/                 → BungeeConfigManager, BungeePlatformAdapter
+│       ├── BungeeCommunication.java
+│       ├── BungeeCommands.java
+│       └── Listeners.java
+└── velocity/                (CatSeedLogin-velocity) — shades common
+    └── src/main/java/cc/baka9/catseedlogin/velocity/
+        ├── PluginMain.java         → Velocity plugin main class
+        ├── config/                 → VelocityConfigManager, VelocityPlatformAdapter
+        ├── VelocityCommunication.java
+        ├── Commands.java
+        └── Listeners.java
 ```
 
 **Entry points** (each platform's `onEnable`/initialization):
@@ -29,10 +60,10 @@ velocity/      → Velocity proxy plugin
 - `velocity/PluginMain.java` — Velocity plugin main class
 
 **API interfaces** (`common/api/`):
-- `PlatformAdapter` — platform abstraction
+- `PlatformAdapter` — platform abstraction (logging, scheduling, player operations)
 - `CoreConfig`, `DatabaseConfig`, `EmailConfig`, `BungeeCordConfig` — config interfaces
 
-**Config flow**: Each platform has its own `ConfigManager` (e.g., `BukkitConfigManager`) implementing `BaseConfigManager`. All platforms read from a single `config.yml` at runtime.
+**Config flow**: Each platform has its own `ConfigManager` (e.g., `BukkitConfigManager`) extending `BaseConfigManager`. All platforms read from a single `config.yml` at runtime.
 
 **Database**: `common/database/BaseDatabaseConnection` → `bukkit/database/SQLite.java` or `MySQL.java`. Uses raw JDBC, no ORM.
 
@@ -40,10 +71,11 @@ velocity/      → Velocity proxy plugin
 
 - **Java 8 target** (`maven.compiler.source/target=8`). Do not use Java 9+ APIs.
 - **Lombok** is used (`provided` scope). Annotations like `@Getter`, `@Setter`, `@Data` are expected.
-- **Version filtering**: `${version}` in `pom.xml` is filtered into `Version.java` and plugin descriptors (`plugin.yml`, `bungee.yml`, `velocity-plugin.json`).
+- **Version filtering**: `${version}` in parent `pom.xml` is filtered into `common/Version.java` and plugin descriptors (`plugin.yml`, `bungee.yml`, `velocity-plugin.json`).
+- **Paper API** is the sole Bukkit-side API dependency (replaces separate bukkit, spigot-api, paper-api, folia-api dependencies). Folia support is detected at runtime via MorePaperLib.
 - **i18n**: All user-facing strings go through `I18n` + `MessageKey` enum. Language files are `languages/zh-CN.yml` and `languages/en-US.yml`. The config key `language` uses underscore format (`zh_CN`) mapping to dash-format filenames (`zh-CN.yml`).
 - **Dependencies compiled into JAR** (shaded): sqlite-jdbc, mysql-connector-java, snakeyaml, javax.mail, commons-email, commons-lang3, commons-net, FoliaLib, MorePaperLib.
-- **Dependencies NOT shaded** (provided by server): bukkit, spigot-api, paper-api, folia-api, bungeecord-api, velocity-api, ProtocolLib, Lombok, Floodgate.
+- **Dependencies NOT shaded** (provided by server): paper-api, bungeecord-api, velocity-api, ProtocolLib, Lombok, Floodgate.
 
 ## Gotchas
 
