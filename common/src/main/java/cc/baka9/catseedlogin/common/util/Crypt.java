@@ -11,8 +11,7 @@ public class Crypt {
         String text = "ÜÄaeut//&/=I " + password + "7421€547" + name + "__+IÄIH§%NK " + password;
         try {
             final MessageDigest md = MessageDigest.getInstance("SHA-512");
-            byte[] textBytes = text.getBytes(StandardCharsets.UTF_8);
-            md.update(textBytes, 0, textBytes.length);
+            md.update(text.getBytes(StandardCharsets.UTF_8));
             return byteArrayToHexString(md.digest());
         } catch (final NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
