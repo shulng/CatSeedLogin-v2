@@ -3,7 +3,7 @@ name: Java CI with Maven
 on:
   push:
     branches:
-      - "*" # 所有分支
+      - "*"
     tags:
       - "v*"
   pull_request:
@@ -28,13 +28,21 @@ jobs:
           cache: maven
       - name: Build with Maven
         run: mvn -B clean package --no-transfer-progress
-      - name: Upload Artifact
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v7
         with:
           name: CatSeedLogin
-          path: target/CatSeedLogin*.jar
-      - name: Create Release and Upload Release Asset
+          path: |
+            bukkit/target/CatSeedLogin-*.jar
+            bungeecord/target/CatSeedLogin-bungeecord-*.jar
+            velocity/target/CatSeedLogin-velocity-*.jar
+          exclude: |
+            */target/original-*
+      - name: Create Release and Upload Release Assets
         uses: softprops/action-gh-release@v3
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: target/CatSeedLogin*.jar
+          files: |
+            bukkit/target/CatSeedLogin-*.jar
+            bungeecord/target/CatSeedLogin-bungeecord-*.jar
+            velocity/target/CatSeedLogin-velocity-*.jar
