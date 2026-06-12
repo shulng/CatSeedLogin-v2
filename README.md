@@ -7,9 +7,9 @@
 [![License](https://img.shields.io/github/license/shulng/CatSeedLogin-v2)](LICENSE)
 [![Downloads](https://img.shields.io/github/downloads/shulng/CatSeedLogin-v2/total)](https://github.com/shulng/CatSeedLogin-v2/releases)
 
-**🚀 高性能Minecraft登录插件 | 支持1.12-1.21版本 | 支持BungeeCord**
+**🚀 高性能Minecraft登录插件 | 支持Bukkit/Spigot/Paper/Folia/BungeeCord/Velocity**
 
-> 基于Spigot API 1.13.2开发，理论支持1.12 ~ 1.21版本，低版本向上兼容
+> 基于Paper API开发，支持Bukkit/Spigot/Paper/Folia服务端，以及BungeeCord和Velocity代理端
 
 </div>
 
@@ -46,8 +46,8 @@
 - 🔑 **密码重置** - 通过邮箱验证码重置密码
 - 📤 **邮件通知** - 完整的邮件系统支持
 
-### 🌐 BungeeCord支持
-- 🔄 **子服同步** - 支持BungeeCord跨服登录
+### 🌐 BungeeCord/Velocity支持
+- 🔄 **子服同步** - 支持BungeeCord和Velocity跨服登录
 - 🚪 **子服限制** - 未登录禁止切换子服
 - 🔄 **状态保持** - 登录后子服切换保持登录状态
 
@@ -103,10 +103,10 @@
 3. 🔄 重启服务器
 4. ✅ 完成安装
 
-#### BungeeCord网络使用
+#### BungeeCord/Velocity网络使用
 1. 🌐 **登录服务器** - 将插件放入登录服务器的`plugins`文件夹
-2. 🔗 **BungeeCord端** - 将插件放入BungeeCord的`plugins`文件夹
-3. ⚙️ 配置BungeeCord设置（详见[BungeeCord配置](#-bungeecord配置)）
+2. 🔗 **代理端** - 将插件放入BungeeCord或Velocity的`plugins`文件夹
+3. ⚮️ 配置代理端设置（详见[BungeeCord配置](#-bungeecord配置)）
 4. 🔄 重启所有相关服务
 
 ## 🎯 快速开始
@@ -295,7 +295,7 @@ proxy:
 > 
 > 支持自定义语言覆盖：用户可以在 `plugins/CatSeedLogin/languages/` 文件夹中放置自定义语言文件
 
-## 🔗 BungeeCord配置
+## 🔗 BungeeCord/Velocity配置
 velocity配置方法与bungeecord配置方法相同
 ### 🏗️ 架构说明
 ```
@@ -351,10 +351,17 @@ proxy:
 - `CatSeedLoginAPI` - 主要API接口类
 
 ### 🏗️ 架构设计
-插件采用分层架构：
-- **API层** - PlatformAdapter、CoreConfig等接口
-- **Common层** - 配置管理、国际化等公共模块
-- **平台特定层** - Bukkit、BungeeCord、Velocity实现
+插件采用多模块Maven架构：
+```
+CatSeedLogin-v2/
+├── common/       → 共享代码（API接口、配置管理、国际化、数据库抽象）
+├── bukkit/       → Bukkit/Spigot/Paper/Folia 服务端插件
+├── bungeecord/   → BungeeCord 代理端插件
+└── velocity/     → Velocity 代理端插件
+```
+- **API层** - PlatformAdapter、CoreConfig等接口（common模块）
+- **Common层** - 配置管理、国际化等公共模块（common模块）
+- **平台特定层** - Bukkit、BungeeCord、Velocity各自独立实现
 
 > 📚 **开发者文档**：详细的API文档和示例代码将在后续版本中提供。
 
