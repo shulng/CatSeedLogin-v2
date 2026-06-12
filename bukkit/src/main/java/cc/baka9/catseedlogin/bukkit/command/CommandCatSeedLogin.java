@@ -390,7 +390,7 @@ public class CommandCatSeedLogin implements CommandExecutor {
             if (p == null || !p.isOnline()) return;
             p.sendMessage(MessageKey.PASSWORD_RESET_BY_ADMIN.get());
             if (!Config.Settings.CanTpSpawnLocation) return;
-            p.teleport(Config.Settings.SpawnLocation);
+            CatScheduler.teleport(p, Config.Settings.SpawnLocation);
             if (PluginContext.isLoadProtocolLib()) {
                 LoginPlayerHelper.sendBlankInventoryPacket(p);
             }

@@ -81,7 +81,7 @@ public class CommandChangePassword implements CommandExecutor {
         Config.setOfflineLocation(online);
         if (!Config.Settings.CanTpSpawnLocation) return;
 
-        online.teleport(Config.Settings.SpawnLocation);
+        CatScheduler.teleport(online, Config.Settings.SpawnLocation);
         if (PluginContext.isLoadProtocolLib()) {
             LoginPlayerHelper.sendBlankInventoryPacket(online);
         }
